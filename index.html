@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Interview Feedback</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#8644f0;--brand-d:#6a2bd6;--brand-dd:#2b1160;--brand-l:#f1ebfe;--brand-ll:#f8f5ff;--brand-line:#dccdfb;
+  --ink:#1b1530;--ink2:#3f3f3f;--muted:#5d5d5d;--line:#e4e0ee;--bg:#f5f3fa;--card:#fff;
+  --ok:#1f7a00;--ok-l:#e7f6df;--ok-bar:#2fb501;--warn:#9a5200;--warn-l:#fff1dc;--warn-bar:#f29a1f;--bad:#c8102e;--bad-l:#ffe8ec;
+  --r:14px;--shadow:0 1px 2px rgba(27,21,48,.06),0 4px 14px rgba(27,21,48,.05);--shadow-h:0 2px 4px rgba(27,21,48,.08),0 10px 26px rgba(106,43,214,.12)}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "Plus Jakarta Sans",system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--brand-d);font-weight:600;text-decoration:none}
+a:hover{text-decoration:underline}
+[hidden]{display:none!important}
+/* header */
+.top{position:sticky;top:0;z-index:5;background:linear-gradient(100deg,var(--brand-dd) 0%,#4a1fa8 55%,var(--brand) 100%);color:#fff;box-shadow:0 2px 10px rgba(43,17,96,.25)}
+.top .in{max-width:1040px;margin:0 auto;display:flex;align-items:center;gap:14px;padding:12px 20px}
+.brandmark{display:flex;align-items:center;gap:10px}
+.logo{width:34px;height:34px;border-radius:10px;background:#fff;color:var(--brand);display:grid;place-items:center;font-weight:800;font-size:18px;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+.brandmark .t1{font-weight:800;font-size:17px;letter-spacing:-.01em;line-height:1.1}
+.brandmark .t2{font-size:12px;opacity:.8;font-weight:500}
+.top .sp{flex:1}
+.me{display:flex;align-items:center;gap:10px}
+.me .av{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);display:grid;place-items:center;font-weight:700;font-size:13px}
+.me .who{font-size:13px;opacity:.92}
+.top .btn.ghost{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.35);color:#fff;padding:7px 14px}
+.top .btn.ghost:hover{background:rgba(255,255,255,.22)}
+.wrap{max-width:1040px;margin:0 auto;padding:24px 20px 120px}
+/* basics */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--shadow)}
+.card+.card{margin-top:14px}
+.btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:10px 18px;cursor:pointer;font-weight:700;color:var(--ink);transition:background .15s,border-color .15s,box-shadow .15s}
+.btn:hover{border-color:var(--brand-line);background:var(--brand-ll)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 4px 12px rgba(134,68,240,.3)}
+.btn.primary:hover{background:var(--brand-d);border-color:var(--brand-d)}
+.btn.link{border:0;background:none;color:var(--brand-d);padding:6px 4px}
+.btn:disabled{opacity:.55;cursor:not-allowed;box-shadow:none}
+.btn:focus-visible,.pill:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.tab:focus-visible,.item:focus-visible,.stat:focus-visible,.seg button:focus-visible{outline:3px solid #b99bf7;outline-offset:2px}
+label.f{display:block;font-weight:700;margin:14px 0 6px;color:var(--ink)}
+input.t,select.t,textarea.t{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:11px 14px;background:#fff;transition:border-color .15s,box-shadow .15s}
+input.t:focus,select.t:focus,textarea.t:focus{border-color:var(--brand);box-shadow:0 0 0 4px rgba(134,68,240,.12);outline:none}
+textarea.t{min-height:84px;resize:vertical}
+.hint{color:var(--muted);font-size:13.5px}
+.err{color:var(--bad);font-size:13.5px;margin-top:8px;font-weight:600}
+.card.err{border-color:#f5b8c3;background:var(--bad-l)}
+/* greeting + stats */
+.hello{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.hello h2{margin:0;font-size:24px;font-weight:800;letter-spacing:-.02em}
+.hello p{margin:2px 0 0;color:var(--muted)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:20px}
+.stat{position:relative;text-align:left;cursor:pointer;background:#fff;border:1.5px solid var(--line);border-radius:var(--r);padding:16px 18px;box-shadow:var(--shadow);transition:border-color .15s,box-shadow .15s,transform .15s;overflow:hidden}
+.stat:hover{box-shadow:var(--shadow-h);transform:translateY(-1px)}
+.stat::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--c,var(--brand))}
+.stat .k{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.stat .v{font-size:32px;font-weight:800;line-height:1.1;margin-top:4px;color:var(--ink)}
+.stat .d{font-size:13px;color:var(--muted);margin-top:2px}
+.stat[aria-selected=true]{border-color:var(--c,var(--brand));box-shadow:0 0 0 3px color-mix(in srgb,var(--c,var(--brand)) 18%,transparent),var(--shadow)}
+.stat.todo{--c:var(--warn-bar)}.stat.done{--c:var(--ok-bar)}.stat.owned{--c:var(--brand)}
+/* toolbar */
+.tools{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.search{flex:1;min-width:220px;position:relative}
+.search input{padding-left:40px;border-radius:999px}
+.search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.seg{display:inline-flex;background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:3px}
+.seg button{border:0;background:none;border-radius:999px;padding:7px 14px;font-weight:700;font-size:13.5px;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--brand);color:#fff}
+/* list */
+.day{font-size:12.5px;font-weight:800;color:var(--brand-d);text-transform:uppercase;letter-spacing:.06em;margin:18px 2px 8px}
+.day:first-child{margin-top:4px}
+.list{display:flex;flex-direction:column;gap:8px}
+.item{display:flex;align-items:center;gap:14px;background:#fff;border:1.5px solid var(--line);border-radius:var(--r);padding:14px 16px;cursor:pointer;text-align:left;width:100%;box-shadow:var(--shadow);transition:border-color .15s,box-shadow .15s,transform .15s}
+.item:hover{border-color:var(--brand-line);box-shadow:var(--shadow-h);transform:translateY(-1px)}
+.cav{flex:none;width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-weight:800;font-size:15px;background:var(--brand-l);color:var(--brand-d)}
+.item .main{flex:1;min-width:0}
+.item .nm{font-weight:800;font-size:15.5px;color:var(--ink)}
+.item .sub{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;color:var(--ink2);font-size:13.5px;margin-top:3px}
+.item .sub .sep{color:#b8b3c7}
+.item .right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;min-width:120px}
+.item .chev{color:#b0a8c8;flex:none}
+.prog{width:120px;height:6px;border-radius:99px;background:#eee9f6;overflow:hidden}
+.prog i{display:block;height:100%;background:var(--warn-bar);border-radius:99px}
+.prog.full i{background:var(--ok-bar)}
+.rb{display:inline-block;border-radius:6px;padding:1px 8px;font-size:12px;font-weight:800;letter-spacing:.01em}
+.rb.blitz{background:#e6efff;color:#1d4ed8}.rb.r1{background:var(--brand-l);color:var(--brand-d)}.rb.r2{background:#dff5f2;color:#0f766e}.rb.r3{background:#fde7f3;color:#a3166a}.rb.other{background:#eeedf3;color:#4a4560}
+.chip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:4px 11px;font-size:12.5px;font-weight:800;white-space:nowrap}
+.chip::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.chip.pend{background:var(--warn-l);color:var(--warn)}
+.chip.ok{background:var(--ok-l);color:var(--ok)}
+.chip.filed{background:#ecebf2;color:#4a4560}
+.chip.bad{background:var(--bad-l);color:var(--bad)}
+.empty{color:var(--muted);text-align:center;padding:44px 16px;background:#fff;border:1.5px dashed var(--line);border-radius:var(--r)}
+.empty b{display:block;color:var(--ink);font-size:16px;margin-bottom:4px}
+.loading{color:var(--muted);text-align:center;padding:44px 10px}
+.spin{display:inline-block;width:22px;height:22px;border:3px solid var(--brand-l);border-top-color:var(--brand);border-radius:50%;animation:sp 0.8s linear infinite;vertical-align:middle;margin-right:10px}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* detail */
+.back{margin-bottom:14px}
+.hero{background:linear-gradient(135deg,#fff 0%,var(--brand-ll) 100%);border:1.5px solid var(--brand-line)}
+.head{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start}
+.head h2{margin:0 0 2px;font-size:24px;font-weight:800;letter-spacing:-.02em}
+.meta{display:flex;gap:10px 22px;flex-wrap:wrap;color:var(--muted);font-size:13.5px;margin-top:12px}
+.meta b{color:var(--ink);font-weight:700}
+.links{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.links a{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1.5px solid var(--brand-line);border-radius:999px;padding:6px 14px;font-size:13.5px}
+.links a:hover{background:var(--brand-l);text-decoration:none}
+.sec{margin-top:22px}
+.sec h3{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--brand-d);margin:0 0 10px;font-weight:800;display:flex;align-items:center;gap:10px}
+.sec h3::after{content:"";flex:1;height:1px;background:var(--brand-line)}
+.q{border:1.5px solid var(--line);border-radius:var(--r);padding:16px 18px;background:#fff;box-shadow:var(--shadow)}
+.q+.q{margin-top:10px}
+.q.miss{border-color:#f08ca0;background:#fffafb}
+.q.scored{border-left:5px solid var(--brand)}
+.qn{font-size:12px;font-weight:800;color:var(--brand-d);margin-bottom:2px}
+.qt{white-space:pre-line;font-weight:600;color:var(--ink)}
+.scale{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 10px;align-items:center}
+.pill{min-width:42px;height:40px;border:1.5px solid var(--line);border-radius:12px;background:#fff;cursor:pointer;font-weight:800;color:var(--ink2);transition:all .12s}
+.pill:hover:not(:disabled):not([aria-pressed=true]){border-color:var(--brand);color:var(--brand-d);background:var(--brand-ll)}
+.pill[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 3px 10px rgba(134,68,240,.35)}
+.scale .of{color:var(--muted);font-size:13px;margin-left:6px}
+.bar{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(6px);border-top:1px solid var(--line);z-index:6;box-shadow:0 -4px 16px rgba(27,21,48,.06)}
+.bar .in{max-width:1040px;margin:0 auto;padding:12px 20px;display:flex;gap:12px;align-items:center}
+.bar .msg{flex:1;display:flex;align-items:center;gap:12px;color:var(--ink2);font-size:13.5px;font-weight:600}
+.bar .prog{width:160px;height:8px}
+.bar .prog i{background:var(--brand)}
+.toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--brand-dd);color:#fff;border-radius:999px;padding:11px 20px;font-weight:700;z-index:9;display:none;box-shadow:0 8px 24px rgba(43,17,96,.35)}
+.grid{width:100%;border-collapse:collapse;font-size:13.5px}
+.grid th,.grid td{border-bottom:1px solid var(--line);padding:10px 12px;vertical-align:top;text-align:left}
+.grid thead th{color:var(--ink);font-weight:800;background:var(--brand-ll);position:sticky;top:0}
+.grid tbody th{color:var(--brand-d);background:#fff;font-size:12px;text-transform:uppercase;letter-spacing:.05em}
+.grid td.s{font-weight:800;white-space:nowrap}
+.grid .c{color:var(--muted);font-weight:500;display:block;margin-top:2px;white-space:pre-line}
+.people{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px;margin-top:16px}
+.person{border:1.5px solid var(--line);border-radius:var(--r);padding:14px;background:#fff}
+.person.sub{border-left:5px solid var(--ok-bar)}
+.person.pen{border-left:5px solid var(--warn-bar)}
+.person .ph{display:flex;align-items:center;gap:10px}
+.person .ph .cav{width:34px;height:34px;font-size:13px;border-radius:50%}
+.person .ph b{flex:1}
+.person .pc{white-space:pre-line;color:var(--ink2);margin-top:8px;font-size:13.5px}
+.scroll{overflow:auto;max-height:65vh;border:1.5px solid var(--line);border-radius:var(--r);margin-top:16px;background:#fff}
+/* sign in */
+.signin{max-width:860px;margin:32px auto;display:grid;grid-template-columns:1fr 1fr;border-radius:20px;overflow:hidden;box-shadow:0 10px 40px rgba(43,17,96,.14);background:#fff}
+.signin .art{background:linear-gradient(150deg,var(--brand-dd),#5222b8 60%,var(--brand));color:#fff;padding:36px 32px;display:flex;flex-direction:column;justify-content:space-between;gap:24px}
+.signin .art h2{margin:0;font-size:28px;font-weight:800;letter-spacing:-.02em;line-height:1.2}
+.signin .art ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;font-size:14px;opacity:.95}
+.signin .art li{display:flex;gap:10px;align-items:flex-start}
+.signin .art li::before{content:"✓";flex:none;width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,.2);display:grid;place-items:center;font-size:11px;font-weight:800}
+.signin .frm{padding:36px 32px}
+.signin .frm h3{margin:0 0 4px;font-size:22px;font-weight:800}
+.ro{background:var(--brand-l);border:1.5px solid var(--brand-line);color:var(--brand-dd);border-radius:12px;padding:11px 14px;margin-top:14px;font-weight:600}
+@media (max-width:720px){.signin{grid-template-columns:1fr;margin:8px auto}.signin .art{padding:24px}.signin .frm{padding:24px}.me .who{display:none}}
+@media (max-width:640px){.top .in{padding:10px 16px}.wrap{padding:16px 16px 130px}.item{flex-wrap:wrap}.item .right{flex-direction:row;align-items:center;min-width:0;width:100%;justify-content:space-between}.item .chev{display:none}.hello h2{font-size:20px}.stat .v{font-size:26px}.bar .prog{display:none}.brandmark .t2{display:none}.brandmark .t1{font-size:15px}.me .av{display:none}.top .btn.ghost{white-space:nowrap;padding:6px 12px;font-size:13px}.stats{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.stat{padding:10px 10px 10px 14px}.stat .k{font-size:10.5px;letter-spacing:.03em}.stat .d{display:none}.stat .v{font-size:24px}}
+</style>
+</head>
+<body>
+<header class="top"><div class="in"><div class="brandmark"><span class="logo" aria-hidden="true">L</span><div><div class="t1">Interview Feedback</div><div class="t2">Leegality Talent Acquisition</div></div></div><span class="sp"></span><div class="me" id="meBox" hidden><span class="who" id="who"></span><span class="av" id="av" aria-hidden="true"></span></div><button class="btn ghost" id="signout" hidden>Sign out</button></div></header>
+<main class="wrap" id="app" aria-live="polite"></main>
+<div class="bar" id="bar" hidden><div class="in"><span class="msg" id="barmsg"></span><button class="btn" id="barback">Back</button><button class="btn primary" id="barsave">Save feedback</button></div></div>
+<div class="toast" id="toast" role="status"></div>
+<script>
+(function(){
+'use strict';
+// On Catalyst the API is next to the page. Anywhere else (GitHub Pages, framed in the Recruit Web Tab) it calls Catalyst.
+var CATALYST_API = 'https://project-rainfall-60065446090.development.catalystserverless.in/server/ifbpage/api/';
+var API = /catalystserverless\.in$|^localhost$|^127\.0\.0\.1$/.test(location.hostname) ? location.pathname.replace(/\/?(index\.html)?$/, '/') + 'api/' : CATALYST_API;
+// "simple" cross-site requests (text/plain, token in the body) so the browser sends no preflight
+function post(action, body){ return fetch(API + action, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=UTF-8' }, body: JSON.stringify(body || {}) }); }
+var RECRUIT_IV = 'https://recruit.zoho.in/recruit/leegality/EntityInfo.do?module=Interviews&id=';
+var RECRUIT_CAND = 'https://recruit.zoho.in/recruit/leegality/EntityInfo.do?module=Candidates&id=';
+var app = document.getElementById('app'), bar = document.getElementById('bar');
+var state = { tab: 'todo', mine: null, form: null, q: '', filt: 'all' };
+
+function store(k, v){ try{ if(v===undefined) return localStorage.getItem(k); if(v===null) localStorage.removeItem(k); else localStorage.setItem(k, v); }catch(e){ return null; } }
+var token = store('ifb_token') || '', me = store('ifb_email') || '';
+var qs = new URLSearchParams(location.search);
+if (qs.get('t')) { token = qs.get('t'); store('ifb_token', token); try{ me = JSON.parse(atob(token.split('.')[0].replace(/-/g,'+').replace(/_/g,'/'))).e || ''; store('ifb_email', me); }catch(e){} history.replaceState(null, '', location.pathname + (qs.get('row') ? '?row=' + encodeURIComponent(qs.get('row')) : '')); }
+
+function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function toast(t){ var el = document.getElementById('toast'); el.textContent = t; el.style.display = 'block'; clearTimeout(toast.h); toast.h = setTimeout(function(){ el.style.display = 'none'; }, 2600); }
+function fmt(iso){ if(!iso || iso === 'null') return ''; var d = new Date(iso); if(isNaN(d)) return iso; return d.toLocaleString('en-IN', {day:'numeric', month:'short', hour:'numeric', minute:'2-digit'}); }
+function chip(st){ var m = {'Pending':['pend','To fill'],'Submitted':['ok','Submitted'],'Filed in Recruit':['filed','Filed in Recruit'],'Cancelled':['bad','Cancelled']}[st] || ['filed', st || '—']; return '<span class="chip ' + m[0] + '">' + esc(m[1]) + '</span>'; }
+function initials(n){ var p = String(n || '').trim().split(/[\s.@_]+/).filter(Boolean); return ((p[0] || '?')[0] + (p.length > 1 ? p[p.length - 1][0] : '')).toUpperCase(); }
+function nameOf(email){ var u = String(email || '').split('@')[0].split(/[._]/)[0]; return u ? u.charAt(0).toUpperCase() + u.slice(1) : ''; }
+function roundBadge(r){ var t = String(r || '').replace(/\s*Interview$/i, ''), l = t.toLowerCase(), c = /blitz/.test(l) ? 'blitz' : /round\s*1|\br1\b/.test(l) ? 'r1' : /round\s*2|\br2\b/.test(l) ? 'r2' : /round\s*[3-9]|\br[3-9]\b|final/.test(l) ? 'r3' : 'other'; return '<span class="rb ' + c + '">' + esc(t || 'Interview') + '</span>'; }
+function dayKey(iso){ var d = new Date(iso); return isNaN(d) ? '' : d.toDateString(); }
+function dayLabel(iso){ var d = new Date(iso); if(isNaN(d)) return 'Undated'; var t = new Date(); t.setHours(0,0,0,0); var x = new Date(d); x.setHours(0,0,0,0); var diff = Math.round((t - x) / 86400000); if(diff === 0) return 'Today'; if(diff === 1) return 'Yesterday'; if(diff === -1) return 'Tomorrow'; return d.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short' }); }
+function timeOf(iso){ var d = new Date(iso); return isNaN(d) ? '' : d.toLocaleTimeString('en-IN', { hour:'numeric', minute:'2-digit' }); }
+var ICON_CHEV = '<svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';
+var ICON_SEARCH = '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
+function loading(t){ return '<div class="loading"><span class="spin" aria-hidden="true"></span>' + esc(t) + '</div>'; }
+
+function call(action, body){
+  return post(action, Object.assign({}, body || {}, { _t: token }))
+    .then(function(r){ return r.json().catch(function(){ return { ok:false, error:'Bad reply (' + r.status + ')' }; }); })
+    .then(function(j){ if(j && j.code === 'auth'){ signOut(); throw new Error('Please sign in again.'); } return j; });
+}
+function signOut(){ token = ''; me = ''; store('ifb_token', null); store('ifb_email', null); render(); }
+document.getElementById('signout').onclick = signOut;
+
+function setTop(){ document.getElementById('who').textContent = me; document.getElementById('av').textContent = initials(nameOf(me) || me); document.getElementById('meBox').hidden = !token; document.getElementById('signout').hidden = !token; }
+function hideBar(){ bar.hidden = true; }
+
+// ---------- sign in ----------
+function viewSignin(){
+  hideBar();
+  app.innerHTML = '<div class="signin"><div class="art"><h2>Share your interview feedback in one place.</h2><ul><li>Score each question from the round’s assessment</li><li>Add comments and your recommendation</li><li>Saved straight to Zoho Recruit</li></ul><div style="font-size:13px;opacity:.8">Leegality · Talent Acquisition</div></div>' +
+    '<div class="frm"><h3>Sign in</h3><p class="hint" style="margin:0">We’ll send a 6-digit code to your Cliq from Recruit Bot.</p>' +
+    '<label class="f" for="em">Work email</label><input class="t" id="em" type="email" autocomplete="email" placeholder="name@leegality.com" value="' + esc(me) + '">' +
+    '<div id="codebox" hidden><label class="f" for="cd">Code from Cliq</label><input class="t" id="cd" inputmode="numeric" maxlength="6" placeholder="6 digits" autocomplete="one-time-code"></div>' +
+    '<div class="err" id="serr" role="alert"></div><div style="display:flex;gap:8px;margin-top:18px;flex-wrap:wrap"><button class="btn primary" id="send">Send code to my Cliq</button><button class="btn primary" id="verify" hidden>Sign in</button></div></div></div>';
+  var em = document.getElementById('em'), err = document.getElementById('serr');
+  document.getElementById('send').onclick = function(){
+    var b = this; err.textContent = ''; b.disabled = true;
+    post('login', { email: em.value.trim() }).then(function(r){ return r.json(); }).then(function(j){
+      b.disabled = false;
+      if(!j.ok){ err.textContent = j.error || 'Could not send the code.'; return; }
+      document.getElementById('codebox').hidden = false; document.getElementById('verify').hidden = false; b.textContent = 'Send again'; b.className = 'btn'; document.getElementById('cd').focus(); toast('Code sent to your Cliq');
+    }).catch(function(){ b.disabled = false; err.textContent = 'Network error. Try again.'; });
+  };
+  document.getElementById('verify').onclick = function(){
+    var b = this; err.textContent = ''; b.disabled = true;
+    post('verify', { email: em.value.trim(), code: document.getElementById('cd').value }).then(function(r){ return r.json(); }).then(function(j){
+      b.disabled = false;
+      if(!j.ok){ err.textContent = j.error || 'Could not sign in.'; return; }
+      token = j.token; me = j.email; store('ifb_token', token); store('ifb_email', me); render();
+    }).catch(function(){ b.disabled = false; err.textContent = 'Network error. Try again.'; });
+  };
+  em.focus();
+}
+
+// ---------- list ----------
+function loadList(){
+  hideBar(); app.innerHTML = loading('Loading your interviews…');
+  call('mine').then(function(j){ if(!j.ok){ app.innerHTML = '<div class="card err">' + esc(j.error) + '</div>'; return; } state.mine = j; viewList(); })
+    .catch(function(e){ app.innerHTML = '<div class="card err">' + esc(e.message) + '</div>'; });
+}
+function grouped(rows, render){
+  var h = '', last = null;
+  rows.forEach(function(r){ var k = dayKey(r.end); if(k !== last){ if(last !== null) h += '</div>'; h += '<div class="day">' + esc(dayLabel(r.end)) + '</div><div class="list">'; last = k; } h += render(r); });
+  return h + (last !== null ? '</div>' : '');
+}
+function viewList(){
+  hideBar();
+  var j = state.mine, todo = [], done = [];
+  (j.mine || []).forEach(function(r){ if(r.status === 'Pending' || r.status === 'Filed in Recruit') todo.push(r); else if(r.status === 'Submitted') done.push(r); });
+  var sortDesc = function(a,b){ return String(b.end).localeCompare(String(a.end)); };
+  todo.sort(sortDesc); done.sort(sortDesc);
+  var owned = (j.owned || []).slice().sort(sortDesc);
+  var waiting = owned.filter(function(g){ return !(g.total > 0 && g.submitted >= g.total); }).length;
+  var tabs = [['todo','To fill',todo.length, todo.length ? 'Waiting for your feedback' : 'You’re all caught up'],['done','Submitted',done.length,'Last 45 days']];
+  if(j.isTA) tabs.push(['owned', j.isAdmin ? 'All interviews' : 'My interviews', owned.length, waiting + ' waiting on feedback']);
+  if(!tabs.some(function(t){ return t[0] === state.tab; })) state.tab = 'todo';
+  var first = nameOf(me);
+  var h = '<div class="hello"><div><h2>' + (first ? 'Hi ' + esc(first) + ' 👋' : 'Welcome') + '</h2><p>' + (todo.length ? 'You have <b>' + todo.length + '</b> interview' + (todo.length > 1 ? 's' : '') + ' to give feedback on.' : 'No feedback pending from you.') + '</p></div></div>';
+  h += '<div class="stats" role="tablist">' + tabs.map(function(t){ return '<button class="stat ' + t[0] + '" role="tab" data-t="' + t[0] + '" aria-selected="' + (state.tab === t[0]) + '"><div class="k">' + esc(t[1]) + '</div><div class="v">' + t[2] + '</div><div class="d">' + esc(t[3]) + '</div></button>'; }).join('') + '</div>';
+  var ql = state.q.trim().toLowerCase();
+  var match = function(r){ return !ql || [r.candidate, r.round, r.names, r.job].join(' ').toLowerCase().indexOf(ql) >= 0; };
+  h += '<div class="tools"><label class="search">' + ICON_SEARCH + '<input class="t" id="q" type="search" placeholder="Search candidate, round or interviewer" aria-label="Search" value="' + esc(state.q) + '"></label>';
+  if(state.tab === 'owned') h += '<div class="seg" role="group" aria-label="Filter">' + [['all','All'],['wait','Waiting'],['in','All in']].map(function(o){ return '<button data-f="' + o[0] + '" aria-pressed="' + (state.filt === o[0]) + '">' + o[1] + '</button>'; }).join('') + '</div>';
+  h += '</div><div id="res"></div>';
+  app.innerHTML = h;
+  function results(){
+    var out = '';
+    if(state.tab !== 'owned'){
+      var rows = (state.tab === 'todo' ? todo : done).filter(match);
+      out = rows.length ? grouped(rows, function(r){
+        return '<button class="item" data-row="' + esc(r.rowId) + '"><span class="cav" aria-hidden="true">' + esc(initials(r.candidate)) + '</span><div class="main"><div class="nm">' + esc(r.candidate) + '</div><div class="sub">' + roundBadge(r.round) + '<span>' + esc(timeOf(r.end)) + '</span>' + (r.rec && r.rec !== 'null' ? '<span class="sep">•</span><span>' + esc(r.rec) + '</span>' : '') + '</div></div><div class="right">' + chip(r.status) + '</div>' + ICON_CHEV + '</button>';
+      }) : '<div class="empty">' + (ql ? '<b>No matches</b>Try another name.' : state.tab === 'todo' ? '<b>All caught up 🎉</b>Nothing to fill right now.' : '<b>Nothing yet</b>No submitted feedback in the last 45 days.') + '</div>';
+    } else {
+      var rows2 = owned.filter(match).filter(function(g){ var full = g.total > 0 && g.submitted >= g.total; return state.filt === 'all' || (state.filt === 'in' ? full : !full); });
+      out = rows2.length ? grouped(rows2, function(g){
+        var full = g.total > 0 && g.submitted >= g.total, pct = g.total ? Math.round(100 * g.submitted / g.total) : 0;
+        var st = full ? '<span class="chip ok">All in</span>' : '<span class="chip pend">' + g.submitted + ' of ' + g.total + ' in</span>';
+        return '<button class="item" data-iv="' + esc(g.ivId) + '"><span class="cav" aria-hidden="true">' + esc(initials(g.candidate)) + '</span><div class="main"><div class="nm">' + esc(g.candidate) + '</div><div class="sub">' + roundBadge(g.round) + '<span>' + esc(timeOf(g.end)) + '</span><span class="sep">•</span><span>' + esc(g.names) + '</span></div></div><div class="right">' + st + '<div class="prog' + (full ? ' full' : '') + '" aria-hidden="true"><i style="width:' + Math.max(pct, 4) + '%"></i></div></div>' + ICON_CHEV + '</button>';
+      }) : '<div class="empty">' + (ql || state.filt !== 'all' ? '<b>No matches</b>Change the search or filter.' : '<b>Nothing yet</b>No interviews in the last 45 days.') + '</div>';
+    }
+    var res = document.getElementById('res'); res.innerHTML = out;
+    res.querySelectorAll('[data-row]').forEach(function(b){ b.onclick = function(){ openForm(b.dataset.row); }; });
+    res.querySelectorAll('[data-iv]').forEach(function(b){ b.onclick = function(){ openPanel(b.dataset.iv); }; });
+  }
+  results();
+  app.querySelectorAll('.stat').forEach(function(b){ b.onclick = function(){ state.tab = b.dataset.t; viewList(); }; });
+  app.querySelectorAll('.seg button').forEach(function(b){ b.onclick = function(){ state.filt = b.dataset.f; app.querySelectorAll('.seg button').forEach(function(x){ x.setAttribute('aria-pressed', x === b); }); results(); }; });
+  document.getElementById('q').oninput = function(){ state.q = this.value; results(); };
+}
+
+// ---------- form ----------
+function openForm(rowId){
+  hideBar(); app.innerHTML = loading('Loading the form…');
+  call('form', { rowId: rowId }).then(function(f){ if(!f.ok){ app.innerHTML = '<div class="card err">' + esc(f.error) + '</div><p><button class="btn" id="bk">Back</button></p>'; document.getElementById('bk').onclick = loadList; return; } state.form = f; viewForm(); })
+    .catch(function(e){ app.innerHTML = '<div class="card err">' + esc(e.message) + '</div>'; });
+}
+function viewForm(){
+  var f = state.form, ro = !f.canEdit;
+  var h = '<div class="card hero"><div class="head"><span class="cav" aria-hidden="true" style="width:52px;height:52px;font-size:18px">' + esc(initials(f.candidate)) + '</span><div style="flex:1;min-width:220px"><h2>' + esc(f.candidate) + '</h2><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' + roundBadge(f.round) + (f.job ? '<span class="hint">' + esc(f.job) + '</span>' : '') + '</div></div>' + chip(f.status) + '</div>' +
+    '<div class="meta"><span>Interview <b>' + esc(fmt(f.start || f.end)) + '</b></span><span>Interviewer <b>' + esc(f.interviewer) + '</b></span>' + (f.assessment ? '<span>Assessment <b>' + esc(f.assessment) + '</b></span>' : '') + '</div>' +
+    '<div class="links">' + (f.meetUrl && f.meetUrl !== 'null' ? '<a href="' + esc(f.meetUrl) + '" target="_blank" rel="noopener">Join meeting ↗</a>' : '') +
+    (f.candidateId ? '<a href="' + RECRUIT_CAND + esc(f.candidateId) + '" target="_blank" rel="noopener">Candidate in Recruit ↗</a>' : '') +
+    (f.ivId ? '<a href="' + RECRUIT_IV + esc(f.ivId) + '" target="_blank" rel="noopener">Interview in Recruit ↗</a>' : '') + '</div>' +
+    (ro ? '<div class="ro">' + (f.evalDone && f.status === 'Submitted' ? 'The Recruit evaluation is filed, so this feedback can no longer be changed.' : !f.isMine ? 'Preview: this request belongs to ' + esc(f.interviewer) + '.' : 'This feedback can’t be changed.') + '</div>' : '') + '</div>';
+  if(!f.sections || !f.sections.length) h += '<div class="card hint">This interview has no assessment attached, so there are no questions. Add your overall comments below.</div>';
+  var qnum = 0;
+  (f.sections || []).forEach(function(s, si){
+    h += '<div class="sec">' + (s.title ? '<h3>' + esc(s.title) + '</h3>' : '');
+    s.questions.forEach(function(q, qi){
+      var pills = ''; for(var v = 1; v <= q.max; v++) pills += '<button class="pill" type="button" data-q="' + si + '-' + qi + '" data-v="' + v + '" aria-pressed="' + (String(q.score) === String(v)) + '"' + (ro ? ' disabled' : '') + '>' + v + '</button>';
+      qnum++;
+      h += '<div class="q' + (q.score ? ' scored' : '') + '" id="q' + si + '-' + qi + '"><div class="qn">Question ' + qnum + '</div><div class="qt">' + esc(q.text) + '</div><div class="scale" role="group" aria-label="Score">' + pills + '<span class="of">out of ' + q.max + '</span></div>' +
+        '<textarea class="t" data-c="' + si + '-' + qi + '" placeholder="Comment on this point (optional)"' + (ro ? ' disabled' : '') + '>' + esc(q.comment) + '</textarea></div>';
+    });
+    h += '</div>';
+  });
+  var recOpts = ['','Strong Hire','Move to next round','On-Hold','Rejected','Strong Reject'];
+  h += '<div class="sec"><h3>Overall</h3></div><div class="card"><label class="f" for="cm" style="margin-top:0">Overall comments <span style="color:var(--bad)">*</span></label><textarea class="t" id="cm" style="min-height:120px" placeholder="What stood out, strengths, concerns"' + (ro ? ' disabled' : '') + '>' + esc(f.comments === 'null' ? '' : f.comments) + '</textarea>' +
+    '<div style="display:flex;gap:14px;flex-wrap:wrap"><div style="flex:1;min-width:200px"><label class="f" for="ov">Overall rating (optional)</label><select class="t" id="ov"' + (ro ? ' disabled' : '') + '><option value="">Average of my scores</option>' + [5,4,3,2,1].map(function(v){ return '<option' + (String(f.rating) === String(v) ? ' selected' : '') + '>' + v + '</option>'; }).join('') + '</select></div>' +
+    '<div style="flex:1;min-width:200px"><label class="f" for="rc">Your recommendation (opinion)</label><select class="t" id="rc"' + (ro ? ' disabled' : '') + '>' + recOpts.map(function(o){ return '<option value="' + esc(o) + '"' + (f.rec === o ? ' selected' : '') + '>' + (o || 'No recommendation') + '</option>'; }).join('') + '</select></div></div></div>';
+  app.innerHTML = h;
+  app.querySelectorAll('.pill').forEach(function(p){ p.onclick = function(){
+    var k = p.dataset.q, ix = k.split('-'), q = state.form.sections[ix[0]].questions[ix[1]];
+    q.score = p.dataset.v; app.querySelectorAll('.pill[data-q="' + k + '"]').forEach(function(x){ x.setAttribute('aria-pressed', x === p); });
+    document.getElementById('q' + k).classList.remove('miss'); document.getElementById('q' + k).classList.add('scored'); upd();
+  }; });
+  app.querySelectorAll('textarea[data-c]').forEach(function(t){ t.oninput = function(){ var ix = t.dataset.c.split('-'); state.form.sections[ix[0]].questions[ix[1]].comment = t.value; }; });
+  bar.hidden = false; document.getElementById('barsave').hidden = ro; document.getElementById('barback').onclick = function(){ loadList(); };
+  document.getElementById('barsave').textContent = f.status === 'Submitted' ? 'Update feedback' : 'Save feedback';
+  document.getElementById('barsave').onclick = save;
+  function upd(){ var all = 0, done = 0; (state.form.sections || []).forEach(function(s){ s.questions.forEach(function(q){ all++; if(q.score) done++; }); }); document.getElementById('barmsg').innerHTML = ro || !all ? '' : '<span>' + done + ' of ' + all + ' scored</span><span class="prog" aria-hidden="true"><i style="width:' + Math.round(100 * done / all) + '%"></i></span>'; }
+  upd(); window.scrollTo(0, 0);
+}
+function save(){
+  var f = state.form, answers = [], first = null;
+  (f.sections || []).forEach(function(s, si){ s.questions.forEach(function(q, qi){ if(!q.score && !first) first = si + '-' + qi; if(!q.score) document.getElementById('q' + si + '-' + qi).classList.add('miss'); answers.push({ question: q.id, section: s.title, text: q.text, score: q.score || '', max: q.max, comment: q.comment || '' }); }); });
+  var cm = document.getElementById('cm').value.trim();
+  if(first){ document.getElementById('q' + first).scrollIntoView({ behavior:'smooth', block:'center' }); toast('Please score every question'); return; }
+  if(!cm){ document.getElementById('cm').focus(); toast('Please add your overall comments'); return; }
+  var b = document.getElementById('barsave'); b.disabled = true; b.textContent = 'Saving…';
+  call('save', { rowId: f.rowId, assessmentId: f.assessmentId, answers: answers, comments: cm, overall: document.getElementById('ov').value, rec: document.getElementById('rc').value })
+    .then(function(j){ b.disabled = false; if(!j.ok){ b.textContent = 'Save feedback'; toast(j.error || 'Not saved'); return; } toast(j.edited ? 'Feedback updated in Recruit' : 'Feedback saved in Recruit'); state.tab = 'done'; loadList(); })
+    .catch(function(e){ b.disabled = false; b.textContent = 'Save feedback'; toast(e.message); });
+}
+
+// ---------- panel (TA) ----------
+function openPanel(ivId){
+  hideBar(); app.innerHTML = loading('Loading the panel…');
+  call('panel', { ivId: ivId }).then(function(j){
+    if(!j.ok){ app.innerHTML = '<div class="card err">' + esc(j.error) + '</div>'; return; }
+    var g = (state.mine.owned || []).filter(function(x){ return x.ivId === ivId; })[0] || {};
+    var ppl = j.people || [];
+    var nSub = ppl.filter(function(p){ return p.status === 'Submitted'; }).length;
+    var h = '<div class="back"><button class="btn" id="bk">← All interviews</button></div><div class="card hero"><div class="head"><span class="cav" aria-hidden="true" style="width:52px;height:52px;font-size:18px">' + esc(initials(g.candidate)) + '</span><div style="flex:1;min-width:200px"><h2>' + esc(g.candidate || '') + '</h2><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">' + roundBadge(g.round) + '<span class="hint">' + esc(fmt(g.end)) + '</span></div></div>' + (ppl.length && nSub >= ppl.length ? '<span class="chip ok">All in</span>' : '<span class="chip pend">' + nSub + ' of ' + ppl.length + ' in</span>') + '</div>' +
+      '<div class="links"><a href="' + RECRUIT_IV + esc(ivId) + '" target="_blank" rel="noopener">Interview in Recruit ↗</a></div>' +
+      '<div class="people">' + ppl.map(function(p){ var sb = p.status === 'Submitted'; return '<div class="person ' + (sb ? 'sub' : 'pen') + '"><div class="ph"><span class="cav" aria-hidden="true">' + esc(initials(p.name)) + '</span><b>' + esc(p.name) + '</b>' + chip(p.status) + '</div>' +
+        (p.status === 'Submitted' ? '<div class="hint">' + esc(p.rec && p.rec !== 'null' ? p.rec : 'No recommendation') + (p.rating && p.rating !== 'null' ? ' · ' + esc(p.rating) + '/5' : '') + '</div><div class="pc">' + esc(p.comments === 'null' ? '' : p.comments) + '</div>' : '<div class="hint">No feedback yet</div>') + '</div>'; }).join('') + '</div>';
+    var sub = ppl.filter(function(p){ return p.status === 'Submitted'; });
+    if(sub.length && (j.questions || []).length){
+      h += '<div class="scroll"><table class="grid"><thead><tr><th>Question</th>' + sub.map(function(p){ return '<th>' + esc(p.name) + '</th>'; }).join('') + '</tr></thead><tbody>';
+      var lastSec = '';
+      j.questions.forEach(function(q){
+        if(q.section !== lastSec){ h += '<tr><th colspan="' + (sub.length + 1) + '">' + esc(q.section) + '</th></tr>'; lastSec = q.section; }
+        h += '<tr><td style="white-space:pre-line;min-width:240px">' + esc(q.text) + '</td>' + sub.map(function(p){ var a = (p.answers || []).filter(function(x){ return String(x.question) === String(q.id); })[0]; return '<td class="s">' + (a ? esc(a.score) + '/' + esc(a.max || 5) + (a.comment ? '<span class="c">' + esc(String(a.comment).replace(/\[\[nl\]\]/g, '\n')) + '</span>' : '') : '—') + '</td>'; }).join('') + '</tr>';
+      });
+      h += '</tbody></table></div>';
+    }
+    app.innerHTML = h + '</div>';
+    document.getElementById('bk').onclick = viewList;
+  }).catch(function(e){ app.innerHTML = '<div class="card err">' + esc(e.message) + '</div>'; });
+}
+
+function render(){ setTop(); if(!token){ viewSignin(); return; } if(qs.get('row')){ var r = qs.get('row'); qs.delete('row'); openForm(r); return; } loadList(); }
+render();
+})();
+</script>
+</body>
+</html>
