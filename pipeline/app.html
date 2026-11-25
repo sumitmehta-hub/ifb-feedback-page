@@ -1026,7 +1026,7 @@ function donutSvg(parts, center, sub){
 function funnelHtml(steps){
   var max = Math.max.apply(null, steps.map(function(x){ return x.v; }).concat([1]));
   return '<div class="fun">' + steps.map(function(x, i){ var prev = i ? steps[i - 1].v : null, drop = prev ? Math.round(100 * x.v / prev) : null;
-    return (i ? '<div class="fdrop">' + (prev ? '↓ ' + drop + '% go on' : '') + '</div>' : '') + '<div class="frow" title="' + esc(x.label + ': ' + x.v) + '"><span class="fl">' + esc(x.label) + '</span><span class="ftr"><i style="width:' + Math.max(x.v ? 3 : 0, 100 * x.v / max) + '%;background:' + x.c + '"></i></span><b>' + x.v + '</b></div>'; }).join('') + '</div>';
+    return (i ? '<div class="fdrop">' + (prev ? (drop > 100 ? '↑ more than the step above (some skipped a round or passed earlier)' : '↓ ' + drop + '% go on') : '') + '</div>' : '') + '<div class="frow" title="' + esc(x.label + ': ' + x.v) + '"><span class="fl">' + esc(x.label) + '</span><span class="ftr"><i style="width:' + Math.max(x.v ? 3 : 0, 100 * x.v / max) + '%;background:' + x.c + '"></i></span><b>' + x.v + '</b></div>'; }).join('') + '</div>';
 }
 function heatHtml(people, cols, val){
   var mx = 1; people.forEach(function(p){ cols.forEach(function(c){ mx = Math.max(mx, val(p, c)); }); });
@@ -1057,7 +1057,7 @@ function viewDash(){
     var lastD = last ? Math.floor((now - last) / DAY) : null, late = act.filter(function(r){ return r.stage === 'offer' || r.stage === 'vibe' || r.stage === 'r3' || r.stage === 'r2'; }).length;
     var flag = lastD == null || lastD > 14 || act.length === 0 ? 'red' : (iv14 === 0 && up === 0) || act.length < 3 ? 'amber' : 'green';
     var waiting = D.todo.filter(function(t){ return t.jobId === x.id && t.k !== 'cold'; }).length;
-    return { x: x, act: act.length, iv14: iv14, up: up, late: late, last: lastD, flag: flag, waiting: waiting, open: x.opened ? Math.floor((now - tms(x.opened)) / DAY) : null }; })
+    return { x: x, act: act.length, iv14: iv14, up: up, late: late, last: lastD, flag: flag, waiting: waiting, open: x.opened && tms(x.opened) <= now ? Math.floor((now - tms(x.opened)) / DAY) : null };   // a future 'Date opened' shows — })
     .sort(function(a, b){ var o = { red: 0, amber: 1, green: 2 }; return (o[a.flag] - o[b.flag]) || (b.waiting - a.waiting); });
   var risk = health.filter(function(h){ return h.flag === 'red'; }).length;
   // team (30 d): who books interviews and who files evaluations (audit: Sonal, Rashika, Archita, Shambhavi book; Blitz is evaluated by TA)
@@ -1115,7 +1115,7 @@ function viewDash(){
       '<div class="kpi" style="--c:#b45309"><span class="ki">⏱</span><small>Feedback on time (30 d)</small><b>' + (onTime == null ? '—' : onTime + '%') + '</b><span class="dl">median ' + esc(dur(med(hrs))) + ' · target 24 h</span><em class="kx">Share of panel feedback given within 24 h of the interview. Low = slow decisions; chase in the Interviewer table.</em></div>' +
       '<div class="kpi" style="--c:#15803d"><span class="ki">🤝</span><small>Offers in flight</small><b>' + D.offers.length + '</b><span class="dl">' + D.rows.filter(function(r){ return r.stage === 'hired' && r.age <= 30; }).length + ' joined / hired in 30 d</span><em class="kx">Candidates at To be offered, Offer made or On hold after offer.</em></div></div>' +
     '<div class="calls">' + callouts.map(function(c){ return '<button class="call' + (c[1] ? '' : ' ok') + '" data-call="' + c[0] + '"><b>' + c[1] + '</b><span>' + esc(c[2]) + '</span><small>' + esc(c[3]) + '</small></button>'; }).join('') + '</div>' +
-    '<div class="dgrid">' + card('Candidate funnel', 'last 60 days · candidates (per role) who reached each step', funnelHtml(funnelSteps) + '<p class="why"><b>What it tells you:</b> where candidates drop out. The % between two bars is how many moved on. A sharp drop at one step is the bottleneck to fix first.</p>') +
+    '<div class="dgrid">' + card('Candidate funnel', 'last 60 days · candidates (per role) who reached each step', funnelHtml(funnelSteps) + '<p class="why"><b>What it tells you:</b> where candidates drop out. The % between two bars is how many moved on. A sharp drop at one step is the bottleneck to fix first. “Passed” counts only filed evaluations, so a round with many evaluations missing looks steeper than it is.</p>') +
       card('Where active candidates are', 'active = in process and touched in the last ' + ACTIVE_DAYS + ' days', donutSvg(mixParts, D.active.length, 'active') + '<p class="why"><b>What it tells you:</b> how the live pipeline is spread. A big screening or assessment slice with thin interview slices means candidates are stuck early.</p>') + '</div>' +
     '<div class="dgrid">' + card('Pass-through by round', 'last 60 days · pass = Move to next round, Shortlist or Strong hire',
       '<div class="ptab">' + '<div class="ph"><span>Round</span><span>Held</span><span>Decided</span><span>Pass rate (passed ÷ decided)</span><span>Time to decision</span></div>' + PR.map(function(r){ var small = r.dec < 10, inside = r.rate != null && r.rate >= 22;
