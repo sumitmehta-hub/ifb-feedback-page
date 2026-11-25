@@ -287,7 +287,7 @@ body.previewing [data-qremind],body.previewing [data-qfile],body.previewing [dat
 .ivc-acts{display:flex;gap:8px;flex-wrap:wrap;margin:14px 18px 0}.ivc-form{margin:12px 18px 0}
 @media (max-width:560px){.ivc-pt small{white-space:normal}}
 .ldbar{height:6px;background:var(--brand-ll);border-radius:99px;margin-top:12px;overflow:hidden}.ldbar i{display:block;height:100%;background:var(--brand);border-radius:99px;transition:width .3s}
-.qjump{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}.qjump .chip{text-decoration:none;background:#fff;border:1px solid var(--line);color:var(--ink)}.qjump .chip b{color:var(--brand-d)}.qjump .chip.dim{opacity:.55}
+.qjump{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}.qjump .chip{font:inherit;font-size:12.5px;cursor:pointer;text-decoration:none;background:#fff;border:1px solid var(--line);color:var(--ink)}.qjump .chip b{color:var(--brand-d)}.qjump .chip.dim{opacity:.55}
 .qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px;align-items:start}
 .qcard2{background:#fff;border:1px solid var(--line);border-top:4px solid var(--c);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);scroll-margin-top:12px}.qcard2.none{opacity:.8}
 .qcard2 .qh{display:flex;flex-direction:column;gap:2px;margin-bottom:6px}.qcard2 h3{margin:0;font-size:15px;display:flex;gap:6px;align-items:center}
@@ -1473,18 +1473,21 @@ function viewWork(){
     ['rejected','✖️','Rejected, still open','Close them so the pipeline is honest',by('rejected'),'#8a1b2e'],
     ['sched','📅','To schedule','Selected or no-show, nothing booked',by('sched'),'#1d4ed8'],
     ['cold','🧊','Going cold','No change for 10+ days, nothing booked',by('cold'),'#6b6385']];
+  // summary chips open the same pop-up as the dashboard (Sumit 26 Nov): who is behind each count, filter + Excel
+  var wItems = { today: D.today.map(function(v){ return { candId: v.candId, jobId: v.jobId, name: v.cand, job: v.job, detail: '<b>' + esc(timeOf(v.start)) + '</b> · ' + esc(String(v.round).replace(/ Interview$/, '')) + (v.panel.length ? ' · ' + esc(v.panel.join(', ')) : '') }; }) };
+  ['evalmiss','passed','rejected','sched','cold'].forEach(function(k){ wItems[k] = D.todo.filter(function(t){ return t.k === k; }).map(function(it){ var p = rowHtml(it, true); return { candId: it.candId, jobId: it.jobId, name: it.name, job: it.job, detail: String(p.what).replace(/<span class="mt[^"]*">/g, '<span>').replace(/<\/span><span>/g, '</span> · <span>') + ' · ' + esc(p.age) }; }); });
   var needs = cards.slice(1, 5).reduce(function(a, k){ return a + k[4].length; }, 0);
   main.innerHTML = jobSelect() + '<div class="hero"><div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap"><div style="flex:1;min-width:240px"><h1>' + (first ? 'Hi ' + esc(first) + ' 👋' : 'My work') + '</h1><div class="hint" style="margin-top:4px">' +
     (needs ? '<b>' + needs + ' thing' + (needs === 1 ? '' : 's') + '</b> need you' : 'Nothing is waiting on you') + ' across ' + (S.onlyMine ? '' + (S.viewAs ? esc(S.viewAs.split(' ')[0]) + '’s' : 'your') + ' ' : 'all ') + D.jobs.length + ' open role' + (D.jobs.length === 1 ? '' : 's') + '. Interviews today: ' + D.today.length + '.</div></div>' +
     '<div style="display:flex;gap:6px;align-items:center">' + sumHint() + '<button class="btn sm" id="wrf">↻ Refresh</button>' + '<button class="btn sm" id="wdash">📊 Hiring overview</button>' + '</div></div>' +
-    '<div class="qjump">' + cards.map(function(k){ return '<a href="#q-' + k[0] + '" data-jump="' + k[0] + '" class="chip' + (k[4].length ? '' : ' dim') + '">' + k[1] + ' ' + esc(k[2]) + ' <b>' + k[4].length + '</b></a>'; }).join('') + '</div>' +
+    '<div class="qjump">' + cards.map(function(k){ return '<button type="button" data-drill="' + regDrill('w_' + k[0], k[2], k[3] + ' · click a name to open the candidate', wItems[k[0]], k[5]) + '" class="chip' + (k[4].length ? '' : ' dim') + '">' + k[1] + ' ' + esc(k[2]) + ' <b>' + k[4].length + '</b></button>'; }).join('') + '</div>' +
     (S.sumErr ? '<div class="hint" style="color:var(--warn);margin-top:6px">' + esc(S.sumErr) + '</div>' : '') + '</div>' +
     '<div class="qgrid">' + cards.map(function(k){ return qCard(k[0], k[1], k[2], k[3], k[4], k[5]); }).join('') + '</div>' +
     '<div class="hint" style="margin:12px 2px;font-size:12px">Older work is left out: ' + D.oldEval + ' missing evaluations over ' + EVAL_DAYS + ' days, ' + D.oldPass + ' passes over ' + PASS_DAYS + ' days, ' + D.dormant.length + ' candidates untouched ' + ACTIVE_DAYS + '–' + HIDE_DAYS + ' days, ' + D.hidden + ' older than ' + HIDE_DAYS + ' days.</div>';
   bindJobSelect();
   document.getElementById('wrf').onclick = function(){ loadSum(true, viewWork); };
   var wd = document.getElementById('wdash'); if(wd) wd.onclick = function(){ goDash(); };
-  main.querySelectorAll('[data-jump]').forEach(function(a){ a.onclick = function(e){ e.preventDefault(); var el = document.getElementById('q-' + a.dataset.jump); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }; });
+  bindDrills(main.querySelector('.qjump'));
   main.querySelectorAll('[data-qmore]').forEach(function(b){ b.onclick = function(){ S.qOpen = S.qOpen || {}; S.qOpen[b.dataset.qmore] = !S.qOpen[b.dataset.qmore]; viewWork(); }; });
   if(S.wf && S.wf !== 'all'){ var el = document.getElementById('q-' + S.wf); S.wf = ''; if(el) setTimeout(function(){ el.scrollIntoView({ block: 'start' }); }, 50); }
   bindQRows(main); bindQActions(main);
