@@ -122,6 +122,15 @@ a{color:var(--brand-d);font-weight:600;text-decoration:none}a:hover{text-decorat
 .tab{border:0;background:none;padding:11px 12px;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent}
 .tab[aria-selected=true]{color:var(--brand-d);border-bottom-color:var(--brand)}
 .db{overflow-y:auto;padding:16px 20px 40px;flex:1}
+.nx{background:#fff;border:1px solid var(--brand-line);border-radius:14px;padding:14px;margin:0 0 14px;box-shadow:var(--shadow)}
+.nx h4{margin:0 0 2px;font-size:14px}.nx .nxsteps{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.btn.ok{background:var(--ok-l);border-color:#bfe3ad;color:var(--ok)}.btn.bad{background:var(--bad-l);border-color:#f5b8c3;color:var(--bad)}
+.nxgate{background:var(--warn-l);border:1px solid #f3d3a5;color:#5a3500;border-radius:10px;padding:9px 12px;margin-top:10px;font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.nxform{margin-top:12px;border-top:1px dashed var(--line);padding-top:12px;display:grid;gap:10px}
+.nxform label{display:grid;gap:4px;font-size:12.5px;font-weight:700;color:var(--ink2)}
+.nxform input,.nxform select,.nxform textarea{font:inherit;font-weight:500;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff;color:var(--ink)}
+.nxform textarea{min-height:70px;resize:vertical}.nxform .row2{display:grid;grid-template-columns:1fr 140px;gap:10px}
+.nxnote{font-size:12.5px;color:var(--ink2);background:var(--panel);border-radius:10px;padding:8px 10px}
 .kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
 .kv div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 12px}
 .kv small{display:block;color:var(--muted);font-size:11.5px;font-weight:700}
@@ -620,7 +629,7 @@ function viewCandidate(){
   var tabs = [['over','Overview'],['rounds','Rounds' + (nIv ? ' (' + nIv + ')' : '') + (nFb ? ' · ' + nFb + ' feedback' : '')],['hist','History']];
   h += '<div class="tabs" role="tablist">' + tabs.map(function(t){ return '<button class="tab" role="tab" data-t="' + t[0] + '" aria-selected="' + (tab === t[0]) + '">' + esc(t[1]) + '</button>'; }).join('') + '</div><div class="db">';
   if(tab === 'over'){
-    h += journey(j);
+    h += journey(j) + '<div id="nxs"></div>';
     var F = [['Candidate ID','Candidate_ID'],['Experience','Experience_in_Years','y'],['Notice period','Notice_Period'],['City','City'],['Source','Source'],['Owner','Owner'],['Email','Email'],['Mobile','Mobile'],['Qualification','Highest_Qualification_Held'],['Current salary','Current_Salary'],['Expected salary','Expected_Salary'],['Evaluation','Evaluation_Status'],['Rejection reason','Rejection_Reason'],['Withdrawal reason','Withdrawal_Reason'],['Added','Created_Time','t'],['Last updated','Updated_On','t']];
     h += '<div class="kv">' + F.filter(function(f){ return c[f[1]] != null && c[f[1]] !== ''; }).map(function(f){ var v = f[2] === 't' ? dt(c[f[1]], true) : f[2] === 'y' ? yrs(c[f[1]]) : String(c[f[1]]); return '<div><small>' + esc(f[0]) + '</small><b>' + esc(v) + '</b></div>'; }).join('') + '</div>';
     var ub = [['Resume','Unberry_Resume_Score','Unberry_Resume_Result'],['Assessment','Unberry_Assessment_Score','Unberry_Assessment_Result'],['AI interview','Unberry_Interview_Score','Unberry_Interview_Result']].filter(function(u){ return c[u[1]] != null || c[u[2]]; });
@@ -661,6 +670,81 @@ function viewCandidate(){
   drawer.querySelectorAll('.tab').forEach(function(b){ b.onclick = function(){ candTab = b.dataset.t; viewCandidate(); }; });
   drawer.querySelectorAll('.rtab').forEach(function(b){ b.onclick = function(){ var sc = drawer.querySelector('.db').scrollTop; S.rtab[b.dataset.iv] = b.dataset.k; viewCandidate(); drawer.querySelector('.db').scrollTop = sc; }; });
   bindRemind();
+  if(tab === 'over') loadNext();
+}
+// ---------- Phase 2: next steps along the hiring blueprint (the server decides what is allowed) ----------
+function loadNext(){
+  var box = document.getElementById('nxs'), j = S.cj; if(!box || !j) return;
+  var jobs = j.jobs || []; if(!jobs.length) return;
+  var want = S.nxJob && jobs.some(function(x){ return String(x.id) === S.nxJob; }) ? S.nxJob : (S.jobId || S.focusJob);
+  var jr = jobs.filter(function(x){ return String(x.id) === String(want); })[0] || jobs[0]; S.nxJob = String(jr.id);
+  var cid = j.candidate.id;
+  box.innerHTML = '<div class="nx"><span class="hint">Loading next steps…</span></div>';
+  post('flow', { candId: cid, jobId: S.nxJob }).then(function(f){ if(!S.cj || S.cj.candidate.id !== cid) return; S.nx = f; drawNext(); })
+    .catch(function(e){ box.innerHTML = '<div class="nx"><span class="hint">' + esc(e.message) + '</span></div>'; });
+}
+function drawNext(form){
+  var box = document.getElementById('nxs'), f = S.nx, jobs = (S.cj && S.cj.jobs) || []; if(!box || !f) return;
+  if(!f.ok){ box.innerHTML = '<div class="nx"><span class="hint">' + esc(f.error) + '</span></div>'; return; }
+  var jsel = jobs.length > 1 ? '<select id="nxjob" aria-label="Job" style="margin-left:6px;border:1px solid var(--line);border-radius:8px;padding:3px 6px;font-weight:700">' + jobs.map(function(x){ return '<option value="' + esc(x.id) + '"' + (String(x.id) === String(f.jobId) ? ' selected' : '') + '>' + esc(x.title) + '</option>'; }).join('') + '</select>' : ' <b>' + esc(f.jobTitle) + '</b>';
+  var h = '<div class="nx"><h4>Next step</h4><div class="hint" style="font-size:12.5px">On' + jsel + ' · now ' + chipFor(f.status) + '</div>';
+  if(f.inBlueprint){ box.innerHTML = h + '<div class="nxnote" style="margin-top:10px">This candidate is in the Recruit blueprint (Hiring Status: <b>' + esc(f.hiringStatus) + '</b>). Move them in Recruit so the blueprint stays in charge.</div></div>'; bindNxJob(); return; }
+  if(!f.steps.length){ box.innerHTML = h + '<div class="hint" style="margin-top:8px">No further step from this status in the hiring blueprint.</div></div>'; bindNxJob(); return; }
+  // evaluation gate (same as the blueprint): outcome steps wait for the round's evaluation in Recruit
+  Object.keys(f.gates || {}).forEach(function(g){ var x = f.gates[g]; if(x.filed) return;
+    var lbl = { blitz:'Blitz', r1:'R1', r2:'R2', r3:'R3', vibe:'Vibe check' }[g] || g;
+    h += '<div class="nxgate">⏳ <span><b>' + esc(lbl) + ' evaluation not filed yet</b>' + (x.ivId ? (x.fbTotal ? ' · ' + x.fbDone + ' of ' + x.fbTotal + ' panel feedback in' : ' · no panel feedback tracked') : ' · no ' + esc(lbl) + ' interview found on this job') + '. Outcome steps open once it is filed.</span>' +
+      (f.canWrite && x.ivId && x.fbDone ? '<button class="btn sm primary" data-fileeval="' + esc(x.ivId) + '">File evaluation now</button>' : '') +
+      (x.ivId ? '<a class="btn sm" href="' + RC + 'Interviews&id=' + esc(x.ivId) + '" target="_blank" rel="noopener">Open interview ↗</a>' : '') + '</div>'; });
+  h += '<div class="nxsteps">' + f.steps.map(function(st){ var locked = st.gate && !st.gateOk;
+    return '<button class="btn sm ' + (st.tone === 'primary' ? 'primary' : st.tone) + '" data-step="' + esc(st.k) + '"' + (f.canWrite ? '' : ' disabled') + ' title="' + esc('Status → ' + st.to + (locked ? ' (evaluation not filed: needs a reason to skip it)' : '')) + '">' + (locked ? '🔒 ' : '') + esc(st.label) + '</button>'; }).join('') + '</div>';
+  if(!f.canWrite) h += '<div class="hint" style="margin-top:8px">Only the TA team can change candidates here.</div>';
+  if(form){ var cur = f.steps.filter(function(x){ return x.k === form; })[0]; if(cur) h += nxForm(cur, f); }
+  box.innerHTML = h + '</div>';
+  bindNxJob();
+  box.querySelectorAll('[data-step]').forEach(function(b){ b.onclick = function(){ drawNext(b.dataset.step === form ? '' : b.dataset.step); var fi = box.querySelector('.nxform input, .nxform textarea'); if(fi) fi.focus(); }; });
+  box.querySelectorAll('[data-fileeval]').forEach(function(b){ b.onclick = function(){ fileEval(b); }; });
+  var go = document.getElementById('nxgo'); if(go) go.onclick = function(){ doStep(form); };
+  var cx = document.getElementById('nxcx'); if(cx) cx.onclick = function(){ drawNext(''); };
+}
+function bindNxJob(){ var s = document.getElementById('nxjob'); if(s) s.onchange = function(){ S.nxJob = this.value; loadNext(); }; }
+function nxForm(st, f){
+  var locked = st.gate && !st.gateOk, h = '<div class="nxform"><b style="font-size:14px">' + esc(st.label) + '</b>';
+  if(st.kind === 'schedule'){
+    var d = new Date(Date.now() + 86400000);
+    var v = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2) + 'T11:00';
+    h += '<div class="row2"><label>Date and time (IST)<input type="datetime-local" id="nxwhen" value="' + v + '"></label><label>Length<select id="nxmin"><option value="30">30 min</option><option value="45" selected>45 min</option><option value="60">60 min</option><option value="90">90 min</option></select></label></div>' +
+      '<div class="nxnote">Interviewer: ' + (st.panel ? '<b>' + esc(st.panel) + '</b> (from the job’s interview panel)' : '<b style="color:var(--warn)">none set on the job</b>, so add one on the interview in Recruit') + '. Recruit’s usual scheduling automations run, and the interviewer gets the heads-up card on Cliq. The Google Meet invite stays with the Setup Google Meet button in Recruit.</div>';
+  }
+  if(st.reason) h += '<label>' + (st.reason === 'withdrawal' ? 'Withdrawal reason' : 'Rejection reason') + ' (required)<textarea id="nxreason" placeholder="Why? This is saved on the candidate in Recruit."></textarea></label>';
+  if(locked) h += '<label>Reason to skip the evaluation (required, 10+ characters)<textarea id="nxbypass" placeholder="The evaluation is not filed yet. Saved as Evaluation Bypass Reason."></textarea></label>';
+  h += '<div class="nxnote">Changes the status on <b>' + esc(f.jobTitle) + '</b> from <b>' + esc(f.status) + '</b> to <b>' + esc(st.to) + '</b>, the same as Change Status in Recruit, so any status emails to the candidate go out as usual.</div>';
+  return h + '<div style="display:flex;gap:8px"><button class="btn ' + (st.tone === 'bad' ? 'bad' : 'primary') + '" id="nxgo">Confirm: ' + esc(st.label) + '</button><button class="btn" id="nxcx">Cancel</button></div></div>';
+}
+function doStep(k){
+  var f = S.nx, st = f && f.steps.filter(function(x){ return x.k === k; })[0]; if(!st) return;
+  var g = function(id){ var el = document.getElementById(id); return el ? el.value : ''; };
+  var body = { candId: f.candId, jobId: f.jobId, step: k, expect: f.status, reason: g('nxreason'), bypass: g('nxbypass'), start: g('nxwhen'), minutes: g('nxmin') };
+  if(st.reason && body.reason.trim().length < 5){ toastMsg('Please give a reason'); return; }
+  if(st.gate && !st.gateOk && body.bypass.trim().length < 10){ toastMsg('Give a reason to skip the evaluation (10+ characters)'); return; }
+  if(st.kind === 'schedule' && !body.start){ toastMsg('Pick the date and time'); return; }
+  var b = document.getElementById('nxgo'); b.disabled = true; b.textContent = 'Saving in Recruit…';
+  post('move', body).then(function(r){
+    if(!r.ok){ toastMsg(r.error || 'Could not save'); if(r.stale){ loadNext(); return; } b.disabled = false; b.textContent = 'Confirm: ' + st.label; return; }
+    toastMsg('Done: ' + st.label);
+    (S.rows || []).forEach(function(x){ if(x.id === f.candId && String(S.jobId) === String(f.jobId)) x.Candidate_Status = r.status; });
+    S.ivFresh = true;
+    if(S.page !== 'iv' && S.jobId) try{ drawJob(); }catch(e){}
+    openCandidate(f.candId, true);
+  }).catch(function(e){ toastMsg(e.message); b.disabled = false; b.textContent = 'Confirm: ' + st.label; });
+}
+function fileEval(b){
+  b.disabled = true; b.textContent = 'Filing…';
+  post('fileeval', { ivId: b.dataset.fileeval }).then(function(r){
+    if(!r.ok){ toastMsg(r.error || 'Could not file'); b.disabled = false; b.textContent = 'File evaluation now'; return; }
+    toastMsg('Filing in Recruit with ' + (r.with || 'the submitted feedback'));
+    b.textContent = '✓ Filing started'; setTimeout(loadNext, 6000);
+  }).catch(function(e){ toastMsg(e.message); b.disabled = false; b.textContent = 'File evaluation now'; });
 }
 
 function render(){
