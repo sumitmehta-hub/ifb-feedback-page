@@ -1115,6 +1115,8 @@ function drawNext(form){
   h += '<div class="nxsteps">' + f.steps.map(function(st){ var locked = st.gate && !st.gateOk;
     return '<button class="btn sm ' + (st.tone === 'primary' ? 'primary' : st.tone) + '" data-step="' + esc(st.k) + '"' + (f.canWrite ? '' : ' disabled') + ' title="' + esc('Status → ' + st.to + (locked ? ' (evaluation not filed: needs a reason to skip it)' : '')) + '">' + (locked ? '🔒 ' : '') + esc(st.label) + '</button>'; }).join('') + '</div>';
   if(!f.canWrite) h += '<div class="hint" style="margin-top:8px">Only the TA team can change candidates here.</div>';
+  var auto = !form && S.autoStep && String(S.autoStep.c) === String(f.candId) ? S.autoStep : null; S.autoStep = null;
+  if(auto){ var as = f.steps.filter(function(x){ return x.kind === auto.kind; })[0]; if(as && f.canWrite) form = as.k; }
   if(form){ var cur = f.steps.filter(function(x){ return x.k === form; })[0]; if(cur) h += nxForm(cur, f); }
   box.innerHTML = h + '</div>';
   bindNxJob();
@@ -1123,6 +1125,7 @@ function drawNext(form){
   var go = document.getElementById('nxgo'); if(go) go.onclick = function(){ doStep(form); };
   if(document.getElementById('nxSlots')) loadSlots();
   var cx = document.getElementById('nxcx'); if(cx) cx.onclick = function(){ drawNext(''); };
+  if(auto && form){ var nf = box.querySelector('.nxform'); if(nf && nf.scrollIntoView) nf.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
 }
 // ---------- Phase 2 (25 Nov): book from interviewers' availability. Chips = free windows (weekly hours minus days off and
 // interviews already booked, within notice and daily max). Google Calendar only warns. The TA picks the time and length.
@@ -1351,9 +1354,9 @@ function rowHtml(it, parts){
         : it.pend.map(function(f){ return '<button class="btn sm" data-qremind="' + esc(f.id) + '" data-stop="1" title="Remind ' + esc(f.who) + ' on Cliq">🔔 ' + esc(String(f.who).split(' ')[0]) + '</button>'; }).join('')) +
       (it.sub.length ? '<button class="btn sm primary" data-qfile="' + esc(v.id) + '" data-stop="1">File evaluation</button>' : !it.pend.length ? '<a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener" data-stop="1">Open in Recruit ↗</a>' : '') +
       '<button class="btn sm ghostb" data-qskip="' + esc(v.id) + '" data-stop="1" title="Skip this evaluation (a reason is required)">⏭ Skip</button>'; }
-  if(it.k === 'passed'){ what = rl + ': <b class="tok">' + esc(v.status) + '</b> · nothing booked · still at ' + esc(it.r.status); btn = '<span class="btn sm primary">Schedule ' + esc(it.next) + ' →</span>'; }
-  if(it.k === 'rejected'){ what = rl + ': <b class="tbad">' + esc(v.status) + '</b> · status still ' + esc(it.r.status); btn = '<span class="btn sm bad">Close as rejected →</span>'; }
-  if(it.k === 'sched'){ what = esc(it.r.status) + ' · nothing booked'; btn = '<span class="btn sm primary">Schedule ' + esc(it.next) + '</span>'; }
+  if(it.k === 'passed'){ what = rl + ': <b class="tok">' + esc(v.status) + '</b> · nothing booked · still at ' + esc(it.r.status); btn = '<span class="btn sm primary" data-qgo="schedule" role="button">Schedule ' + esc(it.next) + ' →</span>'; }
+  if(it.k === 'rejected'){ what = rl + ': <b class="tbad">' + esc(v.status) + '</b> · status still ' + esc(it.r.status); btn = '<span class="btn sm bad" data-qgo="reject" role="button">Close as rejected →</span>'; }
+  if(it.k === 'sched'){ what = esc(it.r.status) + ' · nothing booked'; btn = '<span class="btn sm primary" data-qgo="schedule" role="button">Schedule ' + esc(it.next) + '</span>'; }
   if(it.k === 'cold'){ what = esc(it.r.status) + ' · no change and nothing booked'; btn = '<span class="btn sm">Open</span>'; }
   if(parts) return { what: what, btn: btn, age: it.k === 'evalmiss' ? (it.age ? it.age + 'd since interview' : 'today') : it.k === 'passed' || it.k === 'rejected' ? (it.age ? it.age + 'd since evaluation' : 'today') : (it.age ? it.age + 'd in this status' : 'moved today') };
   var ageTxt = it.k === 'evalmiss' ? (it.age ? it.age + 'd since interview' : 'today') : it.k === 'passed' || it.k === 'rejected' ? (it.age ? it.age + 'd since evaluation' : 'today') : (it.age ? it.age + 'd in this status' : 'moved today');
@@ -1423,8 +1426,10 @@ function bindQActions(main){
 }
 function bindQRows(root){
   var all = Array.prototype.map.call(root.querySelectorAll('[data-qc]'), function(el){ return el.dataset.qc; });
-  root.querySelectorAll('[data-qc]').forEach(function(r){ var go = function(){ S.visible = all.filter(function(x, i){ return all.indexOf(x) === i; }); S.focusJob = r.dataset.qj; S.nxJob = r.dataset.qj; openCandidate(r.dataset.qc); };
-    r.onclick = function(e){ if(e.target.closest('[data-stop]')) return; go(); }; r.onkeydown = function(e){ if(e.key === 'Enter') go(); }; });
+  root.querySelectorAll('[data-qc]').forEach(function(r){ var go = function(act){ S.visible = all.filter(function(x, i){ return all.indexOf(x) === i; }); S.focusJob = r.dataset.qj; S.nxJob = r.dataset.qj;
+      // an action button (Schedule R1, Close as rejected) opens Overview with that step's form ready, whatever tab was last open (26 Nov)
+      S.autoStep = act ? { c: r.dataset.qc, kind: act } : null; if(act) candTab = 'over'; openCandidate(r.dataset.qc); };
+    r.onclick = function(e){ if(e.target.closest('[data-stop]')) return; var a = e.target.closest('[data-qgo]'); go(a ? a.dataset.qgo : ''); }; r.onkeydown = function(e){ if(e.key === 'Enter') go(); }; });
 }
 // Excel download (Sumit 25 Nov: "rather than csv only xl"). SheetJS is loaded only on the first click; numbers stay
 // numbers, columns are sized to the content, header row frozen. If the library can't load, a CSV is saved instead.
