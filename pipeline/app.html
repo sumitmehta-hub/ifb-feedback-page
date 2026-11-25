@@ -225,6 +225,13 @@ body.previewing [data-qremind],body.previewing [data-qfile],body.previewing [dat
 .wplen{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.wplen span{font-size:12.5px;font-weight:700;color:var(--ink2);margin-right:4px}
 .durp{font:inherit;font-size:12.5px;font-weight:700;border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:99px;padding:5px 12px;cursor:pointer}.durp.on{background:var(--brand);border-color:var(--brand);color:#fff}
 @media (max-width:560px){.wprow{grid-template-columns:1fr}}
+.nx-slots{margin:10px 0;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fbfaff}.sl-head{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:6px}
+.sl-p{padding:6px 0;border-top:1px solid var(--line)}.sl-p:first-of-type{border-top:0}.sl-ph{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:4px}.sl-warn{color:var(--warn);font-size:12.5px;font-weight:600}
+.sl-day{display:grid;grid-template-columns:96px minmax(0,1fr);gap:8px;align-items:center;padding:3px 0}.sl-dl{font-size:12.5px;font-weight:700;color:var(--ink)}.sl-ch{display:flex;gap:6px;flex-wrap:wrap}
+.sl-w{font:inherit;font-size:12.5px;padding:4px 10px;border-radius:999px;border:1px solid #c9b5f7;background:#fff;color:var(--brand);font-weight:700;cursor:pointer}.sl-w:hover,.sl-w.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.sl-w.clash{border-color:#fdba74;color:#9a3412}.sl-w.clash.on{background:#c2410c;color:#fff}.sl-b,.sl-x{font-size:12px;padding:4px 8px;border-radius:999px;background:#eee9f5;color:var(--ink2)}
+.sl-add{margin-top:6px}.sl-add label{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--ink2)}.sl-add select{font:inherit;font-size:13px;padding:5px 8px;border-radius:9px;border:1px solid var(--line)}
+.sl-check{margin-top:8px;display:grid;gap:3px;font-size:13px}.sl-check .ok{color:var(--ok)}.sl-check .warn{color:#9a3412}
 .av-h4{margin:14px 0 6px;font-size:13px;color:var(--ink);text-transform:uppercase;letter-spacing:.04em}.av-days{display:grid;gap:2px;border:1px solid var(--line);border-radius:12px;padding:4px 12px;background:#fff}
 .av-day{display:grid;grid-template-columns:90px minmax(0,1fr) auto;gap:10px;align-items:start;padding:8px 0;border-bottom:1px solid var(--line)}.av-day:last-child{border-bottom:0}
 .av-dl{display:flex;gap:8px;align-items:center;cursor:pointer;padding-top:6px}.av-dl input{width:17px;height:17px;accent-color:var(--brand)}.av-day.off .av-dl b{color:var(--ink2)}
@@ -396,6 +403,14 @@ b.pn,.sub b,.hint b,.dtbl td b{color:var(--ink);font-weight:800}
 @media (max-width:860px){.ivrow{grid-template-columns:70px 1fr}.ivrow .acts{grid-column:1/-1;justify-content:flex-start}}
 @media (max-width:860px){.shell{grid-template-columns:1fr;height:auto}.side{display:none}.jsel{display:block;margin-bottom:12px}.jsel select{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:10px;background:#fff;font-weight:700}
   .main{padding:14px 14px 30px}.col{flex-basis:80vw;max-height:none}.tblw{max-height:none}.me .nm{display:none}.top .t2{display:none}.signin{grid-template-columns:1fr;margin:10px}.jh .acts{margin-left:0}}
+/* queue rows (25 Nov tidy): name line + facts line on the left, actions in a fixed column on the right */
+.qcard2 .qrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;align-items:center;flex-wrap:nowrap;padding:10px 8px}
+.qcard2 .qrow>div:first-child{min-width:0}.qcard2 .qrow .who{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qcard2 .qrow .sub{display:flex;flex-wrap:wrap;align-items:center;gap:2px 0;margin-top:3px}.qcard2 .qrow .sub .mt+.mt::before{content:'·';margin:0 6px;color:#b9b0cc}
+.qcard2 .qrow .sub .pend b{color:var(--ink)}.qcard2 .qrow .sub .okc{color:var(--ok);font-weight:600}.qcard2 .qrow .sub .age{font-weight:700}.qcard2 .qrow .sub .age.hot{color:#c8102e}
+.qcard2 .qrow .acts{display:flex;gap:6px;flex-wrap:nowrap;justify-content:flex-end;margin-left:0}
+.qcard2{container-type:inline-size}
+@container (max-width:520px){.qcard2 .qrow{grid-template-columns:1fr}.qcard2 .qrow .acts{justify-content:flex-start;flex-wrap:wrap}}
 </style>
 </head>
 <body>
@@ -1024,15 +1039,60 @@ function drawNext(form){
   box.querySelectorAll('[data-step]').forEach(function(b){ b.onclick = function(){ drawNext(b.dataset.step === form ? '' : b.dataset.step); var fi = box.querySelector('.nxform input, .nxform textarea'); if(fi) fi.focus(); }; });
   box.querySelectorAll('[data-fileeval]').forEach(function(b){ b.onclick = function(){ fileEval(b); }; });
   var go = document.getElementById('nxgo'); if(go) go.onclick = function(){ doStep(form); };
+  if(document.getElementById('nxSlots')) loadSlots();
   var cx = document.getElementById('nxcx'); if(cx) cx.onclick = function(){ drawNext(''); };
 }
+// ---------- Phase 2 (25 Nov): book from interviewers' availability. Chips = free windows (weekly hours minus days off and
+// interviews already booked, within notice and daily max). Google Calendar only warns. The TA picks the time and length.
+var SL = { extra: [] };
+function slTime(iso){ var d = new Date(iso); return hm12(d.getHours(), d.getMinutes()).replace(':00 ', ' '); }
+function loadSlots(){ var box = document.getElementById('nxSlots'); if(!box) return; var ids = box.dataset.ids ? [box.dataset.ids] : [];
+  box.innerHTML = '<div class="hint">Checking the panel’s availability…</div>';
+  var calls = [post('slots', { ids: ids, emails: SL.extra })]; if(!AV.team) calls.push(post('availlist', {}));
+  Promise.all(calls).then(function(r){ if(r[1] && r[1].ok){ AV.team = r[1].list; AV.people = r[1].people; } var j = r[0]; if(!document.getElementById('nxSlots')) return;
+    if(!j.ok){ box.innerHTML = '<div class="hint">' + esc(j.error || 'Could not read availability') + '</div>'; return; } SL.data = j; drawSlots(); })
+    .catch(function(e){ box.innerHTML = '<div class="hint">' + esc(e.message) + '</div>'; }); }
+function drawSlots(){ var box = document.getElementById('nxSlots'), j = SL.data; if(!box || !j) return;
+  var h = '<div class="sl-head"><b>🗓 Panel availability</b><span class="hint">next ' + j.days + ' days · click a free slot to fill the time, then pick the length</span></div>';
+  if(!j.people.length) h += '<div class="hint">No interviewer on this round yet. Add someone to compare below.</div>';
+  j.people.forEach(function(p){
+    h += '<div class="sl-p"><div class="sl-ph"><b>' + esc(p.name) + '</b>' + (p.hasHours ? '' : '<span class="sl-warn">has not set availability yet, ask them to fill My interviews → availability</span>') +
+      '<span class="hint">' + (p.cal === 'ok' ? 'Google Calendar checked' : 'Google Calendar not connected, clashes not checked') + (p.max ? ' · max ' + p.max + '/day' : '') + (p.notice ? ' · ' + p.notice + 'h notice' : '') + (p.note ? ' · “' + esc(p.note) + '”' : '') + '</span></div>';
+    var rows = p.days.filter(function(d){ return d.wins.length || d.booked.length || d.off || d.full; });
+    if(!rows.length) h += '<div class="hint">' + (p.hasHours ? 'No free slots in this period.' : '') + '</div>';
+    rows.forEach(function(d){ var dt = new Date(d.date + 'T00:00:00');
+      h += '<div class="sl-day"><span class="sl-dl">' + esc(dt.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })) + '</span><div class="sl-ch">' +
+        (d.off ? '<span class="sl-x">Day off</span>' : '') + (d.full ? '<span class="sl-x">Daily max reached</span>' : '') +
+        d.wins.map(function(w){ return '<button type="button" class="sl-w' + (w.clash ? ' clash' : '') + '" data-ws="' + esc(w.s) + '" title="' + (w.clash ? 'Free by their hours, but Google Calendar shows something in this window' : 'Free') + '">' + (w.clash ? '⚠ ' : '') + esc(slTime(w.s)) + '–' + esc(slTime(w.e)) + '</button>'; }).join('') +
+        d.booked.map(function(x){ return '<span class="sl-b" title="Already booked">' + esc(slTime(x.s)) + ' ' + esc(x.what) + '</span>'; }).join('') + '</div></div>'; });
+    h += '</div>'; });
+  var others = (AV.team || []).filter(function(t){ return !j.people.some(function(p){ return p.email === t.email; }); });
+  if(others.length) h += '<div class="sl-add"><label>Compare with<select id="slAdd"><option value="">Someone else with availability…</option>' + others.map(function(t){ return '<option value="' + esc(t.email) + '">' + esc(t.name) + '</option>'; }).join('') + '</select></label></div>';
+  h += '<div class="sl-check" id="slCheck" role="status"></div>';
+  box.innerHTML = h;
+  box.querySelectorAll('[data-ws]').forEach(function(b){ b.onclick = function(){ var d = new Date(b.dataset.ws), wp = document.querySelector('.wp[data-w="nxwhen"]'); if(!wp) return;
+    wp.querySelector('.wpd').value = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+    var t = ('0' + d.getHours()).slice(-2) + ':' + ('0' + (Math.round(d.getMinutes() / 15) * 15 % 60)).slice(-2), sel = wp.querySelector('.wpt'); if([].some.call(sel.options, function(o){ return o.value === t; })) sel.value = t;
+    wpSync(wp); box.querySelectorAll('.sl-w.on').forEach(function(x){ x.classList.remove('on'); }); b.classList.add('on'); slCheck(); }; });
+  var ad = document.getElementById('slAdd'); if(ad) ad.onchange = function(){ if(ad.value){ SL.extra.push(ad.value); loadSlots(); } };
+  var wp = document.querySelector('.wp[data-w="nxwhen"]'); if(wp && !wp.dataset.slb){ wp.dataset.slb = '1'; wp.addEventListener('change', function(){ setTimeout(slCheck, 0); }); wp.addEventListener('click', function(){ setTimeout(slCheck, 0); }); }
+  slCheck(); }
+// live check of the chosen time against each person's free windows, booked interviews and calendar
+function slCheck(){ var el = document.getElementById('slCheck'), j = SL.data; if(!el || !j || !j.people.length) return;
+  var v = (document.getElementById('nxwhen') || {}).value, mins = +((document.getElementById('nxmin') || {}).value) || 45; if(!v){ el.innerHTML = ''; return; }
+  var p0 = v.split(/[-T:]/), s0 = new Date(+p0[0], +p0[1] - 1, +p0[2], +p0[3], +p0[4]).getTime(), e0 = s0 + mins * 60000, key = v.slice(0, 10);
+  el.innerHTML = j.people.map(function(p){ var d = p.days.filter(function(x){ return x.date === key; })[0] || { wins: [], booked: [], busy: [] }, ok = d.wins.some(function(w){ return new Date(w.s).getTime() <= s0 && new Date(w.e).getTime() >= e0; });
+    var bk = d.booked.filter(function(x){ return new Date(x.s).getTime() < e0 && new Date(x.e).getTime() > s0; })[0], bz = (d.busy || []).filter(function(x){ return new Date(x.s).getTime() < e0 && new Date(x.e).getTime() > s0; })[0];
+    var msg = bk ? '⚠ already has ' + bk.what + ' at ' + slTime(bk.s) : d.off ? '⚠ marked this day off' : d.full ? '⚠ already at their daily max' : !p.hasHours ? '• no availability set, check with them' : ok ? '✓ free by their hours' : '⚠ outside their available hours';
+    if(bz) msg += (bz.kind === 'ooo' ? ' · ⚠ out of office in Google Calendar' : ' · ⚠ Google Calendar shows a meeting then');
+    return '<div class="' + (/^✓/.test(msg) && !bz ? 'ok' : 'warn') + '"><b>' + esc(p.name) + ':</b> ' + esc(msg) + '</div>'; }).join(''); }
 function bindNxJob(){ var s = document.getElementById('nxjob'); if(s) s.onchange = function(){ S.nxJob = this.value; loadNext(); }; }
 function nxForm(st, f){
   var locked = st.gate && !st.gateOk, h = '<div class="nxform"><b style="font-size:14px">' + esc(st.label) + '</b>';
   if(st.kind === 'schedule'){
     var d = new Date(Date.now() + 86400000);
     var v = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2) + 'T11:00';
-    h += '' + whenPick('nxwhen', v, 'nxmin', 45) + '' +
+    h += '' + whenPick('nxwhen', v, 'nxmin', 45) + '<div class="nx-slots" id="nxSlots" data-ids="' + esc(st.panelId || '') + '"></div>' +
       '<div class="nxnote">Interviewer: ' + (st.panel ? '<b>' + esc(st.panel) + '</b> (from the job’s interview panel)' : '<b style="color:var(--warn)">none set on the job</b>, so add one on the interview in Recruit') + '. Recruit’s usual scheduling automations run, and the interviewer gets the heads-up card on Cliq. Once it is booked, the interview card opens so you can add people and send the Google Meet invite.</div>';
   }
   if(st.reason) h += '<label>' + (st.reason === 'withdrawal' ? 'Withdrawal reason' : 'Rejection reason') + ' (required)<textarea id="nxreason" placeholder="Why? Saved on the candidate and as a note with the stage, e.g. Rejected after R2."></textarea></label>';
@@ -1170,10 +1230,12 @@ function rowHtml(it, parts){
   var K = KIND[it.k], v = it.v, rl = v ? String(v.round || '').replace(/ Interview$/, '') : '';
   var what = '', btn = '';
   if(it.k === 'evalmiss'){
-    what = rl + ' on ' + esc(dt(v.start)) + (it.pend.length ? ' · panel pending: <b>' + esc(it.pend.map(function(f){ return f.who; }).join(', ')) + '</b>' + (it.pend[0].nudged ? ' · reminded ' + esc(ago(it.pend[0].nudged)) : '') : it.sub.length ? ' · panel feedback is in' : ' · file it in Recruit');
-    btn = it.pend.map(function(f){ return '<button class="btn sm" data-qremind="' + esc(f.id) + '" data-stop="1" aria-label="Remind ' + esc(f.who) + ' on Cliq">🔔 ' + esc(String(f.who).split(' ')[0]) + '</button>'; }).join('') +
+    // one tidy line of facts (round · date | who is pending | age) and a fixed pair of actions (Sumit 25 Nov: "organize it")
+    what = '<span class="mt">' + esc(rl) + ' · ' + esc(dt(v.start)) + '</span>' + (it.pend.length ? '<span class="mt pend">⏳ <b>' + esc(it.pend.map(function(f){ return f.who; }).join(', ')) + '</b> to give feedback' + (it.pend[0].nudged ? ' · reminded ' + esc(ago(it.pend[0].nudged)) : '') + '</span>' : it.sub.length ? '<span class="mt okc">✓ Panel feedback is in</span>' : '<span class="mt">Not filed in Recruit yet</span>');
+    btn = (it.pend.length === 1 ? '<button class="btn sm" data-qremind="' + esc(it.pend[0].id) + '" data-stop="1" title="Remind ' + esc(it.pend[0].who) + ' on Cliq">🔔 Remind</button>'
+        : it.pend.map(function(f){ return '<button class="btn sm" data-qremind="' + esc(f.id) + '" data-stop="1" title="Remind ' + esc(f.who) + ' on Cliq">🔔 ' + esc(String(f.who).split(' ')[0]) + '</button>'; }).join('')) +
       (it.sub.length ? '<button class="btn sm primary" data-qfile="' + esc(v.id) + '" data-stop="1">File evaluation</button>' : !it.pend.length ? '<a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener" data-stop="1">Open in Recruit ↗</a>' : '') +
-      '<button class="btn sm ghostb" data-qskip="' + esc(v.id) + '" data-stop="1" title="Skip this evaluation (a reason is required)">⏭ Skip evaluation</button>'; }
+      '<button class="btn sm ghostb" data-qskip="' + esc(v.id) + '" data-stop="1" title="Skip this evaluation (a reason is required)">⏭ Skip</button>'; }
   if(it.k === 'passed'){ what = rl + ': <b class="tok">' + esc(v.status) + '</b> · nothing booked · still at ' + esc(it.r.status); btn = '<span class="btn sm primary">Schedule ' + esc(it.next) + ' →</span>'; }
   if(it.k === 'rejected'){ what = rl + ': <b class="tbad">' + esc(v.status) + '</b> · status still ' + esc(it.r.status); btn = '<span class="btn sm bad">Close as rejected →</span>'; }
   if(it.k === 'sched'){ what = esc(it.r.status) + ' · nothing booked'; btn = '<span class="btn sm primary">Schedule ' + esc(it.next) + '</span>'; }
@@ -1196,7 +1258,7 @@ function viewWork(){
   var main = document.getElementById('main'); if(!main || S.page !== 'work') return;
   var D = buildSum(), first = String((S.me && S.me.name) || '').split(' ')[0];
   var nm2 = function(name, job){ return esc(name) + ' <span class="hint" style="font-weight:600">· ' + esc(job) + '</span>'; };
-  var item = function(it){ var p = rowHtml(it, true); return qRow(it.candId, it.jobId, nm2(it.name, it.job), p.what + ' · <span class="age' + (it.age >= (it.k === 'evalmiss' ? 3 : 7) ? ' hot' : '') + '">' + esc(p.age) + '</span>', p.btn); };
+  var item = function(it){ var p = rowHtml(it, true); return qRow(it.candId, it.jobId, nm2(it.name, it.job), (/^<span class="mt/.test(p.what) ? p.what : '<span class="mt">' + p.what + '</span>') + '<span class="mt age' + (it.age >= (it.k === 'evalmiss' ? 3 : 7) ? ' hot' : '') + '">' + esc(p.age) + '</span>', p.btn); };
   var by = function(k){ return D.todo.filter(function(t){ return t.k === k; }).map(item); };
   var today = D.today.map(function(v){ var f = D.fbBy[v.id] || [], past = v.e < D.now;
     return qRow(v.candId, v.jobId, '<b>' + esc(timeOf(v.start)) + '</b> ' + nm2(v.cand, v.job), esc(String(v.round).replace(/ Interview$/, '')) + (v.panel.length ? ' · <b class="pn">' + esc(v.panel.join(', ')) + '</b>' : ' · <span style="color:var(--warn)">no interviewer set</span>'),
