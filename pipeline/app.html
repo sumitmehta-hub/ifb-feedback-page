@@ -232,6 +232,14 @@ body.previewing [data-qremind],body.previewing [data-qfile],body.previewing [dat
 .sl-w.clash{border-color:#fdba74;color:#9a3412}.sl-w.clash.on{background:#c2410c;color:#fff}.sl-b,.sl-x{font-size:12px;padding:4px 8px;border-radius:999px;background:#eee9f5;color:var(--ink2)}
 .sl-add{margin-top:8px;display:grid;gap:4px}.sl-add>label{font-size:12.5px;color:var(--ink2);font-weight:600}.sl-srch{position:relative;max-width:420px}.sl-srch input{width:100%;font:inherit;font-size:13.5px;padding:7px 10px;border-radius:10px;border:1px solid var(--line);background:#fff}.sl-sug{position:absolute;left:0;right:0;top:100%;z-index:20;background:#fff;border-radius:10px;box-shadow:0 8px 24px rgba(30,10,60,.15);max-height:260px;overflow:auto}.sl-sug:empty{display:none}.sl-s{display:grid;width:100%;text-align:left;border:0;background:none;padding:7px 10px;cursor:pointer;font:inherit}.sl-s:hover{background:var(--brand-ll)}.sl-s b{font-size:13.5px;color:var(--ink)}.sl-s span{font-size:12px;color:var(--ink2)}.sl-ex{display:flex;gap:6px;flex-wrap:wrap}.sl-ex button{border:0;background:none;cursor:pointer;color:var(--ink2)}.sl-add label{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--ink2)}.sl-add select{font:inherit;font-size:13px;padding:5px 8px;border-radius:9px;border:1px solid var(--line)}
 .sl-check{margin-top:8px;display:grid;gap:3px;font-size:13px}.sl-check .ok{color:var(--ok)}.sl-check .warn{color:#9a3412}
+.gs{position:relative;flex:0 1 460px;display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:0 10px;height:38px;margin-left:18px;color:#fff}
+.gs:focus-within{background:#fff;color:var(--ink);border-color:#fff}.gs input{flex:1;min-width:0;border:0;background:none;font:inherit;font-size:14px;color:inherit;outline:none}.gs input::placeholder{color:rgba(255,255,255,.8)}.gs:focus-within input::placeholder{color:var(--ink2)}
+.gs kbd{font:inherit;font-size:11px;padding:1px 6px;border-radius:5px;border:1px solid rgba(255,255,255,.4);opacity:.8}.gs:focus-within kbd{display:none}
+.gsr{position:absolute;left:0;right:0;top:calc(100% + 6px);background:#fff;border-radius:12px;box-shadow:0 12px 32px rgba(30,10,60,.22);max-height:420px;overflow:auto;z-index:60}.gsr:empty{display:none}
+.gsi{display:flex;gap:10px;align-items:center;width:100%;border:0;background:none;text-align:left;padding:8px 12px;cursor:pointer;font:inherit;color:var(--ink)}.gsi:hover,.gsi.on{background:var(--brand-ll)}
+.gst{display:grid;min-width:0;flex:1}.gst b{font-size:14px}.gst small{font-size:12px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.gss{font-size:11.5px;font-weight:700;color:var(--brand);background:var(--brand-ll);border-radius:999px;padding:2px 8px;white-space:nowrap}
+.gsm{padding:10px 12px;font-size:13px;color:var(--ink2)}
+@media (max-width:760px){.top .t2{display:none}.gs{margin-left:6px}.gs kbd{display:none}}
 .av-h4{margin:14px 0 6px;font-size:13px;color:var(--ink);text-transform:uppercase;letter-spacing:.04em}.av-days{display:grid;gap:2px;border:1px solid var(--line);border-radius:12px;padding:4px 12px;background:#fff}
 .av-day{display:grid;grid-template-columns:90px minmax(0,1fr) auto;gap:10px;align-items:start;padding:8px 0;border-bottom:1px solid var(--line)}.av-day:last-child{border-bottom:0}
 .av-dl{display:flex;gap:8px;align-items:center;cursor:pointer;padding-top:6px}.av-dl input{width:17px;height:17px;accent-color:var(--brand)}.av-day.off .av-dl b{color:var(--ink2)}
@@ -414,7 +422,7 @@ b.pn,.sub b,.hint b,.dtbl td b{color:var(--ink);font-weight:800}
 </style>
 </head>
 <body>
-<header class="top"><span class="logo" aria-hidden="true">L</span><div><div class="t1">Hiring Pipeline</div><div class="t2">Leegality Talent Acquisition</div></div><span class="sp"></span>
+<header class="top"><span class="logo" aria-hidden="true">L</span><div><div class="t1">Hiring Pipeline</div><div class="t2">Leegality Talent Acquisition</div></div><div class="gs" id="gs" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="gq" type="search" autocomplete="off" placeholder="Search candidates: name, email or phone" aria-label="Search candidates"><kbd>/</kbd><div class="gsr" id="gsr" role="listbox"></div></div><span class="sp"></span>
   <div class="me" id="meBox" hidden><div class="nm"><div id="meName"></div><div id="mePr" style="opacity:.8"></div></div><span class="av" id="meAv" aria-hidden="true"></span></div>
   <button class="btn ghost" id="signout" hidden>Sign out</button></header>
 <div id="root"></div>
@@ -558,7 +566,7 @@ function bindJobSelect(){ var px = document.getElementById('pvx'); if(px) px.onc
 
 function loadJobs(){
   root.innerHTML = loading('Loading open jobs…');
-  post('jobs').then(function(j){ if(j.ok){ var nOpen = (j.jobs || []).filter(function(x){ return x.group === 'open'; }).length; SPL.step(32, 'Signed in · ' + nOpen + ' open roles', 'auth'); SPL.step(34, null, 'roles', String(nOpen)); } else SPL.done(); if(!j.ok){ root.innerHTML = '<div style="padding:20px"><div class="card err">' + esc(j.error) + '</div></div>'; return; } S.jobs = j.jobs; S.admin = !!j.admin; S.ta = j.ta !== false; document.body.classList.toggle('viewer', !S.ta); S.scope = S.admin ? 'all' : 'mine'; var sm = store('hire_mine'); S.onlyMine = sm === '1' ? true : sm === '0' ? false : !S.admin; shell(); route(true); })
+  post('jobs').then(function(j){ if(j.ok){ var nOpen = (j.jobs || []).filter(function(x){ return x.group === 'open'; }).length; SPL.step(32, 'Signed in · ' + nOpen + ' open roles', 'auth'); SPL.step(34, null, 'roles', String(nOpen)); } else SPL.done(); if(!j.ok){ root.innerHTML = '<div style="padding:20px"><div class="card err">' + esc(j.error) + '</div></div>'; return; } var gsEl = document.getElementById('gs'); if(gsEl){ gsEl.hidden = false; bindGSearch(); } S.jobs = j.jobs; S.admin = !!j.admin; S.ta = j.ta !== false; document.body.classList.toggle('viewer', !S.ta); S.scope = S.admin ? 'all' : 'mine'; var sm = store('hire_mine'); S.onlyMine = sm === '1' ? true : sm === '0' ? false : !S.admin; shell(); route(true); })
     .catch(function(e){ root.innerHTML = '<div style="padding:20px"><div class="card err">' + esc(e.message) + '</div></div>'; });
 }
 function route(first){
@@ -594,6 +602,24 @@ function viewHome(){
 // interviews: 2 days back to 7 days ahead, across jobs (My jobs filter applies)
 // ---------- My interviews (Tabir, 25 Nov): for interviewers. Their upcoming interviews and the evaluations they still owe,
 // read with their own Recruit access. The evaluation is filled in Recruit (Tabir: no shortcut in Cliq).
+// ---------- Header search (Sumit 25 Nov): find any candidate across every job and open their record (journey, rounds,
+// feedback, history, next step). Recruit's own search with the person's access; newest activity first.
+function bindGSearch(){ var q = document.getElementById('gq'), box = document.getElementById('gsr'); if(!q || q.dataset.b) return; q.dataset.b = '1';
+  var t = null, seq = 0, sel = -1;
+  var paint = function(list, msg){ sel = -1; box.innerHTML = msg ? '<div class="gsm">' + esc(msg) + '</div>' : list.map(function(c, i){ return '<button type="button" class="gsi" role="option" data-gc="' + esc(c.id) + '" data-i="' + i + '"><span class="mav" style="--c:' + hueOf(c.name) + '">' + esc(initials(c.name)) + '</span><span class="gst"><b>' + esc(c.name) + '</b><small>' + esc([c.title, c.email].filter(Boolean).join(' · ')) + '</small></span>' + (c.status ? '<span class="gss">' + esc(c.status) + '</span>' : '') + '</button>'; }).join('');
+    box.querySelectorAll('[data-gc]').forEach(function(b){ b.onmousedown = function(e){ e.preventDefault(); pick(b.dataset.gc); }; }); };
+  var pick = function(id){ box.innerHTML = ''; q.blur(); S.focusJob = ''; S.nxJob = ''; S.visible = [id]; openCandidate(id); };
+  var run = function(){ var v = q.value.trim(), my = ++seq; if(v.length < 2){ box.innerHTML = ''; return; } paint([], 'Searching…');
+    post('csearch', { q: v }).then(function(r){ if(my !== seq) return; if(!r.ok){ paint([], r.error || 'Search failed'); return; } paint(r.list, r.list.length ? '' : 'No candidates match “' + v + '”'); }).catch(function(e){ if(my === seq) paint([], e.message); }); };
+  q.oninput = function(){ clearTimeout(t); t = setTimeout(run, 300); };
+  q.onfocus = function(){ if(q.value.trim().length >= 2 && !box.innerHTML) run(); };
+  q.onblur = function(){ setTimeout(function(){ box.innerHTML = ''; }, 150); };
+  q.onkeydown = function(e){ var items = box.querySelectorAll('[data-gc]');
+    if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); if(!items.length) return; sel = (sel + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length; items.forEach(function(x, i){ x.classList.toggle('on', i === sel); }); }
+    else if(e.key === 'Enter'){ e.preventDefault(); var it = items[sel < 0 ? 0 : sel]; if(it) pick(it.dataset.gc); }
+    else if(e.key === 'Escape'){ q.value = ''; box.innerHTML = ''; q.blur(); } };
+  document.addEventListener('keydown', function(e){ if(e.key === '/' && !/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement || {}).tagName || '')){ e.preventDefault(); q.focus(); } });
+}
 function goMine(fromRoute){ SPL.done();
   S.page = 'mine'; S.jobId = ''; if(fromRoute !== true) history.replaceState(null, '', location.pathname + location.search + '#view=mine'); closeDrawer(true); drawSide();
   var main = document.getElementById('main'); main.innerHTML = jobSelect() + loading('Loading your interviews…'); bindJobSelect();
