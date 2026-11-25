@@ -482,7 +482,7 @@ function fbBlock(f){
     (pend && f.rowId ? '<button class="btn sm" data-remind="' + esc(f.rowId) + '" style="margin-left:auto">🔔 Remind on Cliq</button>' : '') + '</div>';
   if(f.comments) h += '<div class="c">' + esc(f.comments) + '</div>';
   if(f.scores) h += '<details style="margin-top:6px"><summary class="hint" style="cursor:pointer">Question scores</summary><div class="box" style="margin-top:6px;font-size:13px">' + esc(String(f.scores).replace(/\[\[nl\]\]/g, '\n')) + '</div></details>';
-  if(pend && f.nudged) h += '<div class="hint" style="font-size:12px;margin-top:4px">Last reminded ' + esc(ago(f.nudged)) + '</div>';
+  if(pend) h += '<div class="hint" style="font-size:12px;margin-top:4px" data-nudge="' + esc(f.rowId) + '">' + (f.nudged ? '🔔 Last reminded ' + esc(dt(f.nudged, true)) + ' (' + esc(ago(f.nudged)) + ')' : 'Not reminded yet') + '</div>';
   return h + '</div>';
 }
 // the ONE evaluation Recruit holds for the interview (Submit to Recruit, or filed directly in Recruit)
@@ -493,7 +493,9 @@ function evalBlock(e){
 function bindRemind(){
   drawer.querySelectorAll('[data-remind]').forEach(function(b){ b.onclick = function(){
     var row = b.dataset.remind; b.disabled = true; b.textContent = 'Sending…';
-    post('remind', { rowId: row }).then(function(j){ if(j.ok){ b.textContent = '✓ Reminder sent to ' + (j.to || 'interviewer'); toastMsg('Reminder sent on Cliq'); } else { b.disabled = false; b.textContent = '🔔 Remind on Cliq'; toastMsg(j.error || 'Could not send'); } })
+    post('remind', { rowId: row }).then(function(j){ if(j.ok){ b.textContent = '✓ Reminder sent to ' + (j.to || 'interviewer'); toastMsg('Reminder sent on Cliq');
+        var ln = drawer.querySelector('[data-nudge="' + row + '"]'); if(ln) ln.textContent = '🔔 Last reminded ' + dt(j.at, true) + ' (just now, by you)';
+        (S.cj && S.cj.feedback || []).forEach(function(f){ if(f.rowId === row) f.nudged = j.at; }); } else { b.disabled = false; b.textContent = '🔔 Remind on Cliq'; toastMsg(j.error || 'Could not send'); } })
       .catch(function(e){ b.disabled = false; b.textContent = '🔔 Remind on Cliq'; toastMsg(e.message); });
   }; });
 }
