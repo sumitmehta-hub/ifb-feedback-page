@@ -494,7 +494,8 @@ body.ivonly .side .search,body.ivonly .side .segs,body.ivonly .vas,body.ivonly #
 body.sdragging{cursor:col-resize;user-select:none}body.sdragging iframe{pointer-events:none}
 body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden;overflow:hidden;border:0}
 .shell{transition:grid-template-columns .18s ease}body.sdragging .shell{transition:none}
-@media (max-width:860px){.sidet{display:none}}
+@media (max-width:860px){.sidet{display:none}#navBack{display:grid}}
+.sidet[hidden],#navBack[hidden]{display:none!important}
 /* phones (26 Nov): header fits in one row, no sideways scroll */
 .logo{flex:0 0 32px}
 @media (max-width:600px){.top{gap:8px;padding:0 10px}.top .t1{display:none}.gs{flex:1 1 auto;min-width:0;margin-left:0}.gs input{min-width:0}
@@ -513,10 +514,11 @@ body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden
 .gd-b{padding:0 12px 12px;font-size:13px}.gd-b ol,.gd-b ul{margin:6px 0 8px;padding-left:20px;display:grid;gap:4px}.gd-r{display:grid;gap:3px;font-size:12.5px;border-top:1px dashed #ecd4b4;padding-top:8px}.gd-r span{display:flex;gap:8px;align-items:baseline}.gd-r i{font-style:normal;font-weight:800;color:#b45309;min-width:12px}
 .rhleg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;color:var(--ink2);margin:-2px 0 10px}.rhleg span{display:inline-flex;align-items:center;gap:6px}.rhleg .flag{display:inline-block}
 .tbl.rh th{white-space:nowrap;vertical-align:bottom}.tbl.rh td.n,.tbl.rh th.n{white-space:nowrap}.tbl.rh td.rhr{max-width:240px}.tbl.rh td:first-child,.tbl.rh th:first-child{width:14px}.tbl.rh th:last-child,.tbl.rh td:last-child{padding-right:14px}
+.tbl.dtbl td.n .pcell{margin-left:0}
 </style>
 </head>
 <body>
-<header class="top"><button class="sidet" id="sideT" type="button" aria-label="Hide sidebar" aria-pressed="false" title="Hide sidebar (Ctrl+B)" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg></button><span class="logo" aria-hidden="true">L</span><div><div class="t1">Hiring Pipeline</div><div class="t2">Leegality Talent Acquisition</div></div><div class="gs" id="gs" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="gq" type="search" autocomplete="off" placeholder="Search candidates: name, email or phone" aria-label="Search candidates"><kbd>/</kbd><div class="gsr" id="gsr" role="listbox"></div></div><span class="sp"></span>
+<header class="top"><button class="sidet" id="sideT" type="button" aria-label="Hide sidebar" aria-pressed="false" title="Hide sidebar (Ctrl+B)" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg></button><button class="sidet" id="navBack" type="button" aria-label="Back" title="Back (Alt+←)" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button><span class="logo" aria-hidden="true">L</span><div><div class="t1">Hiring Pipeline</div><div class="t2">Leegality Talent Acquisition</div></div><div class="gs" id="gs" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="gq" type="search" autocomplete="off" placeholder="Search candidates: name, email or phone" aria-label="Search candidates"><kbd>/</kbd><div class="gsr" id="gsr" role="listbox"></div></div><span class="sp"></span>
   <div class="me" id="meBox" hidden><div class="nm"><div id="meName"></div><div id="mePr" style="opacity:.8"></div></div><span class="av" id="meAv" aria-hidden="true"></span></div>
   <button class="btn ghost" id="signout" hidden>Sign out</button></header>
 <div id="root"></div>
@@ -1689,6 +1691,7 @@ function viewDash(){
   var teamRows = Object.keys(team).filter(function(n){ var o = team[n]; return TA_NAMES.test(n) || o.booked >= 10; }).map(function(n){ var o = team[n]; return [n, o.roles, o.act, o.wait, o.booked, o.evals, dur(med(o.evalT))]; }).sort(function(a, b){ return (b[4] + b[5]) - (a[4] + a[5]); });
   // interviewers (30 d)
   var pi = {}; fb30.forEach(function(f){ var o = pi[f.who || '—'] = pi[f.who || '—'] || { n: 0, pend: 0, late: 0, hrs: [] }; o.n++; var h = hrsOf(f); if(h != null) o.hrs.push(h); else if(f.st === 'Pending'){ o.pend++; if(now - tms(f.end) > DAY) o.late++; } });
+  var medTxt = function(m){ return m === 0 ? 'during the call' : dur(m); };
   var piRows = Object.keys(pi).map(function(n){ var o = pi[n], ot = o.hrs.filter(function(h){ return h <= 24; }).length; return [n, o.n, o.hrs.length, o.late, dur(med(o.hrs)), (o.hrs.length + o.late) ? Math.round(100 * ot / (o.hrs.length + o.late)) + '%' : '—']; }).sort(function(a, b){ return (b[3] - a[3]) || (b[1] - a[1]); });
   // weekly trend (8 weeks): interviews held
   var weeks = []; for(var i = -7; i <= 0; i++) weeks.push(weekStart(i));
@@ -1730,10 +1733,25 @@ function viewDash(){
   var heatOf = function(p, c){ return D.ivs.filter(function(v){ var t = tms(v.created); return v.by === p && t >= c.s && t < c.s + 7 * DAY; }); };
   var heat = heatHtml(heatPeople, heatCols, function(p, c){ return heatOf(p, c).length; }, function(p, c){ return setDrill('ht_' + heatPeople.indexOf(p) + '_' + c.s, p + ': interviews booked, week of ' + c.label, 'booked by ' + p, heatOf(p, c).sort(function(a, b){ return b.s - a.s; }).map(ivItem), '#a3166a'); });
   var tbl = function(id, head, body, num){ return '<div class="tblw"><table class="tbl dtbl" id="' + id + '"><thead><tr>' + head.map(function(h, i){ return '<th' + (i >= num ? ' class="n"' : '') + '>' + esc(h) + '</th>'; }).join('') + '</tr></thead><tbody>' +
-    (body.length ? body.map(function(r){ return '<tr>' + r.map(function(c, i){ return '<td' + (i >= num ? ' class="n"' : '') + '>' + (i === 0 ? '<b>' + esc(c) + '</b>' : esc(c)) + '</td>'; }).join('') + '</tr>'; }).join('') : '<tr><td colspan="' + head.length + '" class="hint">No data.</td></tr>') + '</tbody></table></div>'; };
+    (body.length ? body.map(function(r){ return '<tr>' + r.map(function(c, i){ return '<td' + (i >= num ? ' class="n"' : '') + '>' + (c && typeof c === 'object' ? (c.d && c.v !== 0 && c.v !== '0' ? '<span class="pcell" data-drill="' + c.d + '">' + esc(c.v) + '</span>' : esc(c.v)) : i === 0 ? '<b>' + esc(c) + '</b>' : esc(c)) + '</td>'; }).join('') + '</tr>'; }).join('') : '<tr><td colspan="' + head.length + '" class="hint">No data.</td></tr>') + '</tbody></table></div>'; };
   var CARDC = { 'Screening quality': ['#b45309','🧭'], 'Candidate funnel': ['#7c6cf0','🔻'], 'Where active candidates are': ['#1d4ed8','🍩'], 'TA workload by week': ['#a3166a','🔥'], 'Interviews vs evaluations per week': ['#0f766e','📈'], 'Pass-through by round': ['#6a2bd6','🎯'], 'Interviews held per week': ['#0f766e','📈'], 'Role health': ['#c8102e','🩺'], 'TA team': ['#1d4ed8','👥'], 'Interviewer feedback pace': ['#b45309','⏱'] };
   var card = function(title, sub, body, csv){ var cc = CARDC[title] || ['#8644f0','']; return '<section class="dsec" style="--c:' + cc[0] + '"><div class="dsh"><h3><span class="ci">' + cc[1] + '</span>' + esc(title) + '</h3>' + (sub ? '<span class="hint">' + esc(sub) + '</span>' : '') + (csv ? '<button class="btn sm" data-csv="' + csv + '">⬇ Excel</button>' : '') + '</div>' + body + '</section>'; };
   var hRows = health.map(function(h){ return [h.x.title, h.x.recruiters.join(', ') || h.x.manager || '—', h.act, h.late, h.iv14, h.up, h.waiting, h.last == null ? '—' : h.last + 'd', h.open == null ? '—' : h.open + 'd', h.flag]; });
+  // TA team and feedback pace: every number opens the people behind it (Sumit 26 Nov)
+  var fbItem = function(f){ var v = ivMap[f.iv] || {}; var h = hrsOf(f); return { candId: v.candId || '', jobId: v.jobId || '', name: v.cand || f.cand || '—', job: v.job || '', detail: esc(String(v.round || f.round || '').replace(/ Interview$/, '')) + ' · ' + esc(f.who || '') + ' · <b class="' + (f.st === 'Pending' ? 'tbad' : 'tok') + '">' + esc(f.st || '') + '</b>' + (h != null ? ' · ' + esc(h === 0 ? 'during the call' : dur(h) + ' after') : '') }; };
+  teamRows = teamRows.map(function(r){ var n = r[0], jobsOf = health.filter(function(h){ return h.x.recruiters.indexOf(n) >= 0; }).map(function(h){ return h.x.id; });
+    return [n, r[1],
+      { v: r[2], d: setDrill('tm_a_' + n, n + ': active candidates', 'on roles where ' + n + ' is a recruiter', D.active.filter(function(x){ return jobsOf.indexOf(x.jobId) >= 0; }).map(rowItem), '#1d4ed8') },
+      { v: r[3], d: setDrill('tm_w_' + n, n + ': waiting on them', 'next steps on their roles', D.todo.filter(function(t){ return jobsOf.indexOf(t.jobId) >= 0 && t.k !== 'cold'; }).map(todoItem), '#c8102e') },
+      { v: r[4], d: setDrill('tm_b_' + n, n + ': interviews booked', 'last 30 days', D.ivs.filter(function(v){ return v.by === n && tms(v.created) > t30; }).sort(function(a, b){ return b.s - a.s; }).map(ivItem), '#1d4ed8') },
+      { v: r[5], d: setDrill('tm_e_' + n, n + ': evaluations filed', 'last 30 days', D.ivs.filter(function(v){ return v.reviewedBy === n && v.rv > t30; }).sort(function(a, b){ return b.rv - a.rv; }).map(ivItem), '#15803d') },
+      r[6] === '0 min' ? 'during the call' : r[6]]; });
+  piRows = piRows.map(function(r){ var n = r[0], mine = fb30.filter(function(f){ return (f.who || '—') === n; });
+    return [n,
+      { v: r[1], d: setDrill('pi_a_' + n, n + ': feedback asked', 'last 30 days', mine.map(fbItem), '#b45309') },
+      { v: r[2], d: setDrill('pi_g_' + n, n + ': feedback given', 'last 30 days', mine.filter(function(f){ return hrsOf(f) != null; }).map(fbItem), '#15803d') },
+      { v: r[3], d: setDrill('pi_o_' + n, n + ': overdue', 'pending more than 24 h after the interview', mine.filter(function(f){ return f.st === 'Pending' && now - tms(f.end) > DAY; }).map(fbItem), '#c8102e') },
+      r[4] === '0 min' ? 'during the call' : r[4], r[5]]; });
   main.innerHTML = jobSelect() +
     '<div class="whead"><div><h1>Hiring overview</h1><div class="hint">' + (S.onlyMine ? '' + (S.viewAs ? esc(S.viewAs.split(' ')[0]) + '’s' : 'Your') + '' : 'All') + ' ' + D.jobs.length + ' open roles · this week so far vs the same point last week · candidates count as active if touched in the last ' + ACTIVE_DAYS + ' days</div></div>' +
     '<div class="acts">' + sumHint() + '<button class="btn sm" id="drf">↻ Refresh</button><button class="btn sm" id="dwork">✅ Team to-do</button></div></div>' +
@@ -2145,6 +2163,17 @@ render();
 
 document.addEventListener('click', function(e){ var b = e.target.closest && e.target.closest('[data-sqt]'); if(!b) return; var card = b.closest('.dsec'); if(!card) return;
   card.querySelectorAll('[data-sqt]').forEach(function(x){ x.setAttribute('aria-pressed', x === b); }); card.querySelectorAll('[data-sqp]').forEach(function(p){ p.hidden = p.dataset.sqp !== b.dataset.sqt; }); });
+
+// in-page Back (Sumit 26 Nov): inside the Recruit tab the browser Back is hidden and could leave Recruit's page, so the
+// button only steps back through pages opened inside the pipeline (each pushState adds one), and hides at the start.
+(function(){
+  var depth = 0, btn = function(){ return document.getElementById('navBack'); }, show = function(){ var b = btn(); if(b) b.hidden = depth <= 0; };
+  var push = history.pushState; history.pushState = function(){ depth++; var r = push.apply(history, arguments); show(); return r; };
+  window.addEventListener('popstate', function(){ if(depth > 0) depth--; show(); });
+  document.addEventListener('click', function(e){ if(e.target.closest && e.target.closest('#navBack') && depth > 0) history.back(); });
+  document.addEventListener('keydown', function(e){ if(e.altKey && e.key === 'ArrowLeft' && depth > 0){ e.preventDefault(); history.back(); } });
+  show();
+})();
 </script>
 </body>
 </html>
