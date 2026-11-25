@@ -218,6 +218,7 @@ body.previewing [data-qremind],body.previewing [data-qfile],body.previewing [dat
 .ivc-g{margin:10px 18px 0;border-radius:12px;font-size:13px}.ivc-g.on{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:8px 12px;background:#ecfdf3;border:1px solid #b7ebc9;color:#166534}.ivc-g.on span{color:var(--ink2)}.ivc-g .gdot{width:8px;height:8px;border-radius:50%;background:#16a34a}
 .ivc-g.off{display:flex;gap:14px;align-items:center;flex-wrap:wrap;padding:14px;background:#fff;border:1.5px solid var(--brand-line);box-shadow:0 2px 10px rgba(134,68,240,.08)}.ivc-g .gtx{display:grid;gap:3px;flex:1;min-width:220px}.ivc-g .gtx b{font-size:14.5px;color:var(--ink)}.ivc-g .gtx span{color:var(--ink2);line-height:1.5}
 .gbtn{display:inline-flex;align-items:center;gap:10px;padding:10px 18px;border-radius:10px;border:1.5px solid var(--line);background:#fff;font:inherit;font-size:14px;font-weight:700;color:var(--ink);cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.08)}.gbtn:hover{background:#f8f9fb}.gbtn:disabled{opacity:.7;cursor:wait}
+.ivask{position:absolute;inset:0;background:rgba(30,16,60,.35);display:flex;align-items:center;justify-content:center;z-index:5;border-radius:inherit;animation:rise .15s ease both}.ivaskb{background:#fff;border-radius:16px;padding:18px 20px;max-width:380px;box-shadow:0 18px 50px rgba(43,17,96,.3)}.ivaskb b{font-size:15.5px;color:var(--ink)}.ivaskb p{margin:6px 0 14px;color:var(--ink2);font-size:13.5px;line-height:1.5}.ivaskr{display:flex;justify-content:flex-end;gap:8px}
 .ivcp{width:min(820px,94vw)}.ivcb{overflow:auto;padding:0 0 16px}.ivcb header{display:flex;justify-content:space-between;gap:12px;padding:16px 18px 6px}.ivcb h3{margin:0;font-size:18px}.ivcb header p{margin:3px 0 0;color:var(--ink2);font-size:13px}
 .ivc-when{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 18px 0;padding:12px 14px;border-radius:14px;background:linear-gradient(120deg,#f6efff,#ffeef7)}.ivc-date{display:grid;margin-right:auto}.ivc-date b{font-size:16px;color:var(--ink)}.ivc-date span{font-size:13px;color:var(--ink2)}
 .ivc-cal{margin:10px 18px 0;font-size:13px;color:var(--ink2);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:9px 12px}.ivc-cal b{color:var(--ink)}
@@ -883,7 +884,7 @@ function nxForm(st, f){
     var d = new Date(Date.now() + 86400000);
     var v = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2) + 'T11:00';
     h += '<div class="row2"><label>Date and time (IST)<input type="datetime-local" id="nxwhen" value="' + v + '"></label><label>Length<select id="nxmin"><option value="30">30 min</option><option value="45" selected>45 min</option><option value="60">60 min</option><option value="90">90 min</option></select></label></div>' +
-      '<div class="nxnote">Interviewer: ' + (st.panel ? '<b>' + esc(st.panel) + '</b> (from the job’s interview panel)' : '<b style="color:var(--warn)">none set on the job</b>, so add one on the interview in Recruit') + '. Recruit’s usual scheduling automations run, and the interviewer gets the heads-up card on Cliq. The Google Meet invite stays with the Setup Google Meet button in Recruit.</div>';
+      '<div class="nxnote">Interviewer: ' + (st.panel ? '<b>' + esc(st.panel) + '</b> (from the job’s interview panel)' : '<b style="color:var(--warn)">none set on the job</b>, so add one on the interview in Recruit') + '. Recruit’s usual scheduling automations run, and the interviewer gets the heads-up card on Cliq. Once it is booked, the interview card opens so you can add people and send the Google Meet invite.</div>';
   }
   if(st.reason) h += '<label>' + (st.reason === 'withdrawal' ? 'Withdrawal reason' : 'Rejection reason') + ' (required)<textarea id="nxreason" placeholder="Why? This is saved on the candidate in Recruit."></textarea></label>';
   if(locked) h += '<label>Reason to skip the evaluation (required, 10+ characters)<textarea id="nxbypass" placeholder="The evaluation is not filed yet. Saved as Evaluation Bypass Reason."></textarea></label>';
@@ -1369,6 +1370,15 @@ function confetti(){
 // ---------- Interview card (25 Nov): who's invited, add / remove interviewer, reschedule, cancel, Google Meet ----------
 // Same idea as the CRM Deal Meetings widget. Google sign-ins are shared with that widget (stored once in CRM, used
 // server-side only). Every change updates Recruit and, when there is one, the calendar invite.
+// in-page yes/no inside the interview card (the browser's own confirm box looks foreign inside Recruit)
+function askIv(title, body, yes, tone, cb){
+  var host = document.querySelector('#ivc .mpn'); if(!host) return; var old = host.querySelector('.ivask'); if(old) old.remove();
+  var d = document.createElement('div'); d.className = 'ivask'; d.setAttribute('role', 'alertdialog'); d.setAttribute('aria-modal', 'true');
+  d.innerHTML = '<div class="ivaskb"><b>' + esc(title) + '</b><p>' + esc(body) + '</p><div class="ivaskr"><button class="btn" data-a="0">Keep it</button><button class="btn ' + (tone || 'primary') + '" data-a="1">' + esc(yes) + '</button></div></div>';
+  host.appendChild(d); var go = d.querySelector('[data-a="1"]'); go.focus();
+  d.onclick = function(e){ var b = e.target.closest('[data-a]'); if(!b && e.target !== d) return; d.remove(); if(b && b.dataset.a === '1') cb(); };
+  d.onkeydown = function(e){ if(e.key === 'Escape'){ e.stopPropagation(); d.remove(); } };
+}
 var GLOGO = '<svg width="18" height="18" viewBox="0 0 20 20" aria-hidden="true"><path d="M18.17 10.18c0-.63-.06-1.24-.16-1.82H10v3.44h4.59a3.93 3.93 0 01-1.7 2.58v2.14h2.74c1.61-1.48 2.54-3.66 2.54-6.34z" fill="#4285F4"/><path d="M10 18.5c2.3 0 4.24-.76 5.65-2.06l-2.74-2.14c-.77.52-1.75.82-2.91.82-2.24 0-4.13-1.51-4.81-3.54H2.36v2.2A8.49 8.49 0 0010 18.5z" fill="#34A853"/><path d="M5.19 11.58A5.07 5.07 0 014.92 10c0-.55.1-1.08.27-1.58V6.22H2.36A8.5 8.5 0 001.5 10c0 1.37.33 2.67.86 3.78l2.83-2.2z" fill="#FBBC05"/><path d="M10 4.88c1.26 0 2.39.43 3.28 1.28l2.46-2.46C14.23 2.32 12.3 1.5 10 1.5A8.49 8.49 0 002.36 6.22l2.83 2.2C5.87 6.39 7.76 4.88 10 4.88z" fill="#EA4335"/></svg>';
 function openIvCard(ivId, opts){
   closeDrill(true); var old = document.getElementById('ivc'); if(old) old.remove();
@@ -1423,8 +1433,8 @@ function openIvCard(ivId, opts){
     var p = ov.querySelector('.ivcb'); p.innerHTML = h;
     document.getElementById('ivcX').onclick = close;
     p.querySelectorAll('[data-ivform]').forEach(function(b){ b.onclick = function(){ C.form = C.form === b.dataset.ivform ? '' : b.dataset.ivform; draw(); }; });
-    p.querySelectorAll('[data-ivrm]').forEach(function(b){ b.onclick = function(){ if(!confirm('Remove ' + b.dataset.ivrm + ' from this interview?')) return; act(b, 'ivremove', { email: b.dataset.ivrm }, function(r){ return '👋 Removed · ' + r.cal; }); }; });
-    var mt = document.getElementById('ivcMeet'); if(mt) mt.onclick = function(){ if(iv.legacyMeet && !confirm('This interview already has a Meet from Recruit\'s Setup Google Meet button.\n\nA new invite will go to everyone, with a new link. Tell them to use the new one.\n\nContinue?')) return; act(mt, 'ivmeet', {}, function(){ return '🎥 Google Meet created and invites sent'; }); };
+    p.querySelectorAll('[data-ivrm]').forEach(function(b){ b.onclick = function(){ askIv('Remove ' + b.dataset.ivrm + '?', 'Their feedback request is cancelled and they are taken off the calendar invite.', 'Remove', 'bad', function(){ act(b, 'ivremove', { email: b.dataset.ivrm }, function(r){ return '👋 Removed · ' + r.cal; }); }); }; });
+    var mt = document.getElementById('ivcMeet'); if(mt) mt.onclick = function(){ var goMeet = function(){ act(mt, 'ivmeet', {}, function(){ return '🎥 Google Meet created and invites sent'; }); }; if(iv.legacyMeet) askIv('Send a new Meet invite?', 'This interview already has a Meet from Recruit\'s Setup Google Meet button. Everyone gets a new invite with a new link, so tell them to use the new one.', 'Send new invite', 'primary', goMeet); else goMeet(); };
     var cn = document.getElementById('ivcConn'); if(cn) cn.onclick = connectG;
     var gr = document.getElementById('ivcGoRe'); if(gr) gr.onclick = function(){ act(gr, 'ivresched', { start: document.getElementById('ivcWhen').value, minutes: document.getElementById('ivcMin').value, note: document.getElementById('ivcNote').value }, function(r){ return '🕑 Rescheduled · ' + r.cal; }); };
     var gc = document.getElementById('ivcGoCx'); if(gc) gc.onclick = function(){ var why = document.getElementById('ivcWhy').value; if(!why){ toastMsg('Pick a reason'); return; } act(gc, 'ivcancel', { reason: why, note: document.getElementById('ivcCNote').value }, function(r){ return '✖ Interview cancelled · ' + r.cal; }); };
