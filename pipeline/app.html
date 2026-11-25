@@ -809,7 +809,7 @@ function fileEval(b){
 // gets flow, pass-through, role health and team pace. Only RECENT work is actionable: anything untouched for ACTIVE_DAYS
 // is "dormant" (counted, listed only on request), so 2025 records never crowd today's list.
 var VIEWS = { iv: 1, work: 1, dash: 1 };
-var ACTIVE_DAYS = 60, HIDE_DAYS = 180, COLD_DAYS = 10, DAY = 86400000;   // audit 25 Nov: older 'in process' records are 2021-25 leftovers
+var ACTIVE_DAYS = 60, HIDE_DAYS = 180, COLD_DAYS = 10, EVAL_DAYS = 21, PASS_DAYS = 30, DAY = 86400000;   // live audit 25 Nov: 2-month-old missing evaluations were never filed; recent ones are the work   // audit 25 Nov: older 'in process' records are 2021-25 leftovers
 var IVNAME = { blitz: 'blitz interview', r1: 'round 1 interview', r2: 'round 2 interview', r3: 'round 3 interview', vibe: 'vibe check interview' };
 var RLABEL = { blitz: 'Blitz', r1: 'R1', r2: 'R2', r3: 'R3', vibe: 'Vibe check' };
 var WAIT_ROUND = { 'blitz interview scheduled': 'blitz', 'r1 interview-scheduled': 'r1', 'interview-scheduled': 'r1', 'r2 interview-scheduled': 'r2', 'r3 interview-scheduled': 'r3', 'f2f vibe check pending': 'vibe' };
@@ -867,7 +867,7 @@ function buildSum(){
   var fb = act.feedback.filter(function(f){ return ivById[f.iv]; });
   var fbBy = {}; fb.forEach(function(f){ (fbBy[f.iv] = fbBy[f.iv] || []).push(f); });
   var byCJ = {}; ivs.forEach(function(v){ var k = v.candId + '|' + v.jobId; (byCJ[k] = byCJ[k] || []).push(v); });
-  var todo = [], dormant = [], hidden = 0, seen = {};
+  var todo = [], dormant = [], hidden = 0, seen = {}, oldEval = 0, oldPass = 0;
   // 1. evaluation missing: held (ended 2 h+ ago) in the last ACTIVE_DAYS, no Recruit evaluation, not cancelled / no-show.
   //    Blitz is evaluated by TA in Recruit; R1+ by the panel (Interviewer_Feedback rows → Remind / File evaluation).
   var RANK = { screen: 0, assess: 1, blitz: 2, r1: 3, r2: 4, r3: 5, vibe: 6, offer: 7, hired: 8 };
@@ -875,7 +875,8 @@ function buildSum(){
   ivs.forEach(function(v){
     var cr = rowByCJ[v.candId + '|' + v.jobId];
     if(cr && (cr.bypass.indexOf('[skip ' + v.id + ']') >= 0 || cr.stage === 'closed' || cr.stage === 'hired' || cr.stage === 'offer' || (RANK[cr.stage] != null && RANK[v.rk] != null && RANK[cr.stage] > RANK[v.rk]))) return;
-    if(!v.e || v.rv || now - v.e < 2 * 3600000 || now - v.e > ACTIVE_DAYS * DAY || /cancel/i.test(v.status) || NOSHOW.test(v.status)) return;
+    if(v.e && !v.rv && now - v.e > EVAL_DAYS * DAY && now - v.e <= ACTIVE_DAYS * DAY && !/cancel/i.test(v.status) && !NOSHOW.test(v.status)){ oldEval++; return; }
+    if(!v.e || v.rv || now - v.e < 2 * 3600000 || now - v.e > EVAL_DAYS * DAY || /cancel/i.test(v.status) || NOSHOW.test(v.status)) return;
     var f = fbBy[v.id] || [], pend = f.filter(function(x){ return x.st === 'Pending'; }), sub = f.filter(function(x){ return x.st !== 'Pending'; });
     todo.push({ k: 'evalmiss', v: v, pend: pend, sub: sub, age: Math.floor((now - v.e) / DAY), candId: v.candId, jobId: v.jobId, name: v.cand, job: v.job });
   });
@@ -886,6 +887,7 @@ function buildSum(){
     var lastRv = list.filter(function(v){ return v.rv; })[0];
     if(lastRv && lastRv === last && !future && now - lastRv.rv <= ACTIVE_DAYS * DAY){
       var d = Math.floor((now - lastRv.rv) / DAY);
+      if(PASS.test(lastRv.status) && r.stage !== 'closed' && r.stage !== 'offer' && r.stage !== 'hired' && d > PASS_DAYS){ oldPass++; return; }
       if(PASS.test(lastRv.status) && r.stage !== 'closed' && r.stage !== 'offer' && r.stage !== 'hired'){ todo.push({ k: 'passed', r: r, v: lastRv, age: d, candId: r.id, jobId: r.jobId, name: r.name, job: r.job, next: NEXT[lastRv.rk] || 'next round' }); return; }
       if(FAIL.test(lastRv.status) && r.stage !== 'closed'){ todo.push({ k: 'rejected', r: r, v: lastRv, age: d, candId: r.id, jobId: r.jobId, name: r.name, job: r.job }); return; }
     }
@@ -893,9 +895,9 @@ function buildSum(){
     if(ACTIVE_STAGE[r.stage] && r.stage !== 'offer'){ if(r.age > ACTIVE_DAYS) dormant.push(r); else if(r.age >= COLD_DAYS && r.stage !== 'screen' && r.stage !== 'assess' && !future && !(last && now - last.s < COLD_DAYS * DAY)) todo.push({ k: 'cold', r: r, age: r.age, candId: r.id, jobId: r.jobId, name: r.name, job: r.job }); }
   });
   // urgency: kind first, then oldest within the kind (but all of it is recent by construction)
-  todo.sort(function(a, b){ return (KIND[a.k][3] - KIND[b.k][3]) || (b.age - a.age); });
+  todo.sort(function(a, b){ return (KIND[a.k][3] - KIND[b.k][3]) || (a.age - b.age); });   // newest first within each kind
   var active = rows.filter(function(r){ return ACTIVE_STAGE[r.stage] && r.age <= ACTIVE_DAYS; });
-  return { jobs: jobs, ids: ids, rows: rows, active: active, ivs: ivs, fb: fb, fbBy: fbBy, todo: todo, dormant: dormant, hidden: hidden, now: now,
+  return { jobs: jobs, ids: ids, rows: rows, active: active, ivs: ivs, fb: fb, fbBy: fbBy, todo: todo, dormant: dormant, hidden: hidden, oldEval: oldEval, oldPass: oldPass, now: now,
     today: ivs.filter(function(v){ return dayKey(v.start) === new Date().toDateString(); }).sort(function(a, b){ return a.s - b.s; }),
     offers: rows.filter(function(r){ return OFFER_ST.test(r.st) && r.age <= 90; }) };
 }
@@ -937,7 +939,7 @@ function viewWork(){
       Object.keys(KIND).map(function(k){ return '<button role="tab" data-wf="' + k + '" aria-selected="' + (f === k) + '" style="--c:' + KIND[k][2] + '">' + KIND[k][0] + ' ' + esc(KIND[k][1]) + ' <b>' + counts[k] + '</b></button>'; }).join('') + '</div>' +
       (shown.length ? shown.map(rowHtml).join('') : '<div class="empty" style="margin-top:10px">Nothing here. 🎉</div>') +
       (list.length > shown.length ? '<button class="btn sm" id="wmore" style="margin-top:8px">Show all ' + list.length + '</button>' : '') +
-      '<div class="hint" style="margin-top:10px;font-size:12px">Only the last ' + ACTIVE_DAYS + ' days count as work. <b>' + D.dormant.length + '</b> candidate' + (D.dormant.length === 1 ? ' is' : 's are') + ' dormant (' + ACTIVE_DAYS + '–' + HIDE_DAYS + ' days untouched); ' + D.hidden + ' older than ' + HIDE_DAYS + ' days are left out' + (D.dormant.length ? ' · <a href="#" id="wdorm">' + (S.wDorm ? 'hide' : 'see them') + '</a>' : '') + '.</div>' +
+      '<div class="hint" style="margin-top:10px;font-size:12px">Missing evaluations count for ' + EVAL_DAYS + ' days and pass decisions for ' + PASS_DAYS + ' days (' + D.oldEval + ' older missing evaluations and ' + D.oldPass + ' older passes are not listed). Candidates count for ' + ACTIVE_DAYS + ' days: <b>' + D.dormant.length + '</b> candidate' + (D.dormant.length === 1 ? ' is' : 's are') + ' dormant (' + ACTIVE_DAYS + '–' + HIDE_DAYS + ' days untouched); ' + D.hidden + ' older than ' + HIDE_DAYS + ' days are left out' + (D.dormant.length ? ' · <a href="#" id="wdorm">' + (S.wDorm ? 'hide' : 'see them') + '</a>' : '') + '.</div>' +
       (S.wDorm ? '<div style="margin-top:8px">' + D.dormant.sort(function(a, b){ return a.age - b.age; }).slice(0, 200).map(function(r){ return '<div class="trow" tabindex="0" data-qc="' + esc(r.id) + '" data-qj="' + esc(r.jobId) + '" style="--c:#b9b3c9"><span class="tk">💤 Dormant</span><div class="tm2"><div class="who">' + esc(r.name) + ' <span class="hint">· ' + esc(r.job) + '</span></div><div class="sub">' + esc(r.status) + '</div></div><span class="age">' + (r.age > 365 ? Math.floor(r.age / 365) + 'y+' : r.age + 'd') + '</span><div class="acts"></div></div>'; }).join('') + '</div>' : '') +
     '</section><aside class="panel2"><h3 class="h3">My roles</h3>' + (roles.length ? roles.map(function(o){ return '<button class="rolerow" data-dj="' + esc(o.x.id) + '"><span class="t">' + esc(o.x.title) + '</span><span class="n"><b>' + o.act + '</b> active</span><span class="n' + (o.wait ? ' w' : '') + '"><b>' + o.wait + '</b> waiting</span><span class="n"><b>' + o.iv7 + '</b> interviews 7d</span></button>'; }).join('') : '<div class="hint">No open roles where you are the recruiter. Switch to “All jobs”.</div>') + '</aside></div>';
   bindJobSelect();
