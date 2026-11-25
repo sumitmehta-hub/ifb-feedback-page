@@ -473,6 +473,31 @@ function navBar(){ var i = S.visible.indexOf(S.candId), n = S.visible.length;
   return '<div class="dnav"><button class="btn sm" id="pv"' + (i <= 0 ? ' disabled' : '') + ' aria-label="Previous candidate">↑ Prev</button><button class="btn sm" id="nx"' + (i < 0 || i >= n - 1 ? ' disabled' : '') + ' aria-label="Next candidate">Next ↓</button><span>' + (i >= 0 ? (i + 1) + ' of ' + n + ' &nbsp;' : '') + '<span class="kbd">K</span> <span class="kbd">J</span></span><span class="sp"></span><button class="btn sm" id="dx" aria-label="Close">✕ Close</button></div>'; }
 function bindNav(){ document.getElementById('dx').onclick = function(){ closeDrawer(); }; var p = document.getElementById('pv'), n = document.getElementById('nx'); if(p) p.onclick = function(){ step(-1); }; if(n) n.onclick = function(){ step(1); }; }
 function chipFor(st){ var k = stageOf(st); var c = k === 'closed' ? 'bad' : k === 'hold' ? 'pend' : k === 'hired' || k === 'offer' ? 'ok' : k === 'out' ? '' : 'br'; return '<span class="chip ' + c + '">' + esc(st || '—') + '</span>'; }
+// one interviewer's feedback, in full; Pending rows get "Remind on Cliq"
+function fbBlock(f){
+  var done = f.status === 'Submitted', pend = f.status === 'Pending';
+  var chip = done ? '<span class="chip ok">Submitted' + (f.at ? ' · ' + esc(new Date(f.at).toLocaleDateString('en-IN', { day:'numeric', month:'short' })) : '') + '</span>' : f.status === 'Filed in Recruit' ? '<span class="chip">Filed directly in Recruit</span>' : '<span class="chip pend">To fill</span>';
+  var h = '<div class="fb"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>' + esc(f.who) + '</b>' + chip + (f.rec ? '<span class="chip br">' + esc(f.rec) + '</span>' : '') +
+    (f.rating ? '<span class="hint"><b style="color:var(--ink)">' + esc(f.rating) + '/5</b> overall</span>' : '') + (f.avg ? '<span class="hint">avg score ' + esc(f.avg) + '</span>' : '') +
+    (pend && f.rowId ? '<button class="btn sm" data-remind="' + esc(f.rowId) + '" style="margin-left:auto">🔔 Remind on Cliq</button>' : '') + '</div>';
+  if(f.comments) h += '<div class="c">' + esc(f.comments) + '</div>';
+  if(f.scores) h += '<details style="margin-top:6px"><summary class="hint" style="cursor:pointer">Question scores</summary><div class="box" style="margin-top:6px;font-size:13px">' + esc(String(f.scores).replace(/\[\[nl\]\]/g, '\n')) + '</div></details>';
+  if(pend && f.nudged) h += '<div class="hint" style="font-size:12px;margin-top:4px">Last reminded ' + esc(ago(f.nudged)) + '</div>';
+  return h + '</div>';
+}
+// the ONE evaluation Recruit holds for the interview (Submit to Recruit, or filed directly in Recruit)
+function evalBlock(e){
+  if(!e) return '';
+  return '<div class="box" style="margin-top:10px;background:var(--brand-ll);border-color:var(--brand-line)"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>Recruit evaluation</b>' + (e.decision ? '<span class="chip br">' + esc(e.decision) + '</span>' : '') + (e.rating ? '<span class="hint"><b style="color:var(--ink)">' + esc(e.rating) + '/5</b></span>' : '') + '<span class="hint" style="margin-left:auto">' + esc([e.by, e.at ? dt(e.at, true) : ''].filter(Boolean).join(' · ')) + '</span></div>' + (e.comments ? '<div style="margin-top:6px;font-size:13.5px">' + esc(e.comments) + '</div>' : '') + '</div>';
+}
+function bindRemind(){
+  drawer.querySelectorAll('[data-remind]').forEach(function(b){ b.onclick = function(){
+    var row = b.dataset.remind; b.disabled = true; b.textContent = 'Sending…';
+    post('remind', { rowId: row }).then(function(j){ if(j.ok){ b.textContent = '✓ Reminder sent to ' + (j.to || 'interviewer'); toastMsg('Reminder sent on Cliq'); } else { b.disabled = false; b.textContent = '🔔 Remind on Cliq'; toastMsg(j.error || 'Could not send'); } })
+      .catch(function(e){ b.disabled = false; b.textContent = '🔔 Remind on Cliq'; toastMsg(e.message); });
+  }; });
+}
+function toastMsg(t){ var el = document.getElementById('toast'); if(!el){ el = document.createElement('div'); el.id = 'toast'; el.setAttribute('role', 'status'); el.style.cssText = 'position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:var(--brand-dd);color:#fff;border-radius:999px;padding:10px 18px;font-weight:700;z-index:99;box-shadow:0 8px 24px rgba(43,17,96,.35)'; document.body.appendChild(el); } el.textContent = t; el.style.display = 'block'; clearTimeout(toastMsg.h); toastMsg.h = setTimeout(function(){ el.style.display = 'none'; }, 2800); }
 // journey along the hiring blueprint: Screening → … → Hired, from this job's status + the status history
 var PATH = [['screen','Screening'],['assess','Assessment',1],['blitz','Blitz',1],['r1','R1'],['r2','R2'],['r3','R3'],['vibe','Vibe / Ref'],['offer','Offer'],['hired','Hired']];
 function journey(j){
@@ -518,9 +543,8 @@ function viewCandidate(){
       h += '<div class="round"><div class="rh"><b>' + esc(v.name || v.round || 'Interview') + '</b>' + (v.status ? '<span class="chip">' + esc(v.status) + '</span>' : '') + '<span class="hint" style="margin-left:auto">' + esc(dt(v.start, true)) + '</span></div>' +
         '<div class="hint">' + esc([v.job, v.interviewers.length ? 'Panel: ' + v.interviewers.join(', ') : '', v.owner ? 'Owner: ' + v.owner : ''].filter(Boolean).join(' · ')) + '</div>' +
         '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">' + (v.url && new Date(v.end || v.start) >= Date.now() ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener">Join ↗</a>' : '') + (fb.some(function(f){ return f.status === 'Pending'; }) ? '<a class="btn sm" href="' + FB_TAB + '" target="_top">Give feedback</a>' : '') + '<a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener">Interview in Recruit ↗</a></div>' +
-        (fb.length ? fb.map(function(f){ var st = f.status === 'Submitted' || f.status === 'Filed in Recruit' ? 'ok' : 'pend';
-          return '<div class="fb"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>' + esc(f.who) + '</b><span class="chip ' + st + '">' + esc(f.status === 'Pending' ? 'To fill' : f.status) + '</span>' + (f.rec ? '<span class="chip br">' + esc(f.rec) + '</span>' : '') + (f.rating ? '<span class="hint">' + esc(f.rating) + '/5</span>' : '') + '</div>' + (f.comments ? '<div class="c">' + esc(f.comments) + '</div>' : '') + '</div>'; }).join('')
-          : '<div class="fb hint">No panel feedback recorded for this round.</div>') + '</div>';
+        evalBlock(v.evaluation) +
+        (fb.length ? fb.map(fbBlock).join('')          : '<div class="fb hint">No panel feedback recorded for this round.</div>') + '</div>';
     });
   } else {
     var ev = (j.history || []).filter(function(e){ return (e.fields && e.fields.length) || e.action || e.comment || e.note; });
@@ -534,6 +558,7 @@ function viewCandidate(){
   drawer.innerHTML = h + '</div>';
   bindNav();
   drawer.querySelectorAll('.tab').forEach(function(b){ b.onclick = function(){ candTab = b.dataset.t; viewCandidate(); }; });
+  bindRemind();
 }
 
 function render(){
