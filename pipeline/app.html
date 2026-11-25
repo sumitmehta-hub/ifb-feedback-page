@@ -530,6 +530,18 @@ body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden
 .me{color:var(--ink)}.me .av{background:var(--brand-l);border:1px solid var(--brand-line);color:var(--brand-d)}#mePr{color:var(--muted);opacity:1!important}
 .sidet{border:1px solid var(--line);background:#fff;color:var(--ink2)}.sidet:hover{background:var(--brand-l);color:var(--brand-d);border-color:var(--brand-line)}.sidet:focus-visible{outline:2px solid var(--brand)}
 @media (max-width:600px){.tsep{display:none}.lglogo{height:18px}}
+/* 26 Nov: top bar in Leegality's own colours: the wordmark navy into the logo's purples, with the logo's coral-orange-purple as a thin edge */
+.top{background:radial-gradient(120% 220% at 100% 0%,rgba(144,63,249,.55) 0%,rgba(144,63,249,0) 55%),linear-gradient(100deg,#06003B 0%,#1c0758 38%,#3d14a3 72%,#5A1FCC 100%);color:#fff;border-bottom:0;box-shadow:0 4px 16px rgba(6,0,59,.22)}
+.top:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,#DD4E4E,#F26966 22%,#FFAD26 45%,#903FF9 75%,#5A1FCC);pointer-events:none}
+.top .lglogo path[fill="#06003B"]{fill:#fff}
+.top .t1{color:#fff}.top .t2{color:rgba(255,255,255,.78)}.tsep{background:rgba(255,255,255,.28)!important;border-color:rgba(255,255,255,.28)!important}
+.top .gs{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.26);color:#fff}.top .gs input{color:#fff}.top .gs input::placeholder{color:rgba(255,255,255,.72)}.top .gs svg{color:rgba(255,255,255,.8)}
+.top .gs kbd{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.3);color:#fff}.top .gs:focus-within{background:#fff;border-color:#fff;box-shadow:0 0 0 3px rgba(255,173,38,.45)}
+.top .gs:focus-within input{color:var(--ink)}.top .gs:focus-within input::placeholder{color:var(--muted)}.top .gs:focus-within svg{color:var(--muted)}.top .gs:focus-within kbd{background:#fff;border-color:var(--line);color:var(--muted)}
+.top .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,.7);color:#fff}.top .btn.ghost:hover{background:rgba(255,255,255,.14);border-color:#fff}
+.top .me{color:#fff}.top .me .av{background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.4);color:#fff}.top #mePr{color:rgba(255,255,255,.78)}
+.top .sidet{border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:#fff}.top .sidet:hover{background:rgba(255,255,255,.2);color:#fff;border-color:rgba(255,255,255,.45)}.top .sidet:focus-visible{outline:2px solid #fff}
+.top .helpb{box-shadow:0 2px 8px rgba(6,0,59,.25)}
 /* My interviews as cards like the rest of the pipeline (26 Nov) */
 .mi-sec{background:#fff;border:1px solid var(--line);border-top:4px solid var(--c,var(--brand));border-radius:14px;padding:14px 16px 16px;box-shadow:var(--shadow);margin:0 0 14px}
 .mi-sec h3{font-size:15.5px;margin:0 0 12px}.mi-sec h3 .ci{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:14px;background:color-mix(in srgb,var(--c,var(--brand)) 14%,#fff)}
