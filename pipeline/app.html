@@ -36,7 +36,7 @@ a{color:var(--brand-d);font-weight:600;text-decoration:none}a:hover{text-decorat
 .side .hd{padding:14px 14px 8px}
 .side .hd h2{margin:0 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .side .list{overflow-y:auto;padding:4px 8px 14px;flex:1}
-.home-link{display:flex;gap:8px;align-items:center;width:100%;border:0;background:none;border-radius:10px;padding:8px 10px;cursor:pointer;font-weight:700;color:var(--brand-d);text-align:left}
+.home-link{display:flex;gap:8px;word-spacing:3px;align-items:center;width:100%;border:0;background:none;border-radius:10px;padding:8px 10px;cursor:pointer;font-weight:700;color:var(--brand-d);text-align:left}
 .home-link:hover,.home-link[aria-current=true]{background:#fff;box-shadow:var(--shadow)}
 .grp{font-size:11.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--brand-d);margin:12px 8px 6px}
 .ji{display:flex;gap:10px;align-items:center;width:100%;text-align:left;border:0;background:none;border-radius:10px;padding:9px 10px;cursor:pointer;color:var(--ink)}
@@ -131,6 +131,11 @@ a{color:var(--brand-d);font-weight:600;text-decoration:none}a:hover{text-decorat
 .nxform input,.nxform select,.nxform textarea{font:inherit;font-weight:500;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff;color:var(--ink)}
 .nxform textarea{min-height:70px;resize:vertical}.nxform .row2{display:grid;grid-template-columns:1fr 140px;gap:10px}
 .nxnote{font-size:12.5px;color:var(--ink2);background:var(--panel);border-radius:10px;padding:8px 10px}
+.spin.sm{width:12px;height:12px;border-width:2px;vertical-align:-2px;margin-right:4px}
+.trow{grid-template-columns:128px minmax(0,1fr) auto}.trow .tm2 .who{white-space:normal}.trow .acts{grid-column:2/-1;justify-content:flex-start}.trow .acts:empty{display:none}
+.skipf{display:grid;gap:8px;padding:10px 12px 12px 140px;background:var(--panel);border-bottom:1px solid var(--line)}.skipf label{display:grid;gap:4px;font-size:12.5px;font-weight:700;color:var(--ink2)}.skipf textarea{font:inherit;font-weight:500;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px}
+.btn.ghostb{background:none;border-color:transparent;color:var(--ink2)}.btn.ghostb:hover{border-color:var(--line)}
+@media (max-width:980px){.skipf{padding-left:12px}}
 .ldbar{height:6px;background:var(--brand-ll);border-radius:99px;margin-top:12px;overflow:hidden}.ldbar i{display:block;height:100%;background:var(--brand);border-radius:99px;transition:width .3s}
 .qjump{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}.qjump .chip{text-decoration:none;background:#fff;border:1px solid var(--line);color:var(--ink)}.qjump .chip b{color:var(--brand-d)}.qjump .chip.dim{opacity:.55}
 .qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px;align-items:start}
@@ -145,9 +150,40 @@ a{color:var(--brand-d);font-weight:600;text-decoration:none}a:hover{text-decorat
 .hbars{display:grid;gap:6px}.hb{display:grid;grid-template-columns:96px 1fr 44px;gap:8px;align-items:center;font-size:12.5px}.hb .tr{height:14px;background:var(--panel);border-radius:4px}.hb i{display:block;height:100%;background:var(--brand);border-radius:0 4px 4px 0}.hb b{text-align:right}.hb:hover i{background:var(--brand-d)}
 .vbars{display:grid;grid-template-columns:repeat(29,1fr);gap:2px;align-items:end;height:170px}.vb{display:flex;flex-direction:column;align-items:center;height:100%;min-width:0}.vb .tr{flex:1;width:100%;display:flex;align-items:flex-end}.vb i{display:block;width:100%;background:var(--brand);border-radius:4px 4px 0 0}.vb.fut i{background:#c9b3f7}.vb:hover i{background:var(--brand-d)}
 .vb small{font-size:10.5px;color:var(--muted);white-space:nowrap;height:16px;margin-top:4px}.vb.now small{color:var(--brand-d);font-weight:800}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-.dtbl td:first-child{min-width:190px}.dtbl td:nth-child(2){min-width:150px}
+.dtbl td:first-child{min-width:170px}
+.dtbl{font-size:13px}.dtbl th,.dtbl td{padding:8px 10px}.dtbl th{white-space:normal;line-height:1.25;vertical-align:bottom}
+.dtbl.rh td:first-child,.dtbl.rh th:first-child{min-width:0;width:14px;padding-right:0}.dtbl.rh td:nth-child(2){min-width:170px}.dtbl.rh td:nth-child(3){min-width:130px}
 .dtbl th.n,.dtbl td.n{text-align:right;font-variant-numeric:tabular-nums}.dtbl tr[data-dj]{cursor:pointer}.dtbl tr[data-dj]:hover td{background:var(--brand-ll)}
 @media (max-width:860px){.qgrid{grid-template-columns:1fr}.dgrid{grid-template-columns:1fr}}
+.whead{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;margin-bottom:14px}.whead h1{margin:0;font-size:24px}.whead .acts{display:flex;gap:6px;align-items:center}
+.today{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px}
+.tcard{flex:0 0 220px;text-align:left;display:grid;gap:3px;background:#fff;border:1px solid var(--line);border-left:4px solid var(--brand);border-radius:12px;padding:10px 12px;box-shadow:var(--shadow);cursor:pointer;font:inherit}
+.tcard.live{border-left-color:#0f766e;background:#f2fbf9}.tcard.past{border-left-color:#b9b3c9;opacity:.85}.tcard .who{font-weight:800}.tcard .chip,.tcard .btn{justify-self:start}
+.wgrid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:14px;align-items:start}
+.panel2{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;box-shadow:var(--shadow);min-width:0}.h3{margin:2px 2px 8px;font-size:15px}
+.ftabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}.ftabs button{border:1px solid var(--line);background:#fff;border-radius:99px;padding:5px 11px;font:inherit;font-size:12.5px;font-weight:700;cursor:pointer;color:var(--ink)}
+.ftabs button[aria-selected=true]{background:var(--brand);border-color:var(--brand);color:#fff}.ftabs b{margin-left:3px}
+.trow{display:grid;grid-template-columns:128px minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:9px 8px;border-bottom:1px solid var(--line);border-left:3px solid var(--c);cursor:pointer;border-radius:4px}.trow:hover,.trow:focus{background:var(--brand-ll);outline:none}
+.trow .tk{font-size:12px;font-weight:800;color:var(--ink2)}.trow .who{font-weight:700;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.trow .sub{font-size:12.5px;color:var(--ink2)}.trow .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.age{font-size:12px;font-weight:700;color:var(--muted);white-space:nowrap}.age.hot{color:var(--bad)}.tbad{color:var(--bad)}.tok{color:var(--ok)}
+.rolerow{display:grid;grid-template-columns:1fr auto;gap:2px 10px;width:100%;text-align:left;font:inherit;background:none;border:0;border-bottom:1px solid var(--line);padding:9px 4px;cursor:pointer}.rolerow:hover{background:var(--brand-ll)}
+.rolerow .t{grid-column:1/-1;font-weight:800;font-size:13.5px}.rolerow .n{font-size:12px;color:var(--ink2)}.rolerow .n.w b{color:var(--bad)}
+.kpis{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:12px}
+.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);display:grid;gap:2px}.kpi small{font-size:11.5px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}.kpi b{font-size:28px;line-height:1.15}
+.dl{font-size:12px;color:var(--muted);font-weight:600}.dl.g{color:var(--ok)}.dl.b{color:var(--bad)}
+.calls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:14px}
+.call{text-align:left;font:inherit;cursor:pointer;background:var(--bad-l);border:1px solid #f5b8c3;border-radius:14px;padding:12px 14px;display:grid;gap:2px}.call b{font-size:24px;color:var(--bad)}.call span{font-weight:800}.call small{color:var(--ink2);font-size:12px}
+.call.ok{background:var(--ok-l);border-color:#bfe3ad}.call.ok b{color:var(--ok)}.call:hover{filter:brightness(.98)}
+.ptab{display:grid;gap:6px}.ph,.ptr{display:grid;grid-template-columns:80px 50px 60px 1fr 64px 120px;gap:8px;align-items:center;font-size:13px}.ph{font-size:11.5px;font-weight:800;color:var(--muted);text-transform:uppercase}
+.pbar{position:relative;height:18px;background:var(--panel);border-radius:4px;overflow:hidden}.pbar i{position:absolute;left:0;top:0;bottom:0;background:var(--brand);border-radius:0 4px 4px 0}.pbar em{position:relative;font-style:normal;font-weight:800;font-size:12px;padding-left:6px;color:var(--ink)}
+.wbars{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;height:180px;align-items:end}.wb{display:flex;flex-direction:column;align-items:center;height:100%}.wb b{font-size:12px}.wb .tr{flex:1;width:70%;display:flex;align-items:flex-end}.wb i{display:block;width:100%;background:var(--brand);border-radius:4px 4px 0 0}.wb.cur i{background:#c9b3f7}.wb small{font-size:11px;color:var(--muted);margin-top:4px;white-space:nowrap}
+.flag{display:inline-block;width:10px;height:10px;border-radius:50%}.flag.red{background:var(--bad)}.flag.amber{background:#e8a33d}.flag.green{background:#2fb501}
+@media (max-width:1200px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:560px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.kpi b{font-size:24px}.ftabs{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px}.ftabs button{flex:0 0 auto}.calls{grid-template-columns:repeat(2,minmax(0,1fr))}.call{padding:10px}.call b{font-size:20px}.call small{display:none}}
+@media (max-width:980px){.wgrid{grid-template-columns:1fr}.trow{grid-template-columns:1fr auto}.trow .tk{grid-column:1/-1}.trow .acts{grid-column:1/-1;justify-content:flex-start}.ph,.ptr{grid-template-columns:60px 40px 50px 1fr 50px 90px;font-size:12px}}
+/* names are always ink-black and bold (25 Nov): candidates, interviewers, panel, recruiters */
+.who,.cc .nm,.tbl td.nm,.tcard .who,.rolerow .t,.ivrow .who,.qrow .who,.trow .who{color:var(--ink);font-weight:800}
+b.pn,.sub b,.hint b,.dtbl td b{color:var(--ink);font-weight:800}
 .kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
 .kv div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 12px}
 .kv small{display:block;color:var(--muted);font-size:11.5px;font-weight:700}
@@ -206,7 +242,7 @@ a{color:var(--brand-d);font-weight:600;text-decoration:none}a:hover{text-decorat
 .sbadge{display:inline-block;border-radius:999px;padding:1px 9px;font-size:11.5px;font-weight:800}
 .sbadge.open{background:var(--ok-l);color:var(--ok)}.sbadge.hold{background:var(--warn-l);color:var(--warn)}.sbadge.closed{background:#ecebf2;color:#4a4560}
 .panel{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px;font-size:12.5px}
-.panel .pr{background:#fff;border:1px solid var(--line);border-radius:999px;padding:2px 10px}
+.panel .pr{background:#fff;border:1px solid var(--line);border-radius:999px;padding:2px 10px;white-space:nowrap;color:var(--ink);font-weight:700}
 .panel .pr b{color:var(--brand-d)}
 .journey{display:flex;gap:0;overflow-x:auto;padding:4px 2px 12px;margin-bottom:8px}
 .jstep{flex:1 0 74px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;font-size:11.5px;color:var(--muted)}
@@ -340,7 +376,7 @@ function drawSide(){
   sgs.querySelectorAll('button').forEach(function(b){ b.onclick = function(){ S.jstat = b.dataset.g; drawSide(); if(S.page === 'home') viewHome(); }; });
   var item = function(x){ return '<button class="ji" data-j="' + esc(x.id) + '" aria-current="' + (x.id === S.jobId) + '" title="' + esc(x.title) + '"><span class="dot" aria-hidden="true">' + esc(jobInitials(x.title)) + '</span><span class="tx"><span class="tt">' + esc(x.title) + '</span><span class="ss">' + esc(x.group === 'open' ? (x.dept || '') : (x.status || '') + (x.dept ? ' · ' + x.dept : '')) + '</span></span><span class="n">' + (x.candidates || 0).toLocaleString('en-IN') + '</span></button>'; };
   var mine = list.filter(function(x){ return x.mine; }), rest = list.filter(function(x){ return !x.mine; });
-  el.innerHTML = '<button class="home-link" id="wk" aria-current="' + (S.page === 'work') + '">✅ My work</button><button class="home-link" id="dsb" aria-current="' + (S.page === 'dash') + '">📊 Dashboard</button><button class="home-link" id="hm" aria-current="' + (S.page === 'home') + '">⌂ All jobs</button><button class="home-link" id="ivl" aria-current="' + (S.page === 'iv') + '">🗓 Interviews</button>' + (list.length ? (!S.onlyMine && mine.length && rest.length ? '<div class="grp">My jobs</div>' + mine.map(item).join('') + '<div class="grp">Other jobs</div>' + rest.map(item).join('') : list.map(item).join(''))
+  el.innerHTML = '<button class="home-link" id="wk" aria-current="' + (S.page === 'work') + '">✅ My work</button><button class="home-link" id="dsb" aria-current="' + (S.page === 'dash') + '">📊 Hiring overview</button><button class="home-link" id="hm" aria-current="' + (S.page === 'home') + '">⌂ All jobs</button><button class="home-link" id="ivl" aria-current="' + (S.page === 'iv') + '">🗓 Interviews</button>' + (list.length ? (!S.onlyMine && mine.length && rest.length ? '<div class="grp">My jobs</div>' + mine.map(item).join('') + '<div class="grp">Other jobs</div>' + rest.map(item).join('') : list.map(item).join(''))
     : '<div class="hint" style="padding:12px">' + (S.jq ? 'No jobs match.' : S.onlyMine ? 'No ' + (S.jstat === 'open' ? 'open' : S.jstat === 'hold' ? 'on-hold' : 'closed') + ' jobs where you are the recruiter or hiring manager. Try “All jobs”.' : 'No jobs here.') + '</div>');
   el.querySelectorAll('[data-j]').forEach(function(b){ b.onclick = function(){ openJob(b.dataset.j); }; });
   document.getElementById('hm').onclick = goHome;
@@ -349,7 +385,7 @@ function drawSide(){
   document.getElementById('ivl').onclick = goInterviews;
 }
 function jobSelect(){
-  return '<div class="jsel"><select id="jsel" aria-label="Choose a job"><option value="__work"' + (S.page === 'work' ? ' selected' : '') + '>✅ My work</option><option value="__dash"' + (S.page === 'dash' ? ' selected' : '') + '>📊 Dashboard</option><option value=""' + (S.page === 'home' ? ' selected' : '') + '>⌂ All jobs</option><option value="__iv"' + (S.page === 'iv' ? ' selected' : '') + '>🗓 Interviews</option>' + visibleJobs().map(function(x){ return '<option value="' + esc(x.id) + '"' + (x.id === S.jobId ? ' selected' : '') + '>' + esc(x.title) + ' (' + (x.candidates || 0) + ')</option>'; }).join('') + '</select></div>';
+  return '<div class="jsel"><select id="jsel" aria-label="Choose a job"><option value="__work"' + (S.page === 'work' ? ' selected' : '') + '>✅ My work</option><option value="__dash"' + (S.page === 'dash' ? ' selected' : '') + '>📊 Hiring overview</option><option value=""' + (S.page === 'home' ? ' selected' : '') + '>⌂ All jobs</option><option value="__iv"' + (S.page === 'iv' ? ' selected' : '') + '>🗓 Interviews</option>' + visibleJobs().map(function(x){ return '<option value="' + esc(x.id) + '"' + (x.id === S.jobId ? ' selected' : '') + '>' + esc(x.title) + ' (' + (x.candidates || 0) + ')</option>'; }).join('') + '</select></div>';
 }
 function bindJobSelect(){ var s = document.getElementById('jsel'); if(s) s.onchange = function(){ if(this.value === '__iv') goInterviews(); else if(this.value === '__work') goWork(); else if(this.value === '__dash') goDash(); else if(this.value) openJob(this.value); else goHome(); }; }
 
@@ -362,7 +398,7 @@ function route(first){
   if(!S.jobs) return;
   var h = readHash(), job = h.job;
   var vw = (location.hash.match(/view=(work|dash)/) || [])[1];
-  if(vw || (first && !job)){ S.jobId = ''; if(S.page !== vw || first){ if(vw === 'dash') goDash(true); else goWork(true); } if(h.c && h.c !== S.candId) openCandidate(h.c, true); else if(!h.c) closeDrawer(true); return; }
+  if(vw || (first && !job)){ S.jobId = ''; if(S.page !== vw || first){ if(vw === 'dash' || (!vw && S.admin)) goDash(true); else goWork(true); } if(h.c && h.c !== S.candId) openCandidate(h.c, true); else if(!h.c) closeDrawer(true); return; }
   if(location.hash.indexOf('view=iv') >= 0){ S.jobId = ''; if(S.page !== 'iv' || !S.ivs) goInterviews(true); if(h.c && h.c !== S.candId) openCandidate(h.c, true); else if(!h.c) closeDrawer(true); return; }
   if(first && !job){ var last = store('hire_job'); if(last && S.jobs.some(function(x){ return x.id === last; })){ job = last; history.replaceState(null, '', location.pathname + location.search + '#job=' + last); } }
   if(job && S.jobs.some(function(x){ return x.id === job; })){
@@ -410,7 +446,7 @@ function viewInterviews(){
     var st = ivState(v), fb = '<span class="chip ' + st.chip + '">' + esc(st.label) + '</span>';
     return '<div class="ivrow st-' + st.k + (isPast ? ' past' : '') + '" tabindex="0" data-c="' + esc(v.candId) + '" data-j="' + esc(v.jobId) + '"><div class="tm">' + esc(timeOf(v.start)) + '<small>' + esc(dayLabel(v.start)) + '</small></div>' +
       '<div style="min-width:0"><div class="who">' + esc(v.cand) + ' <span class="chip br" style="margin-left:4px">' + esc(String(v.round).replace(/ Interview$/,'')) + '</span>' + (v.status ? ' <span class="chip">' + esc(v.status) + '</span>' : '') + '</div>' +
-      '<div class="sub">' + esc(v.job) + (v.panel.length ? ' · Panel: ' + esc(v.panel.join(', ')) : ' · <span style="color:var(--warn)">no interviewer set</span>') + (v.owner ? ' · Owner: ' + esc(v.owner) : '') + '</div></div>' +
+      '<div class="sub">' + esc(v.job) + (v.panel.length ? ' · Panel: <b class="pn">' + esc(v.panel.join(', ')) + '</b>' : ' · <span style="color:var(--warn)">no interviewer set</span>') + (v.owner ? ' · Owner: <b class="pn">' + esc(v.owner) + '</b>' : '') + '</div></div>' +
       '<div class="acts">' + fb + (v.url && !isPast ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener" data-stop="1">Join ↗</a>' : '') + (isPast && v.fb && v.fb.done < v.fb.total ? '<a class="btn sm" href="' + FB_TAB + '" target="_top" data-stop="1">Give feedback</a>' : '') + '<a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener" data-stop="1">Recruit ↗</a></div></div>';
   };
   var groupBy = function(arr, isPast){ var out = '', last = null; arr.forEach(function(v){ var k = dayKey(v.start); if(k !== last){ out += '<div class="ivday">' + esc(dayLabel(v.start)) + '</div>'; last = k; } out += row(v, isPast); }); return out; };
@@ -670,7 +706,7 @@ function viewCandidate(){
       fb.forEach(function(f){ tabs.push({ k: f.rowId, label: f.who || 'Interviewer', c: f.status === 'Submitted' ? '#2fb501' : f.status === 'Pending' ? '#f29a1f' : '#8a849c', f: f }); });
       var cur = S.rtab[v.id]; if(!tabs.some(function(t){ return t.k === cur; })){ var sub = tabs.filter(function(t){ return t.f && t.f.status === 'Submitted'; })[0]; cur = (tabs[0] && tabs[0].k === 'eval') ? 'eval' : sub ? sub.k : (tabs[0] && tabs[0].k); }
       h += '<div class="round" data-iv="' + esc(v.id) + '"><div class="rh"><b style="font-size:15.5px">' + esc(v.name || v.round || 'Interview') + '</b>' + (v.status ? '<span class="chip">' + esc(v.status) + '</span>' : '') + '<span class="hint" style="margin-left:auto">' + esc(dt(v.start, true)) + '</span></div>' +
-        '<div class="hint">' + esc([v.job, v.interviewers.length ? 'Panel: ' + v.interviewers.join(', ') : '', v.owner ? 'Owner: ' + v.owner : ''].filter(Boolean).join(' · ')) + '</div>' +
+        '<div class="hint">' + [esc(v.job), v.interviewers.length ? 'Panel: <b class="pn">' + esc(v.interviewers.join(', ')) + '</b>' : '', v.owner ? 'Owner: <b class="pn">' + esc(v.owner) + '</b>' : ''].filter(Boolean).join(' · ') + '</div>' +
         '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">' + (v.url && new Date(v.end || v.start) >= Date.now() ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener">Join ↗</a>' : '') + (fb.some(function(f){ return f.status === 'Pending'; }) ? '<a class="btn sm" href="' + FB_TAB + '" target="_top">Give feedback</a>' : '') + '<a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener">Interview in Recruit ↗</a></div>';
       if(!tabs.length){ h += '<div class="hint" style="margin-top:12px">No feedback or evaluation yet for this round.</div></div>'; return; }
       h += '<div class="rtabs" role="tablist">' + tabs.map(function(t){ return '<button class="rtab" role="tab" data-iv="' + esc(v.id) + '" data-k="' + esc(t.k) + '" aria-selected="' + (t.k === cur) + '" style="--c:' + t.c + '"><i></i>' + esc(t.label) + '</button>'; }).join('') + '</div>';
@@ -768,103 +804,165 @@ function fileEval(b){
   }).catch(function(e){ toastMsg(e.message); b.disabled = false; b.textContent = 'File evaluation now'; });
 }
 
-// ---------- My work + Dashboard (25 Nov): what TA act on today, and the team picture for Tabir ----------
-// Data: every open job in scope (My / All) through the cached 'job' route (in-process candidates), plus 'activity'
-// (interviews 30 days back to 7 ahead, panel feedback rows of the last 30 days). All counting happens here.
+// ---------- My work (TA) + Overview (head), v2 25 Nov ----------
+// Two audiences (market pattern: Ashby/Greenhouse/Lever): TA get one to-do list ordered by urgency; the head (HIRE_ADMINS)
+// gets flow, pass-through, role health and team pace. Only RECENT work is actionable: anything untouched for ACTIVE_DAYS
+// is "dormant" (counted, listed only on request), so 2025 records never crowd today's list.
 var VIEWS = { iv: 1, work: 1, dash: 1 };
+var ACTIVE_DAYS = 60, HIDE_DAYS = 180, COLD_DAYS = 10, DAY = 86400000;   // audit 25 Nov: older 'in process' records are 2021-25 leftovers
 var IVNAME = { blitz: 'blitz interview', r1: 'round 1 interview', r2: 'round 2 interview', r3: 'round 3 interview', vibe: 'vibe check interview' };
+var RLABEL = { blitz: 'Blitz', r1: 'R1', r2: 'R2', r3: 'R3', vibe: 'Vibe check' };
 var WAIT_ROUND = { 'blitz interview scheduled': 'blitz', 'r1 interview-scheduled': 'r1', 'interview-scheduled': 'r1', 'r2 interview-scheduled': 'r2', 'r3 interview-scheduled': 'r3', 'f2f vibe check pending': 'vibe' };
 var TO_SCHED = { 'selected-r1>>r2': 'R2', 'selected-r2>>r3': 'R3', 'selected r3>> vibe check': 'Vibe check', 'r1 interview-to-be-scheduled': 'R1', 'r1 - no show': 'R1 again', 'r2 - no show': 'R2 again', 'r3 - no show': 'R3 again', 'technical assessment submitted': 'R1' };
 var OFFER_ST = /^(to-be-offered|offer-made|on hold after offer|offer discussion - pending|offer discussion - completed|selected-r3>>offer)$/;
 var ACTIVE_STAGE = { screen: 1, assess: 1, blitz: 1, r1: 1, r2: 1, r3: 1, vibe: 1, offer: 1 };
-var DAY = 86400000;
-S.jr = S.jr || {};   // jobId → { at, rows }
+var PASS = /move to next round|shortlist|strong hire|^hired|selected/i, FAIL = /reject/i, NOSHOW = /no show|no-show/i;
+var KIND = { evalmiss: ['📝','Evaluation missing','#c8102e',1], passed: ['✅','Passed, book next round','#2f7d00',2], rejected: ['✖️','Rejected, still open','#8a1b2e',3], sched: ['📅','To schedule','#1d4ed8',4], cold: ['🧊','Going cold','#6b6385',5] };
+var NEXT = { blitz: 'R1', r1: 'R2', r2: 'R3', r3: 'Vibe check', vibe: 'reference check' };
+S.jr = S.jr || {};
+function isHead(){ return !!S.admin; }
 function scopeJobs(){ return (S.jobs || []).filter(function(x){ return x.group === 'open' && (!S.onlyMine || x.mine); }); }
 function goWork(fromRoute){ S.page = 'work'; S.jobId = ''; if(fromRoute !== true) writeHash('', ''); closeDrawer(true); drawSide(); loadSum(false, viewWork); }
 function goDash(fromRoute){ S.page = 'dash'; S.jobId = ''; if(fromRoute !== true) writeHash('', ''); closeDrawer(true); drawSide(); loadSum(false, viewDash); }
+// Fast loading (25 Nov): 1) the last result is kept in this browser (per user, 12 h) and drawn at once; 2) fresh data
+// streams in behind it, 4 roles at a time, redrawing as it arrives; interviews (one call) come first, so today's
+// interviews and missing evaluations show within a second even on a first visit. No blocking loader after the first draw.
+function sumKey(){ return 'hire_sum_' + String((S.me && S.me.email) || '').toLowerCase(); }
+function sumRestore(){ if(S.sumRestored) return; S.sumRestored = true; try{ var o = JSON.parse(localStorage.getItem(sumKey()) || 'null'); if(o && o.at > Date.now() - 12 * 3600000){ S.jr = o.jr || {}; if(o.act){ S.act = o.act; S.actAt = o.actAt; } } }catch(e){} }
+function sumSave(){ try{ var jr = {}; Object.keys(S.jr).forEach(function(k){ jr[k] = { at: S.jr[k].at, rows: (S.jr[k].rows || []).map(function(r){ return { id: r.id, Full_Name: r.Full_Name, Candidate_Status: r.Candidate_Status, Updated_On: r.Updated_On, Created_Time: r.Created_Time, Evaluation_Bypass_Reason: r.Evaluation_Bypass_Reason }; }) }; });
+  localStorage.setItem(sumKey(), JSON.stringify({ at: Date.now(), jr: jr, act: S.act, actAt: S.actAt })); }catch(e){ try{ localStorage.removeItem(sumKey()); }catch(e2){} } }
+function sumHint(){ return S.sumProg ? '<span class="hint"><span class="spin sm" aria-hidden="true"></span> Refreshing ' + S.sumProg + '</span>' : '<span class="hint">Updated ' + esc(ago(new Date(S.actAt || Date.now()).toISOString()) || 'now') + '</span>'; }
 function loadSum(fresh, then){
-  var main = document.getElementById('main'), jobs = scopeJobs(), need = jobs.filter(function(x){ var c = S.jr[x.id]; return fresh || !c || c.at < Date.now() - 10 * 60000; });
+  sumRestore();
+  var main = document.getElementById('main'), page = S.page, jobs = scopeJobs();
+  var need = jobs.filter(function(x){ var c = S.jr[x.id]; return fresh || !c || c.at < Date.now() - 10 * 60000; });
   var actOk = S.act && !fresh && S.actAt > Date.now() - 5 * 60000;
-  if(!need.length && actOk){ then(); return; }
-  var done = 0, page = S.page, draw = function(){ if(S.page !== page) return; main.innerHTML = jobSelect() + '<div class="hero"><h1>' + (page === 'dash' ? 'Dashboard' : 'My work') + '</h1><div class="hint" style="margin-top:4px">Reading ' + need.length + ' open job' + (need.length === 1 ? '' : 's') + ' from Recruit… ' + done + ' done</div><div class="ldbar"><i style="width:' + Math.round(100 * done / Math.max(1, need.length)) + '%"></i></div></div>'; bindJobSelect(); };
-  draw();
-  var q = need.slice(), errs = 0;
+  var have = !!S.act || jobs.some(function(x){ return S.jr[x.id]; });
+  var draw = function(){ if(S.page === page) then(); };
+  if(!need.length && actOk){ S.sumProg = ''; draw(); return; }
+  if(S.sumBusy){ if(have) draw(); return; }   // a refresh is already streaming in; it redraws when parts land
+  S.sumBusy = true;
+  var done = 0, errs = 0, t = 0;
+  var prog = function(){ S.sumProg = need.length ? done + ' of ' + need.length + ' roles' : 'interviews'; };
+  var soon = function(){ clearTimeout(t); t = setTimeout(draw, 350); };
+  prog();
+  if(have) draw();
+  else main.innerHTML = jobSelect() + '<div class="hero"><h1>' + (page === 'dash' ? 'Hiring overview' : 'My work') + '</h1><div class="hint" style="margin-top:4px">Reading today’s interviews…</div><div class="ldbar"><i style="width:15%"></i></div></div>';
+  var q = need.slice();
   var one = function(){ var x = q.shift(); if(!x) return Promise.resolve();
-    return post('job', { jobId: x.id, fresh: !!fresh }).then(function(j){ if(j.ok) S.jr[x.id] = { at: Date.now(), rows: j.candidates || [] }; else errs++; }).catch(function(){ errs++; }).then(function(){ done++; draw(); return one(); }); };
-  var act = actOk ? Promise.resolve() : post('activity', { fresh: !!fresh }).then(function(j){ if(j.ok){ S.act = j; S.actAt = Date.now(); } else S.actErr = j.error; });
-  Promise.all([one(), one(), act]).then(function(){ S.sumErr = errs ? errs + ' job' + (errs === 1 ? '' : 's') + ' could not be read; numbers may be low.' : ''; if(S.page === page) then(); });
+    return post('job', { jobId: x.id, fresh: !!fresh }).then(function(j){ if(j.ok) S.jr[x.id] = { at: Date.now(), rows: j.candidates || [] }; else errs++; }).catch(function(){ errs++; }).then(function(){ done++; prog(); soon(); return one(); }); };
+  var act = actOk ? Promise.resolve() : post('activity', { fresh: !!fresh }).then(function(j){ if(j.ok){ S.act = j; S.actAt = Date.now(); } else S.actErr = j.error; prog(); draw(); });
+  Promise.all([act, one(), one(), one(), one()]).then(function(){ S.sumBusy = false; S.sumProg = ''; S.sumErr = errs ? errs + ' role' + (errs === 1 ? '' : 's') + ' could not be read; numbers may be low.' : ''; sumSave(); clearTimeout(t); draw(); });
 }
+var tms = function(x){ var d = new Date(x).getTime(); return isNaN(d) ? 0 : d; };
+var roundOf = function(name){ var n = String(name || '').toLowerCase(); for(var k in IVNAME) if(n === IVNAME[k]) return k; return ''; };
+function weekStart(off){ var d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7) + 7 * (off || 0)); return d.getTime(); }
 function buildSum(){
   var jobs = scopeJobs(), ids = {}, now = Date.now(), act = S.act || { interviews: [], feedback: [] };
   jobs.forEach(function(x){ ids[x.id] = x; });
-  var rows = []; jobs.forEach(function(x){ ((S.jr[x.id] || {}).rows || []).forEach(function(r){ rows.push({ id: r.id, name: r.Full_Name, status: r.Candidate_Status || '', st: String(r.Candidate_Status || '').toLowerCase(), stage: stageOf(r.Candidate_Status), upd: r.Updated_On || r.Created_Time || '', owner: r.Owner || '', jobId: x.id, job: x.title }); }); });
+  var rows = []; jobs.forEach(function(x){ ((S.jr[x.id] || {}).rows || []).forEach(function(r){ var u = tms(r.Updated_On || r.Created_Time);
+    rows.push({ id: r.id, name: r.Full_Name, bypass: r.Evaluation_Bypass_Reason || '', status: r.Candidate_Status || '', st: String(r.Candidate_Status || '').toLowerCase(), stage: stageOf(r.Candidate_Status), upd: u, age: u ? Math.floor((now - u) / DAY) : 9999, created: tms(r.Created_Time), jobId: x.id, job: x.title }); }); });
   var ivs = act.interviews.filter(function(v){ return !S.onlyMine || ids[v.jobId]; });
-  var ivById = {}; ivs.forEach(function(v){ ivById[v.id] = v; });
+  var ivById = {}; ivs.forEach(function(v){ ivById[v.id] = v; v.rk = roundOf(v.round); v.s = tms(v.start); v.e = tms(v.end || v.start); v.rv = tms(v.reviewed); });
   var fb = act.feedback.filter(function(f){ return ivById[f.iv]; });
   var fbBy = {}; fb.forEach(function(f){ (fbBy[f.iv] = fbBy[f.iv] || []).push(f); });
-  var t = function(x){ var d = new Date(x).getTime(); return isNaN(d) ? 0 : d; };
-  var ckey = function(c, j){ return c + '|' + j; };
-  var ivByCJ = {}; ivs.forEach(function(v){ (ivByCJ[ckey(v.candId, v.jobId)] = ivByCJ[ckey(v.candId, v.jobId)] || []).push(v); });
-  var Q = {};
-  Q.today = ivs.filter(function(v){ return dayKey(v.start) === new Date().toDateString(); }).sort(function(a, b){ return t(a.start) - t(b.start); });
-  Q.overdue = ivs.filter(function(v){ var e = t(v.end || v.start); return e && now - e > DAY && (fbBy[v.id] || []).some(function(f){ return f.st === 'Pending'; }); })
-    .map(function(v){ return { v: v, pend: fbBy[v.id].filter(function(f){ return f.st === 'Pending'; }) }; }).sort(function(a, b){ return t(a.v.end || a.v.start) - t(b.v.end || b.v.start); });
-  Q.toFile = ivs.filter(function(v){ var e = t(v.end || v.start), f = fbBy[v.id] || [], sub = f.filter(function(x){ return x.st === 'Submitted'; }).length, pend = f.filter(function(x){ return x.st === 'Pending'; }).length;
-    return e && e < now && !v.reviewed && sub > 0 && (pend === 0 || now - e > 2 * DAY); }).map(function(v){ var f = fbBy[v.id]; return { v: v, sub: f.filter(function(x){ return x.st === 'Submitted'; }), pend: f.filter(function(x){ return x.st === 'Pending'; }) }; });
-  Q.decide = []; Q.toSched = []; Q.offers = []; Q.stuck = [];
-  rows.forEach(function(r){
-    var list = ivByCJ[ckey(r.id, r.jobId)] || [];
-    var rd = WAIT_ROUND[r.st];
-    if(rd){ var mine = list.filter(function(v){ return String(v.round).toLowerCase() === IVNAME[rd]; }).sort(function(a, b){ return t(b.start) - t(a.start); })[0];
-      if(mine && mine.reviewed) Q.decide.push({ r: r, v: mine }); }
-    if(TO_SCHED[r.st] && !list.some(function(v){ return t(v.start) > now; })) Q.toSched.push({ r: r, next: TO_SCHED[r.st], days: Math.floor((now - t(r.upd)) / DAY) });
-    if(OFFER_ST.test(r.st)) Q.offers.push({ r: r, days: Math.floor((now - t(r.upd)) / DAY) });
-    if(ACTIVE_STAGE[r.stage] && r.stage !== 'offer' && t(r.upd) && now - t(r.upd) > 14 * DAY) Q.stuck.push({ r: r, days: Math.floor((now - t(r.upd)) / DAY) });
+  var byCJ = {}; ivs.forEach(function(v){ var k = v.candId + '|' + v.jobId; (byCJ[k] = byCJ[k] || []).push(v); });
+  var todo = [], dormant = [], hidden = 0, seen = {};
+  // 1. evaluation missing: held (ended 2 h+ ago) in the last ACTIVE_DAYS, no Recruit evaluation, not cancelled / no-show.
+  //    Blitz is evaluated by TA in Recruit; R1+ by the panel (Interviewer_Feedback rows → Remind / File evaluation).
+  var RANK = { screen: 0, assess: 1, blitz: 2, r1: 3, r2: 4, r3: 5, vibe: 6, offer: 7, hired: 8 };
+  var rowByCJ = {}; rows.forEach(function(r){ rowByCJ[r.id + '|' + r.jobId] = r; });
+  ivs.forEach(function(v){
+    var cr = rowByCJ[v.candId + '|' + v.jobId];
+    if(cr && (cr.bypass.indexOf('[skip ' + v.id + ']') >= 0 || cr.stage === 'closed' || cr.stage === 'hired' || cr.stage === 'offer' || (RANK[cr.stage] != null && RANK[v.rk] != null && RANK[cr.stage] > RANK[v.rk]))) return;
+    if(!v.e || v.rv || now - v.e < 2 * 3600000 || now - v.e > ACTIVE_DAYS * DAY || /cancel/i.test(v.status) || NOSHOW.test(v.status)) return;
+    var f = fbBy[v.id] || [], pend = f.filter(function(x){ return x.st === 'Pending'; }), sub = f.filter(function(x){ return x.st !== 'Pending'; });
+    todo.push({ k: 'evalmiss', v: v, pend: pend, sub: sub, age: Math.floor((now - v.e) / DAY), candId: v.candId, jobId: v.jobId, name: v.cand, job: v.job });
   });
-  Q.toSched.sort(function(a, b){ return b.days - a.days; }); Q.offers.sort(function(a, b){ return b.days - a.days; }); Q.stuck.sort(function(a, b){ return b.days - a.days; });
-  return { jobs: jobs, ids: ids, rows: rows, ivs: ivs, fb: fb, fbBy: fbBy, Q: Q, now: now, t: t };
+  // 2/3. what the newest evaluated interview says vs where the candidate still sits (TA often file the evaluation but don't move the status)
+  rows.forEach(function(r){
+    if(r.age > HIDE_DAYS){ hidden++; return; }
+    var list = (byCJ[r.id + '|' + r.jobId] || []).slice().sort(function(a, b){ return b.s - a.s; }), last = list[0], future = list.some(function(v){ return v.s > now; });
+    var lastRv = list.filter(function(v){ return v.rv; })[0];
+    if(lastRv && lastRv === last && !future && now - lastRv.rv <= ACTIVE_DAYS * DAY){
+      var d = Math.floor((now - lastRv.rv) / DAY);
+      if(PASS.test(lastRv.status) && r.stage !== 'closed' && r.stage !== 'offer' && r.stage !== 'hired'){ todo.push({ k: 'passed', r: r, v: lastRv, age: d, candId: r.id, jobId: r.jobId, name: r.name, job: r.job, next: NEXT[lastRv.rk] || 'next round' }); return; }
+      if(FAIL.test(lastRv.status) && r.stage !== 'closed'){ todo.push({ k: 'rejected', r: r, v: lastRv, age: d, candId: r.id, jobId: r.jobId, name: r.name, job: r.job }); return; }
+    }
+    if(TO_SCHED[r.st] && !future){ if(r.age <= ACTIVE_DAYS) todo.push({ k: 'sched', r: r, next: TO_SCHED[r.st], age: r.age, candId: r.id, jobId: r.jobId, name: r.name, job: r.job }); else dormant.push(r); return; }
+    if(ACTIVE_STAGE[r.stage] && r.stage !== 'offer'){ if(r.age > ACTIVE_DAYS) dormant.push(r); else if(r.age >= COLD_DAYS && r.stage !== 'screen' && r.stage !== 'assess' && !future && !(last && now - last.s < COLD_DAYS * DAY)) todo.push({ k: 'cold', r: r, age: r.age, candId: r.id, jobId: r.jobId, name: r.name, job: r.job }); }
+  });
+  // urgency: kind first, then oldest within the kind (but all of it is recent by construction)
+  todo.sort(function(a, b){ return (KIND[a.k][3] - KIND[b.k][3]) || (b.age - a.age); });
+  var active = rows.filter(function(r){ return ACTIVE_STAGE[r.stage] && r.age <= ACTIVE_DAYS; });
+  return { jobs: jobs, ids: ids, rows: rows, active: active, ivs: ivs, fb: fb, fbBy: fbBy, todo: todo, dormant: dormant, hidden: hidden, now: now,
+    today: ivs.filter(function(v){ return dayKey(v.start) === new Date().toDateString(); }).sort(function(a, b){ return a.s - b.s; }),
+    offers: rows.filter(function(r){ return OFFER_ST.test(r.st) && r.age <= 90; }) };
 }
-// one queue row: click opens the candidate (with this queue as Prev/Next)
-function qRow(candId, jobId, main, sub, right){ return '<div class="qrow" tabindex="0" data-qc="' + esc(candId) + '" data-qj="' + esc(jobId) + '"><div style="min-width:0"><div class="who">' + main + '</div><div class="sub">' + sub + '</div></div><div class="acts">' + right + '</div></div>'; }
-function qCard(id, icon, title, why, items, n, tone){
-  var open = S.qOpen && S.qOpen[id], shown = open ? items : items.slice(0, 6);
-  return '<section class="qcard2' + (n ? '' : ' none') + '" id="q-' + id + '" style="--c:' + tone + '"><div class="qh"><h3>' + icon + ' ' + esc(title) + ' <span class="qn">' + n + '</span></h3><span class="hint">' + esc(why) + '</span></div>' +
-    (n ? shown.join('') + (items.length > 6 ? '<button class="btn sm" data-qmore="' + id + '" style="margin-top:6px">' + (open ? 'Show fewer' : 'Show all ' + items.length) + '</button>' : '') : '<div class="hint" style="padding:6px 2px">Nothing here. 🎉</div>') + '</section>';
+function rowHtml(it){
+  var K = KIND[it.k], v = it.v, rl = v ? String(v.round || '').replace(/ Interview$/, '') : '';
+  var what = '', btn = '';
+  if(it.k === 'evalmiss'){
+    what = rl + ' on ' + esc(dt(v.start)) + (it.pend.length ? ' · panel pending: <b>' + esc(it.pend.map(function(f){ return f.who; }).join(', ')) + '</b>' + (it.pend[0].nudged ? ' · reminded ' + esc(ago(it.pend[0].nudged)) : '') : it.sub.length ? ' · panel feedback is in' : ' · file it in Recruit');
+    btn = it.pend.map(function(f){ return '<button class="btn sm" data-qremind="' + esc(f.id) + '" data-stop="1" aria-label="Remind ' + esc(f.who) + ' on Cliq">🔔 ' + esc(String(f.who).split(' ')[0]) + '</button>'; }).join('') +
+      (it.sub.length ? '<button class="btn sm primary" data-qfile="' + esc(v.id) + '" data-stop="1">File evaluation</button>' : !it.pend.length ? '<a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener" data-stop="1">Open in Recruit ↗</a>' : '') +
+      '<button class="btn sm ghostb" data-qskip="' + esc(v.id) + '" data-stop="1" title="Skip this evaluation (a reason is required)">Skip…</button>'; }
+  if(it.k === 'passed'){ what = rl + ': <b class="tok">' + esc(v.status) + '</b> · nothing booked · still at ' + esc(it.r.status); btn = '<span class="btn sm primary">Schedule ' + esc(it.next) + ' →</span>'; }
+  if(it.k === 'rejected'){ what = rl + ': <b class="tbad">' + esc(v.status) + '</b> · status still ' + esc(it.r.status); btn = '<span class="btn sm bad">Close as rejected →</span>'; }
+  if(it.k === 'sched'){ what = esc(it.r.status) + ' · nothing booked'; btn = '<span class="btn sm primary">Schedule ' + esc(it.next) + '</span>'; }
+  if(it.k === 'cold'){ what = esc(it.r.status) + ' · no change and nothing booked'; btn = '<span class="btn sm">Open</span>'; }
+  var ageTxt = it.k === 'evalmiss' ? (it.age ? it.age + 'd since interview' : 'today') : it.k === 'passed' || it.k === 'rejected' ? (it.age ? it.age + 'd since evaluation' : 'today') : (it.age ? it.age + 'd in this status' : 'moved today');
+  return '<div class="trow" tabindex="0" data-qc="' + esc(it.candId) + '" data-qj="' + esc(it.jobId) + '" style="--c:' + K[2] + '"><span class="tk">' + K[0] + ' ' + esc(K[1]) + '</span>' +
+    '<div class="tm2"><div class="who">' + esc(it.name) + ' <span class="hint">· ' + esc(it.job) + '</span></div><div class="sub">' + what + '</div></div>' +
+    '<span class="age' + (it.age >= (it.k === 'evalmiss' ? 3 : 7) ? ' hot' : '') + '">' + esc(ageTxt) + '</span><div class="acts">' + btn + '</div></div>';
 }
 function viewWork(){
   var main = document.getElementById('main'); if(!main || S.page !== 'work') return;
-  var D = buildSum(), Q = D.Q, first = String((S.me && S.me.name) || '').split(' ')[0];
-  var cand = function(name, job){ return esc(name) + ' <span class="hint" style="font-weight:600">· ' + esc(job) + '</span>'; };
-  var c = {};
-  c.today = Q.today.map(function(v){ var f = D.fbBy[v.id] || [], past = D.t(v.end || v.start) < D.now;
-    return qRow(v.candId, v.jobId, '<b>' + esc(timeOf(v.start)) + '</b> ' + cand(v.cand, v.job), esc(String(v.round).replace(/ Interview$/, '')) + (v.panel.length ? ' · ' + esc(v.panel.join(', ')) : ' · <span style="color:var(--warn)">no interviewer set</span>'),
-      (past && f.length ? '<span class="chip ' + (f.every(function(x){ return x.st !== 'Pending'; }) ? 'ok' : 'pend') + '">' + f.filter(function(x){ return x.st !== 'Pending'; }).length + ' of ' + f.length + ' feedback</span>' : '') + (v.url && !past ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener" data-stop="1">Join ↗</a>' : '')); });
-  c.overdue = Q.overdue.map(function(o){ var v = o.v;
-    return qRow(v.candId, v.jobId, cand(v.cand, v.job), esc(String(v.round).replace(/ Interview$/, '')) + ' ended ' + esc(ago(v.end || v.start)) + ' · waiting on <b>' + esc(o.pend.map(function(f){ return f.who; }).join(', ')) + '</b>' + (o.pend[0].nudged ? ' · last reminded ' + esc(ago(o.pend[0].nudged)) : ''),
-      o.pend.map(function(f){ return '<button class="btn sm" data-qremind="' + esc(f.id) + '" data-stop="1">🔔 ' + esc(String(f.who).split(' ')[0]) + '</button>'; }).join('')); });
-  c.toFile = Q.toFile.map(function(o){ var v = o.v;
-    return qRow(v.candId, v.jobId, cand(v.cand, v.job), esc(String(v.round).replace(/ Interview$/, '')) + ' · ' + o.sub.length + ' of ' + (o.sub.length + o.pend.length) + ' submitted' + (o.pend.length ? ' (' + esc(o.pend.map(function(f){ return f.who; }).join(', ')) + ' still pending)' : ''),
-      '<button class="btn sm primary" data-qfile="' + esc(v.id) + '" data-stop="1">File evaluation</button>'); });
-  c.decide = Q.decide.map(function(o){ return qRow(o.r.id, o.r.jobId, cand(o.r.name, o.r.job), 'Evaluation filed' + (o.v.status ? ': <b>' + esc(o.v.status) + '</b>' : '') + ' · still at ' + esc(o.r.status), '<span class="btn sm primary">Move →</span>'); });
-  c.toSched = Q.toSched.map(function(o){ return qRow(o.r.id, o.r.jobId, cand(o.r.name, o.r.job), esc(o.r.status) + ' · waiting ' + o.days + 'd', '<span class="btn sm primary">Schedule ' + esc(o.next) + '</span>'); });
-  c.offers = Q.offers.map(function(o){ return qRow(o.r.id, o.r.jobId, cand(o.r.name, o.r.job), esc(o.r.status) + ' · ' + o.days + 'd in this step', ''); });
-  c.stuck = Q.stuck.map(function(o){ return qRow(o.r.id, o.r.jobId, cand(o.r.name, o.r.job), esc(o.r.status) + ' · no change for <b>' + o.days + ' days</b>', ''); });
-  var cards = [['today','🗓','Interviews today','Who you are meeting and the join links',c.today,'#8644f0'],['overdue','⏰','Feedback overdue','Interviews over 24 h ago with panel feedback still missing',c.overdue,'#c8102e'],
-    ['toFile','📝','Ready to file','Panel feedback is in: file the Recruit evaluation',c.toFile,'#b45309'],['decide','✅','Decide the next step','Evaluation filed, status not moved yet',c.decide,'#2f7d00'],
-    ['toSched','📅','To schedule','Selected or no-show, with no interview booked',c.toSched,'#1d4ed8'],['offers','🤝','Offers in flight','To be offered, offer made or on hold',c.offers,'#15803d'],['stuck','🧊','Stuck 14+ days','In process with no change for two weeks',c.stuck,'#8a849c']];
-  var total = Q.overdue.length + Q.toFile.length + Q.decide.length + Q.toSched.length;
-  main.innerHTML = jobSelect() + '<div class="hero"><div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap"><div style="flex:1;min-width:240px"><h1>' + (first ? 'Hi ' + esc(first) + ' 👋' : 'My work') + '</h1><div class="hint" style="margin-top:4px">' +
-    (total ? '<b>' + total + ' thing' + (total === 1 ? '' : 's') + '</b> need you' : 'Nothing is waiting on you') + ' across ' + (S.onlyMine ? 'your ' : 'all ') + D.jobs.length + ' open job' + (D.jobs.length === 1 ? '' : 's') + '. Interviews today: ' + Q.today.length + '.</div></div>' +
-    '<div style="display:flex;gap:6px;align-items:center"><span class="hint">Updated ' + esc(ago(new Date(S.actAt || Date.now()).toISOString()) || 'now') + '</span><button class="btn sm" id="wrf">↻ Refresh</button><button class="btn sm" id="wdash">📊 Dashboard</button></div></div>' +
-    '<div class="qjump">' + cards.map(function(k){ return '<a href="#q-' + k[0] + '" data-jump="' + k[0] + '" class="chip' + (k[4].length ? '' : ' dim') + '">' + k[1] + ' ' + esc(k[2]) + ' <b>' + k[4].length + '</b></a>'; }).join('') + '</div>' +
-    (S.sumErr ? '<div class="hint" style="color:var(--warn);margin-top:6px">' + esc(S.sumErr) + '</div>' : '') + (S.act && S.act.fbErr ? '<div class="hint" style="margin-top:6px">' + esc(S.act.fbErr) + '</div>' : '') + '</div>' +
-    '<div class="qgrid">' + cards.map(function(k){ return qCard(k[0], k[1], k[2], k[3], k[4], k[4].length, k[5]); }).join('') + '</div>';
+  var D = buildSum(), first = String((S.me && S.me.name) || '').split(' ')[0], f = S.wf || 'all';
+  var counts = {}; Object.keys(KIND).forEach(function(k){ counts[k] = D.todo.filter(function(x){ return x.k === k; }).length; });
+  var list = D.todo.filter(function(x){ return f === 'all' || x.k === f; }), shown = S.wAll ? list : list.slice(0, 25);
+  var needs = D.todo.filter(function(x){ return x.k !== 'cold'; }).length;
+  // my roles: active pipeline + what is waiting, per role
+  var roles = D.jobs.map(function(x){ return { x: x, act: D.active.filter(function(r){ return r.jobId === x.id; }).length, wait: D.todo.filter(function(t){ return t.jobId === x.id && t.k !== 'cold'; }).length,
+    iv7: D.ivs.filter(function(v){ return v.jobId === x.id && v.s > D.now - 7 * DAY && v.s <= D.now; }).length }; }).sort(function(a, b){ return (b.wait - a.wait) || (b.act - a.act); });
+  main.innerHTML = jobSelect() +
+    '<div class="whead"><div><h1>' + (first ? 'Good ' + (new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening') + ', ' + esc(first) : 'My work') + '</h1>' +
+    '<div class="hint">' + (needs ? '<b>' + needs + '</b> thing' + (needs === 1 ? '' : 's') + ' need you' : 'You are all caught up') + ' · ' + D.today.length + ' interview' + (D.today.length === 1 ? '' : 's') + ' today · ' + (S.onlyMine ? 'your' : 'all') + ' ' + D.jobs.length + ' open roles</div></div>' +
+    '<div class="acts">' + sumHint() + '<button class="btn sm" id="wrf">↻ Refresh</button>' + (isHead() ? '<button class="btn sm" id="wdash">📊 Hiring overview</button>' : '') + '</div></div>' +
+    (S.sumErr ? '<div class="hint" style="color:var(--warn)">' + esc(S.sumErr) + '</div>' : '') +
+    (D.today.length ? '<div class="today">' + D.today.map(function(v){ var past = v.e < D.now, live = v.s <= D.now && !past, fbs = D.fbBy[v.id] || [];
+      return '<button class="tcard' + (past ? ' past' : live ? ' live' : '') + '" data-qc="' + esc(v.candId) + '" data-qj="' + esc(v.jobId) + '"><b>' + esc(timeOf(v.start)) + (live ? ' · now' : '') + '</b><span class="who">' + esc(v.cand) + '</span><span class="hint">' + esc(String(v.round).replace(/ Interview$/, '')) + ' · ' + esc(v.job) + '</span>' +
+        (past && fbs.length ? '<span class="chip ' + (fbs.every(function(x){ return x.st !== 'Pending'; }) ? 'ok' : 'pend') + '">' + fbs.filter(function(x){ return x.st !== 'Pending'; }).length + '/' + fbs.length + ' feedback</span>' : v.url && !past ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener" data-stop="1">Join ↗</a>' : '') + '</button>'; }).join('') + '</div>' : '') +
+    '<div class="wgrid"><section class="panel2"><div class="ftabs" role="tablist"><button role="tab" data-wf="all" aria-selected="' + (f === 'all') + '">All <b>' + D.todo.length + '</b></button>' +
+      Object.keys(KIND).map(function(k){ return '<button role="tab" data-wf="' + k + '" aria-selected="' + (f === k) + '" style="--c:' + KIND[k][2] + '">' + KIND[k][0] + ' ' + esc(KIND[k][1]) + ' <b>' + counts[k] + '</b></button>'; }).join('') + '</div>' +
+      (shown.length ? shown.map(rowHtml).join('') : '<div class="empty" style="margin-top:10px">Nothing here. 🎉</div>') +
+      (list.length > shown.length ? '<button class="btn sm" id="wmore" style="margin-top:8px">Show all ' + list.length + '</button>' : '') +
+      '<div class="hint" style="margin-top:10px;font-size:12px">Only the last ' + ACTIVE_DAYS + ' days count as work. <b>' + D.dormant.length + '</b> candidate' + (D.dormant.length === 1 ? ' is' : 's are') + ' dormant (' + ACTIVE_DAYS + '–' + HIDE_DAYS + ' days untouched); ' + D.hidden + ' older than ' + HIDE_DAYS + ' days are left out' + (D.dormant.length ? ' · <a href="#" id="wdorm">' + (S.wDorm ? 'hide' : 'see them') + '</a>' : '') + '.</div>' +
+      (S.wDorm ? '<div style="margin-top:8px">' + D.dormant.sort(function(a, b){ return a.age - b.age; }).slice(0, 200).map(function(r){ return '<div class="trow" tabindex="0" data-qc="' + esc(r.id) + '" data-qj="' + esc(r.jobId) + '" style="--c:#b9b3c9"><span class="tk">💤 Dormant</span><div class="tm2"><div class="who">' + esc(r.name) + ' <span class="hint">· ' + esc(r.job) + '</span></div><div class="sub">' + esc(r.status) + '</div></div><span class="age">' + (r.age > 365 ? Math.floor(r.age / 365) + 'y+' : r.age + 'd') + '</span><div class="acts"></div></div>'; }).join('') + '</div>' : '') +
+    '</section><aside class="panel2"><h3 class="h3">My roles</h3>' + (roles.length ? roles.map(function(o){ return '<button class="rolerow" data-dj="' + esc(o.x.id) + '"><span class="t">' + esc(o.x.title) + '</span><span class="n"><b>' + o.act + '</b> active</span><span class="n' + (o.wait ? ' w' : '') + '"><b>' + o.wait + '</b> waiting</span><span class="n"><b>' + o.iv7 + '</b> interviews 7d</span></button>'; }).join('') : '<div class="hint">No open roles where you are the recruiter. Switch to “All jobs”.</div>') + '</aside></div>';
   bindJobSelect();
-  document.getElementById('wrf').onclick = function(){ S.ivFresh = true; loadSum(true, viewWork); };
-  document.getElementById('wdash').onclick = function(){ goDash(); };
-  main.querySelectorAll('[data-jump]').forEach(function(a){ a.onclick = function(e){ e.preventDefault(); var el = document.getElementById('q-' + a.dataset.jump); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }; });
-  main.querySelectorAll('[data-qmore]').forEach(function(b){ b.onclick = function(){ S.qOpen = S.qOpen || {}; S.qOpen[b.dataset.qmore] = !S.qOpen[b.dataset.qmore]; viewWork(); }; });
-  bindQRows(main);
+  document.getElementById('wrf').onclick = function(){ loadSum(true, viewWork); };
+  var wd = document.getElementById('wdash'); if(wd) wd.onclick = function(){ goDash(); };
+  var wm = document.getElementById('wmore'); if(wm) wm.onclick = function(){ S.wAll = true; viewWork(); };
+  var dm = document.getElementById('wdorm'); if(dm) dm.onclick = function(e){ e.preventDefault(); S.wDorm = !S.wDorm; viewWork(); };
+  main.querySelectorAll('[data-wf]').forEach(function(b){ b.onclick = function(){ S.wf = b.dataset.wf; S.wAll = false; viewWork(); }; });
+  main.querySelectorAll('.rolerow').forEach(function(b){ b.onclick = function(){ openJob(b.dataset.dj); }; });
+  bindQRows(main); bindQActions(main);
+}
+function bindQActions(main){
+  main.querySelectorAll('[data-qskip]').forEach(function(b){ b.onclick = function(e){ e.stopPropagation();
+    var row = b.closest('.trow'), id = b.dataset.qskip; if(row.nextElementSibling && row.nextElementSibling.classList.contains('skipf')){ row.nextElementSibling.remove(); return; }
+    var f = document.createElement('div'); f.className = 'skipf';
+    f.innerHTML = '<label>Why skip this evaluation? <span class="hint">(required, 10+ characters; saved on the candidate as Evaluation Bypass Reason, and pending panel reminders stop)</span><textarea rows="2" placeholder="e.g. Candidate already accepted the offer; R1 evaluation not needed"></textarea></label><div style="display:flex;gap:8px"><button class="btn sm bad" type="button">Skip evaluation</button><button class="btn sm" type="button">Cancel</button></div>';
+    row.after(f); var ta = f.querySelector('textarea'), bs = f.querySelectorAll('button'); ta.focus();
+    bs[1].onclick = function(){ f.remove(); };
+    bs[0].onclick = function(){ var r = ta.value.trim(); if(r.length < 10){ toastMsg('Please give a reason (10+ characters)'); ta.focus(); return; } bs[0].disabled = true; bs[0].textContent = 'Saving…';
+      post('skipeval', { ivId: id, reason: r }).then(function(j){ if(!j.ok){ bs[0].disabled = false; bs[0].textContent = 'Skip evaluation'; toastMsg(j.error || 'Could not skip'); return; }
+        toastMsg('Evaluation skipped' + (j.closed ? '; ' + j.closed + ' reminder' + (j.closed === 1 ? '' : 's') + ' stopped' : ''));
+        var cid = row.dataset.qc, jid = row.dataset.qj, jr = S.jr[jid]; if(jr) (jr.rows || []).forEach(function(x){ if(x.id === cid) x.Evaluation_Bypass_Reason = (x.Evaluation_Bypass_Reason ? x.Evaluation_Bypass_Reason + '\n' : '') + j.line; });
+        (S.act.feedback || []).forEach(function(x){ if(x.iv === id && x.st === 'Pending') x.st = 'Cancelled'; });
+        sumSave(); if(S.page === 'work') viewWork(); else if(S.page === 'dash') viewDash(); }).catch(function(err){ bs[0].disabled = false; bs[0].textContent = 'Skip evaluation'; toastMsg(err.message); }); };
+  }; });
   main.querySelectorAll('[data-qremind]').forEach(function(b){ b.onclick = function(e){ e.stopPropagation(); b.disabled = true; var lbl = b.textContent; b.textContent = 'Sending…';
     post('remind', { rowId: b.dataset.qremind }).then(function(j){ if(j.ok){ b.textContent = '✓ Reminded'; toastMsg('Reminder sent on Cliq to ' + (j.to || 'the interviewer')); (S.act.feedback || []).forEach(function(f){ if(f.id === b.dataset.qremind) f.nudged = j.at; }); } else { b.disabled = false; b.textContent = lbl; toastMsg(j.error || 'Could not send'); } }); }; });
   main.querySelectorAll('[data-qfile]').forEach(function(b){ b.onclick = function(e){ e.stopPropagation(); b.disabled = true; b.textContent = 'Filing…';
@@ -880,75 +978,88 @@ function csvDownload(name, head, rows){
   var txt = [head].concat(rows).map(function(r){ return r.map(q).join(','); }).join('\n');
   var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + txt], { type: 'text/csv' })); a.download = name + '-' + new Date().toISOString().slice(0, 10) + '.csv'; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
 }
+function med(a){ if(!a.length) return null; var s = a.slice().sort(function(x, y){ return x - y; }), m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; }
+function dur(h){ return h == null ? '—' : h < 1 ? Math.round(h * 60) + ' min' : h < 48 ? Math.round(h) + ' h' : Math.round(h / 24) + ' d'; }
+function delta(a, b, good){ if(b == null) return ''; var d = a - b; if(!d) return '<span class="dl">= last week</span>'; var up = d > 0, ok = good === 'up' ? up : !up; return '<span class="dl ' + (ok ? 'g' : 'b') + '">' + (up ? '▲' : '▼') + ' ' + Math.abs(d) + ' vs last week</span>'; }
 function viewDash(){
   var main = document.getElementById('main'); if(!main || S.page !== 'dash') return;
-  var D = buildSum(), Q = D.Q, now = D.now, t = D.t;
-  var inProc = D.rows.filter(function(r){ return ACTIVE_STAGE[r.stage]; });
-  var wk0 = new Date(); wk0.setHours(0, 0, 0, 0); wk0.setDate(wk0.getDate() - ((wk0.getDay() + 6) % 7)); var wk1 = wk0.getTime() + 7 * DAY;
-  var ivWeek = D.ivs.filter(function(v){ var s = t(v.start); return s >= wk0.getTime() && s < wk1; });
-  // when a feedback request was completed: Cliq submit time, or for "Filed in Recruit" the interview's Reviewed time
-  // (102 of 175 requests in the last 30 days were filed straight in Recruit and carry no submit time of their own)
+  var D = buildSum(), now = D.now, w0 = weekStart(0), w1 = weekStart(-1);
+  var inWeek = function(t, s){ return t >= s && t < s + 7 * DAY && t <= now; };
+  var held = function(s){ return D.ivs.filter(function(v){ return inWeek(v.s, s); }).length; };
+  var filed = function(s){ return D.ivs.filter(function(v){ return v.rv && inWeek(v.rv, s); }).length; };
+  var newIn = function(s){ return D.rows.filter(function(r){ return inWeek(r.created, s); }).length; };
+  // feedback pace (30 d): done = Cliq submit, or the interview's Reviewed time for "Filed in Recruit"
   var ivMap = {}; D.ivs.forEach(function(v){ ivMap[v.id] = v; });
-  var doneAt = function(f){ if(f.st === 'Submitted' && f.sub) return f.sub; if(f.st === 'Filed in Recruit' && ivMap[f.iv] && ivMap[f.iv].reviewed) return ivMap[f.iv].reviewed; return ''; };
-  var hrsOf = function(f){ var d = doneAt(f); return d && f.end ? Math.max(0, (t(d) - t(f.end)) / 3600000) : null; };   // filed before the booked end = 0
-  var subs = D.fb.map(hrsOf).filter(function(h){ return h != null; });
-  var lateOpen = D.fb.filter(function(f){ return f.st === 'Pending' && f.end && now - t(f.end) > DAY; }).length;
-  var onTime = subs.filter(function(h){ return h <= 24; }).length, judged = subs.length + lateOpen;
-  var med = function(a){ if(!a.length) return null; var s = a.slice().sort(function(x, y){ return x - y; }), m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
-  var medH = med(subs);
-  var hired30 = D.rows.filter(function(r){ return r.stage === 'hired' && now - t(r.upd) <= 30 * DAY; }).length;
-  var tiles = [['Open jobs', D.jobs.length, '#8644f0'], ['In process', inProc.length, '#1d4ed8'], ['Interviews this week', ivWeek.length, '#0f766e'], ['Feedback on time (24 h)', judged ? Math.round(100 * onTime / judged) + '%' : '—', '#2f7d00'],
-    ['Median time to feedback', medH == null ? '—' : (medH < 48 ? (medH < 1 ? Math.round(medH * 60) + ' min' : Math.round(medH) + ' h') : Math.round(medH / 24) + ' d'), '#b45309'], ['Feedback overdue', lateOpen, '#c8102e'], ['Offers in flight', Q.offers.length, '#15803d'], ['Hired / joined (30 d)', hired30, '#15803d']];
-  // funnel: candidates in process per stage (one series, so one hue; labels carry identity)
-  var FUN = ['screen','assess','blitz','r1','r2','r3','vibe','offer','hired','hold'], cnt = {}; FUN.forEach(function(k){ cnt[k] = 0; }); D.rows.forEach(function(r){ if(cnt[r.stage] != null) cnt[r.stage]++; });
-  var fmax = Math.max.apply(null, FUN.map(function(k){ return cnt[k]; }).concat([1]));
-  var funnel = '<div class="hbars" role="table" aria-label="Candidates by stage">' + FUN.map(function(k){ var m = stageMeta(k), v = cnt[k];
-    return '<div class="hb" role="row" title="' + esc(m[1] + ': ' + v + ' candidates') + '"><span role="cell">' + esc(m[1]) + '</span><span class="tr" role="cell"><i style="width:' + Math.max(v ? 1.5 : 0, 100 * v / fmax) + '%"></i></span><b role="cell">' + v + '</b></div>'; }).join('') + '</div>';
-  // interviews per day: 21 days back to 7 ahead
-  var days = []; for(var i = -21; i <= 7; i++){ var d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + i); days.push(d); }
-  var per = days.map(function(d){ var k = d.toDateString(); return D.ivs.filter(function(v){ return dayKey(v.start) === k; }).length; }), pmax = Math.max.apply(null, per.concat([1]));
-  var cols = '<div class="vbars" role="table" aria-label="Interviews per day">' + days.map(function(d, i){ var fut = i > 21, lbl = d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
-    return '<div class="vb' + (fut ? ' fut' : '') + (i === 21 ? ' now' : '') + '" role="row" title="' + esc(lbl + ': ' + per[i] + ' interview' + (per[i] === 1 ? '' : 's') + (fut ? ' booked' : '')) + '"><span class="tr"><i style="height:' + (per[i] ? Math.max(3, 100 * per[i] / pmax) : 0) + '%"></i></span><small role="cell">' + (i % 7 === 0 || i === 21 ? esc(i === 21 ? 'Today' : d.getDate() + ' ' + d.toLocaleDateString('en-IN', { month: 'short' })) : '') + '</small><b class="sr" role="cell">' + per[i] + '</b></div>'; }).join('') + '</div>';
-  // per job
-  var cntJ = function(jid, fn){ return D.rows.filter(function(r){ return r.jobId === jid && fn(r); }).length; };
-  var jobRows = D.jobs.map(function(x){
-    var g = function(ks){ return cntJ(x.id, function(r){ return ks.indexOf(r.stage) >= 0; }); };
-    return [x.title, x.recruiters.join(', ') || x.manager || '', g(['screen','assess','blitz','r1','r2','r3','vibe','offer']), g(['screen']), g(['assess']), g(['blitz','r1','r2','r3']), g(['vibe']), g(['offer']), g(['hired']), g(['hold']),
-      D.ivs.filter(function(v){ return v.jobId === x.id && t(v.start) <= now; }).length, Q.toSched.filter(function(o){ return o.r.jobId === x.id; }).length, Q.stuck.filter(function(o){ return o.r.jobId === x.id; }).length,
-      x.opened ? Math.floor((now - t(x.opened)) / DAY) : '', x.id];
-  }).sort(function(a, b){ return b[2] - a[2]; });
-  var JH = ['Job','Recruiter(s)','In process','Screening','Assessment','Interviews','Vibe / Ref','Offer','Hired','On hold','Interviews (30 d)','To schedule','Stuck 14 d+','Days open'];
-  // per recruiter (a job with two recruiters counts for both)
-  var rec = {};
-  D.jobs.forEach(function(x){ (x.recruiters.length ? x.recruiters : [x.manager || 'No recruiter']).forEach(function(n){ var o = rec[n] = rec[n] || { jobs: 0, inproc: 0, week: 0, sched: 0, decide: 0, overdue: 0, stuck: 0 };
-    o.jobs++; o.inproc += cntJ(x.id, function(r){ return ACTIVE_STAGE[r.stage]; }); o.week += ivWeek.filter(function(v){ return v.jobId === x.id; }).length;
-    o.sched += Q.toSched.filter(function(q){ return q.r.jobId === x.id; }).length; o.decide += Q.decide.filter(function(q){ return q.r.jobId === x.id; }).length;
-    o.overdue += Q.overdue.filter(function(q){ return q.v.jobId === x.id; }).length; o.stuck += Q.stuck.filter(function(q){ return q.r.jobId === x.id; }).length; }); });
-  var recRows = Object.keys(rec).map(function(n){ var o = rec[n]; return [n, o.jobs, o.inproc, o.week, o.sched, o.decide, o.overdue, o.stuck]; }).sort(function(a, b){ return b[2] - a[2]; });
-  var RH = ['Recruiter','Open jobs','In process','Interviews this week','To schedule','Decisions due','Feedback overdue','Stuck 14 d+'];
-  // per interviewer (panel feedback, last 30 days)
-  var pi = {};
-  D.fb.forEach(function(f){ var o = pi[f.who || '—'] = pi[f.who || '—'] || { n: 0, sub: 0, pend: 0, late: 0, hrs: [] }; o.n++;
-    if(f.st === 'Submitted' || f.st === 'Filed in Recruit'){ o.sub++; var hh = hrsOf(f); if(hh != null) o.hrs.push(hh); } else if(f.st === 'Pending'){ o.pend++; if(f.end && now - t(f.end) > DAY) o.late++; } });
-  var piRows = Object.keys(pi).map(function(n){ var o = pi[n], m = med(o.hrs), ot = o.hrs.filter(function(h){ return h <= 24; }).length;
-    return [n, o.n, o.sub, o.pend, o.late, m == null ? '' : (m < 1 ? Math.round(m * 60) + ' min' : m < 48 ? Math.round(m) + ' h' : Math.round(m / 24) + ' d'), (o.hrs.length + o.late) ? Math.round(100 * ot / (o.hrs.length + o.late)) + '%' : '']; }).sort(function(a, b){ return (b[4] - a[4]) || (b[3] - a[3]) || (b[1] - a[1]); });
-  var PH = ['Interviewer','Feedback asked','Given (Cliq or Recruit)','Pending','Overdue','Median time','On time'];
-  var table = function(id, head, body, num, link){ return '<div class="tblw"><table class="tbl dtbl" id="' + id + '"><thead><tr>' + head.map(function(h, i){ return '<th' + (i >= num ? ' class="n"' : '') + '>' + esc(h) + '</th>'; }).join('') + '</tr></thead><tbody>' +
-    (body.length ? body.map(function(r){ return '<tr' + (link ? ' data-dj="' + esc(r[r.length - 1]) + '" tabindex="0"' : '') + '>' + head.map(function(h, i){ return '<td' + (i >= num ? ' class="n"' : '') + '>' + (i === 0 ? '<b>' + esc(r[i]) + '</b>' : esc(r[i])) + '</td>'; }).join('') + '</tr>'; }).join('') : '<tr><td colspan="' + head.length + '" class="hint">No data.</td></tr>') + '</tbody></table></div>'; };
-  var sec = function(title, id, sub){ return '<div class="dsec"><div class="dsh"><h3>' + esc(title) + '</h3>' + (sub ? '<span class="hint">' + esc(sub) + '</span>' : '') + (id ? '<button class="btn sm" data-csv="' + id + '">⬇ CSV</button>' : '') + '</div>'; };
-  main.innerHTML = jobSelect() + '<div class="jh"><div><h1>Dashboard</h1><div class="meta"><span>' + (S.onlyMine ? 'Your' : 'All') + ' ' + D.jobs.length + ' open jobs · interviews and feedback from the last 30 days · switch My / All jobs in the sidebar</span></div></div><div class="acts"><span class="hint">Updated ' + esc(ago(new Date(S.actAt || Date.now()).toISOString()) || 'now') + '</span><button class="btn sm" id="drf">↻ Refresh</button><button class="btn sm" id="dwork">✅ My work</button></div></div>' +
+  var hrsOf = function(f){ var d = f.st === 'Submitted' && f.sub ? tms(f.sub) : f.st === 'Filed in Recruit' && ivMap[f.iv] && ivMap[f.iv].rv ? ivMap[f.iv].rv : 0; return d && f.end ? Math.max(0, (d - tms(f.end)) / 3600000) : null; };
+  var fb30 = D.fb.filter(function(f){ return tms(f.end) > now - 30 * DAY; });
+  var hrs = fb30.map(hrsOf).filter(function(h){ return h != null; }), lateOpen = fb30.filter(function(f){ return f.st === 'Pending' && now - tms(f.end) > DAY; }).length;
+  var onTime = hrs.length + lateOpen ? Math.round(100 * hrs.filter(function(h){ return h <= 24; }).length / (hrs.length + lateOpen)) : null;
+  // pass-through by round (60 d of filed evaluations)
+  var PR = ['blitz','r1','r2','r3','vibe'].map(function(k){ var d = D.ivs.filter(function(v){ return v.rk === k && v.s > now - 60 * DAY && v.s <= now; }), dec = d.filter(function(v){ return v.rv; });
+    var p = dec.filter(function(v){ return PASS.test(v.status); }).length, f2 = dec.filter(function(v){ return FAIL.test(v.status); }).length, ns = d.filter(function(v){ return NOSHOW.test(v.status); }).length;
+    return { k: k, held: d.length, dec: dec.length, pass: p, fail: f2, noshow: ns, rate: p + f2 ? Math.round(100 * p / (p + f2)) : null, tdec: med(dec.map(function(v){ return Math.max(0, (v.rv - v.e) / 3600000); })) }; });
+  // role health (open roles in scope)
+  var health = D.jobs.map(function(x){ var act = D.active.filter(function(r){ return r.jobId === x.id; }), iv14 = D.ivs.filter(function(v){ return v.jobId === x.id && v.s > now - 14 * DAY && v.s <= now; }).length;
+    var up = D.ivs.filter(function(v){ return v.jobId === x.id && v.s > now; }).length, last = Math.max.apply(null, [0].concat(act.map(function(r){ return r.upd; }), D.ivs.filter(function(v){ return v.jobId === x.id && v.s <= now; }).map(function(v){ return v.s; })));
+    var lastD = last ? Math.floor((now - last) / DAY) : null, late = act.filter(function(r){ return r.stage === 'offer' || r.stage === 'vibe' || r.stage === 'r3' || r.stage === 'r2'; }).length;
+    var flag = lastD == null || lastD > 14 || act.length === 0 ? 'red' : (iv14 === 0 && up === 0) || act.length < 3 ? 'amber' : 'green';
+    var waiting = D.todo.filter(function(t){ return t.jobId === x.id && t.k !== 'cold'; }).length;
+    return { x: x, act: act.length, iv14: iv14, up: up, late: late, last: lastD, flag: flag, waiting: waiting, open: x.opened ? Math.floor((now - tms(x.opened)) / DAY) : null }; })
+    .sort(function(a, b){ var o = { red: 0, amber: 1, green: 2 }; return (o[a.flag] - o[b.flag]) || (b.waiting - a.waiting); });
+  var risk = health.filter(function(h){ return h.flag === 'red'; }).length;
+  // team (30 d): who books interviews and who files evaluations (audit: Sonal, Rashika, Archita, Shambhavi book; Blitz is evaluated by TA)
+  var team = {}, t30 = now - 30 * DAY, T = function(n){ return team[n] = team[n] || { roles: 0, act: 0, wait: 0, booked: 0, evals: 0, evalT: [] }; };
+  health.forEach(function(h){ (h.x.recruiters.length ? h.x.recruiters : []).forEach(function(n){ var o = T(n); o.roles++; o.act += h.act; o.wait += h.waiting; }); });
+  D.ivs.forEach(function(v){ if(v.by && tms(v.created) > t30) T(v.by).booked++; if(v.reviewedBy && v.rv > t30){ var o = T(v.reviewedBy); o.evals++; if(v.e) o.evalT.push(Math.max(0, (v.rv - v.e) / 3600000)); } });
+  var teamRows = Object.keys(team).filter(function(n){ var o = team[n]; return o.roles || o.booked >= 3 || o.evals >= 3; }).map(function(n){ var o = team[n]; return [n, o.roles, o.act, o.wait, o.booked, o.evals, dur(med(o.evalT))]; }).sort(function(a, b){ return (b[4] + b[5]) - (a[4] + a[5]); });
+  // interviewers (30 d)
+  var pi = {}; fb30.forEach(function(f){ var o = pi[f.who || '—'] = pi[f.who || '—'] || { n: 0, pend: 0, late: 0, hrs: [] }; o.n++; var h = hrsOf(f); if(h != null) o.hrs.push(h); else if(f.st === 'Pending'){ o.pend++; if(now - tms(f.end) > DAY) o.late++; } });
+  var piRows = Object.keys(pi).map(function(n){ var o = pi[n], ot = o.hrs.filter(function(h){ return h <= 24; }).length; return [n, o.n, o.hrs.length, o.late, dur(med(o.hrs)), (o.hrs.length + o.late) ? Math.round(100 * ot / (o.hrs.length + o.late)) + '%' : '—']; }).sort(function(a, b){ return (b[3] - a[3]) || (b[1] - a[1]); });
+  // weekly trend (8 weeks): interviews held
+  var weeks = []; for(var i = -7; i <= 0; i++) weeks.push(weekStart(i));
+  var wHeld = weeks.map(held), wFiled = weeks.map(filed), wmax = Math.max.apply(null, wHeld.concat(wFiled, [1]));
+  var spark = function(arr, lbl){ return '<div class="wbars" role="table" aria-label="' + esc(lbl) + ' per week">' + arr.map(function(n, i){ var d = new Date(weeks[i]);
+    return '<div class="wb' + (i === 7 ? ' cur' : '') + '" role="row" title="' + esc('Week of ' + d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) + ': ' + n + ' ' + lbl.toLowerCase() + (i === 7 ? ' (so far)' : '')) + '"><b>' + n + '</b><span class="tr"><i style="height:' + (n ? Math.max(4, 100 * n / wmax) : 0) + '%"></i></span><small>' + (i === 7 ? 'This wk' : d.getDate() + ' ' + d.toLocaleDateString('en-IN', { month: 'short' })) + '</small></div>'; }).join('') + '</div>'; };
+  var cnt = function(k, f){ return D.todo.filter(function(t){ return t.k === k && (!f || f(t)); }).length; };
+  var callouts = [
+    ['passed', cnt('passed'), 'passed, next round not booked', 'Evaluation says move on, nothing scheduled'],
+    ['evalmiss', cnt('evalmiss', function(t){ return t.age >= 3; }), 'evaluations missing 3 d+', cnt('evalmiss') + ' held interviews have no evaluation in total'],
+    ['rejected', cnt('rejected'), 'rejected but still open', 'Close them so the pipeline is honest'],
+    ['risk', risk, 'roles at risk', 'No candidate activity in 14 days or empty pipeline']];
+  var tbl = function(id, head, body, num){ return '<div class="tblw"><table class="tbl dtbl" id="' + id + '"><thead><tr>' + head.map(function(h, i){ return '<th' + (i >= num ? ' class="n"' : '') + '>' + esc(h) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+    (body.length ? body.map(function(r){ return '<tr>' + r.map(function(c, i){ return '<td' + (i >= num ? ' class="n"' : '') + '>' + (i === 0 ? '<b>' + esc(c) + '</b>' : esc(c)) + '</td>'; }).join('') + '</tr>'; }).join('') : '<tr><td colspan="' + head.length + '" class="hint">No data.</td></tr>') + '</tbody></table></div>'; };
+  var card = function(title, sub, body, csv){ return '<section class="dsec"><div class="dsh"><h3>' + esc(title) + '</h3>' + (sub ? '<span class="hint">' + esc(sub) + '</span>' : '') + (csv ? '<button class="btn sm" data-csv="' + csv + '">⬇ CSV</button>' : '') + '</div>' + body + '</section>'; };
+  var hRows = health.map(function(h){ return [h.x.title, h.x.recruiters.join(', ') || h.x.manager || '—', h.act, h.late, h.iv14, h.up, h.waiting, h.last == null ? '—' : h.last + 'd', h.open == null ? '—' : h.open + 'd', h.flag]; });
+  main.innerHTML = jobSelect() +
+    '<div class="whead"><div><h1>Hiring overview</h1><div class="hint">' + (S.onlyMine ? 'Your' : 'All') + ' ' + D.jobs.length + ' open roles · this week vs last week · candidates count as active if touched in the last ' + ACTIVE_DAYS + ' days</div></div>' +
+    '<div class="acts">' + sumHint() + '<button class="btn sm" id="drf">↻ Refresh</button><button class="btn sm" id="dwork">✅ Team to-do</button></div></div>' +
     (S.sumErr ? '<div class="hint" style="color:var(--warn)">' + esc(S.sumErr) + '</div>' : '') +
-    '<div class="tiles">' + tiles.map(function(x){ return '<div class="tile" style="--c:' + x[2] + '"><small>' + esc(x[0]) + '</small><b>' + esc(x[1]) + '</b></div>'; }).join('') + '</div>' +
-    '<div class="dgrid">' + sec('Candidates by stage', '', 'in process now, open jobs') + funnel + '</div>' + sec('Interviews per day', '', 'last 3 weeks and the next 7 days (lighter = booked)') + cols + '</div></div>' +
-    sec('Jobs', 'job', 'click a job to open its pipeline') + table('dj', JH, jobRows, 2, true) + '</div>' +
-    sec('Recruiters', 'rec', 'a job with two recruiters counts for both') + table('dr', RH, recRows, 1) + '</div>' +
-    sec('Interviewers: panel feedback', 'pi', 'last 30 days; given = submitted on Cliq or filed in Recruit; on time = within 24 h of the interview ending') + table('dp', PH, piRows, 1) + '</div>';
+    '<div class="kpis">' +
+      '<div class="kpi"><small>Interviews held this week</small><b>' + held(w0) + '</b>' + delta(held(w0), held(w1), 'up') + '</div>' +
+      '<div class="kpi"><small>Evaluations filed this week</small><b>' + filed(w0) + '</b>' + delta(filed(w0), filed(w1), 'up') + '</div>' +
+      '<div class="kpi"><small>New candidates in pipeline</small><b>' + newIn(w0) + '</b>' + delta(newIn(w0), newIn(w1), 'up') + '</div>' +
+      '<div class="kpi"><small>Active candidates</small><b>' + D.active.length + '</b><span class="dl">' + D.dormant.length + ' dormant (' + ACTIVE_DAYS + 'd+)</span></div>' +
+      '<div class="kpi"><small>Feedback on time (30 d)</small><b>' + (onTime == null ? '—' : onTime + '%') + '</b><span class="dl">median ' + esc(dur(med(hrs))) + ' · target 24 h</span></div>' +
+      '<div class="kpi"><small>Offers in flight</small><b>' + D.offers.length + '</b><span class="dl">' + D.rows.filter(function(r){ return r.stage === 'hired' && r.age <= 30; }).length + ' joined / hired in 30 d</span></div></div>' +
+    '<div class="calls">' + callouts.map(function(c){ return '<button class="call' + (c[1] ? '' : ' ok') + '" data-call="' + c[0] + '"><b>' + c[1] + '</b><span>' + esc(c[2]) + '</span><small>' + esc(c[3]) + '</small></button>'; }).join('') + '</div>' +
+    '<div class="dgrid">' + card('Pass-through by round', 'last 60 days · pass = Move to next round / Shortlist / Strong hire; reject = Rejected / Strong reject',
+      '<div class="ptab">' + '<div class="ph"><span>Round</span><span>Held</span><span>Decided</span><span>Pass rate</span><span>No-shows</span><span>Interview → decision</span></div>' + PR.map(function(r){ return '<div class="ptr"><b>' + RLABEL[r.k] + '</b><span>' + r.held + '</span><span>' + r.dec + '</span><span class="pbar" title="' + esc(r.pass + ' passed, ' + r.fail + ' rejected') + '">' + (r.rate == null ? '<span class="hint">—</span>' : '<i style="width:' + r.rate + '%"></i><em>' + r.rate + '%</em>') + '</span><span>' + r.noshow + '</span><span>' + esc(dur(r.tdec)) + '</span></div>'; }).join('') + '</div>') +
+      card('Interviews held per week', 'last 8 weeks', spark(wHeld, 'Interviews held')) + '</div>' +
+    card('Role health', 'red = no activity for 14 days or empty pipeline · amber = no interviews in 14 days and none booked, or under 3 active · click a role to open it',
+      '<div class="tblw"><table class="tbl dtbl rh"><thead><tr><th><span class="sr">Health</span></th><th>Role</th><th>Recruiter(s)</th><th class="n">Active</th><th class="n">R2 and later</th><th class="n">Interviews 14 d</th><th class="n">Booked ahead</th><th class="n">Waiting on TA</th><th class="n">Last activity</th><th class="n">Open for</th></tr></thead><tbody>' +
+      health.map(function(h){ return '<tr data-dj="' + esc(h.x.id) + '" tabindex="0"><td><span class="flag ' + h.flag + '" title="' + h.flag + '"></span></td><td><b>' + esc(h.x.title) + '</b></td><td><b class="pn">' + esc(h.x.recruiters.join(', ') || h.x.manager || '—') + '</b></td><td class="n">' + h.act + '</td><td class="n">' + h.late + '</td><td class="n">' + h.iv14 + '</td><td class="n">' + h.up + '</td><td class="n">' + (h.waiting ? '<b class="tbad">' + h.waiting + '</b>' : 0) + '</td><td class="n">' + (h.last == null ? '—' : h.last + 'd') + '</td><td class="n">' + (h.open == null ? '—' : h.open + 'd') + '</td></tr>'; }).join('') + '</tbody></table></div>', 'health') +
+    '<div>' + card('Team', 'last 30 days · booked = interviews they created · evaluations = Recruit evaluations they filed', tbl('dt', ['Person','Roles','Active candidates','Waiting on them','Interviews booked','Evaluations filed','Median time to evaluate'], teamRows, 1), 'team') +
+      card('Interviewer feedback pace', 'last 30 days · on time = within 24 h of the interview', tbl('dp', ['Interviewer','Asked','Given','Overdue','Median time','On time'], piRows.slice(0, S.piAll ? 999 : 12), 1) + (piRows.length > 12 && !S.piAll ? '<button class="btn sm" id="piall" style="margin-top:8px">Show all ' + piRows.length + '</button>' : ''), 'pi') + '</div>';
   bindJobSelect();
   document.getElementById('drf').onclick = function(){ loadSum(true, viewDash); };
   document.getElementById('dwork').onclick = function(){ goWork(); };
+  var pa = document.getElementById('piall'); if(pa) pa.onclick = function(){ S.piAll = true; viewDash(); };
   main.querySelectorAll('[data-dj]').forEach(function(r){ r.onclick = function(){ openJob(r.dataset.dj); }; r.onkeydown = function(e){ if(e.key === 'Enter') openJob(r.dataset.dj); }; });
+  main.querySelectorAll('[data-call]').forEach(function(b){ b.onclick = function(){ var k = b.dataset.call; if(k === 'risk'){ var el = document.querySelector('.flag.red'); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; } S.wf = k; S.wAll = false; goWork(); }; });
   main.querySelectorAll('[data-csv]').forEach(function(b){ b.onclick = function(){ var k = b.dataset.csv;
-    if(k === 'job') csvDownload('jobs', JH, jobRows.map(function(r){ return r.slice(0, JH.length); })); else if(k === 'rec') csvDownload('recruiters', RH, recRows); else csvDownload('interviewer-feedback', PH, piRows); }; });
+    if(k === 'health') csvDownload('role-health', ['Role','Recruiter(s)','Active','R2 and later','Interviews 14 d','Booked ahead','Waiting on TA','Last activity','Open for','Flag'], hRows);
+    else if(k === 'team') csvDownload('team', ['Person','Roles','Active candidates','Waiting on them','Interviews booked','Evaluations filed','Median time to evaluate'], teamRows);
+    else csvDownload('interviewer-feedback', ['Interviewer','Asked','Given','Overdue','Median time','On time'], piRows); }; });
 }
 function render(){
   if(S.pending){ var pd = S.pending; S.pending = null; if(pd.ok){ gotAuth(pd); return; } S.authErr = pd.error || 'Sign-in failed.'; }
