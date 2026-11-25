@@ -886,14 +886,19 @@ function viewDash(){
   var inProc = D.rows.filter(function(r){ return ACTIVE_STAGE[r.stage]; });
   var wk0 = new Date(); wk0.setHours(0, 0, 0, 0); wk0.setDate(wk0.getDate() - ((wk0.getDay() + 6) % 7)); var wk1 = wk0.getTime() + 7 * DAY;
   var ivWeek = D.ivs.filter(function(v){ var s = t(v.start); return s >= wk0.getTime() && s < wk1; });
-  var subs = D.fb.filter(function(f){ return f.st === 'Submitted' && f.sub && f.end; }).map(function(f){ return Math.max(0, (t(f.sub) - t(f.end)) / 3600000); });
+  // when a feedback request was completed: Cliq submit time, or for "Filed in Recruit" the interview's Reviewed time
+  // (102 of 175 requests in the last 30 days were filed straight in Recruit and carry no submit time of their own)
+  var ivMap = {}; D.ivs.forEach(function(v){ ivMap[v.id] = v; });
+  var doneAt = function(f){ if(f.st === 'Submitted' && f.sub) return f.sub; if(f.st === 'Filed in Recruit' && ivMap[f.iv] && ivMap[f.iv].reviewed) return ivMap[f.iv].reviewed; return ''; };
+  var hrsOf = function(f){ var d = doneAt(f); return d && f.end ? Math.max(0, (t(d) - t(f.end)) / 3600000) : null; };   // filed before the booked end = 0
+  var subs = D.fb.map(hrsOf).filter(function(h){ return h != null; });
   var lateOpen = D.fb.filter(function(f){ return f.st === 'Pending' && f.end && now - t(f.end) > DAY; }).length;
   var onTime = subs.filter(function(h){ return h <= 24; }).length, judged = subs.length + lateOpen;
   var med = function(a){ if(!a.length) return null; var s = a.slice().sort(function(x, y){ return x - y; }), m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
   var medH = med(subs);
   var hired30 = D.rows.filter(function(r){ return r.stage === 'hired' && now - t(r.upd) <= 30 * DAY; }).length;
   var tiles = [['Open jobs', D.jobs.length, '#8644f0'], ['In process', inProc.length, '#1d4ed8'], ['Interviews this week', ivWeek.length, '#0f766e'], ['Feedback on time (24 h)', judged ? Math.round(100 * onTime / judged) + '%' : '—', '#2f7d00'],
-    ['Median time to feedback', medH == null ? '—' : (medH < 48 ? Math.round(medH) + ' h' : Math.round(medH / 24) + ' d'), '#b45309'], ['Feedback overdue', lateOpen, '#c8102e'], ['Offers in flight', Q.offers.length, '#15803d'], ['Hired / joined (30 d)', hired30, '#15803d']];
+    ['Median time to feedback', medH == null ? '—' : (medH < 48 ? (medH < 1 ? Math.round(medH * 60) + ' min' : Math.round(medH) + ' h') : Math.round(medH / 24) + ' d'), '#b45309'], ['Feedback overdue', lateOpen, '#c8102e'], ['Offers in flight', Q.offers.length, '#15803d'], ['Hired / joined (30 d)', hired30, '#15803d']];
   // funnel: candidates in process per stage (one series, so one hue; labels carry identity)
   var FUN = ['screen','assess','blitz','r1','r2','r3','vibe','offer','hired','hold'], cnt = {}; FUN.forEach(function(k){ cnt[k] = 0; }); D.rows.forEach(function(r){ if(cnt[r.stage] != null) cnt[r.stage]++; });
   var fmax = Math.max.apply(null, FUN.map(function(k){ return cnt[k]; }).concat([1]));
@@ -924,10 +929,10 @@ function viewDash(){
   // per interviewer (panel feedback, last 30 days)
   var pi = {};
   D.fb.forEach(function(f){ var o = pi[f.who || '—'] = pi[f.who || '—'] || { n: 0, sub: 0, pend: 0, late: 0, hrs: [] }; o.n++;
-    if(f.st === 'Submitted'){ o.sub++; if(f.sub && f.end) o.hrs.push(Math.max(0, (t(f.sub) - t(f.end)) / 3600000)); } else if(f.st === 'Pending'){ o.pend++; if(f.end && now - t(f.end) > DAY) o.late++; } });
+    if(f.st === 'Submitted' || f.st === 'Filed in Recruit'){ o.sub++; var hh = hrsOf(f); if(hh != null) o.hrs.push(hh); } else if(f.st === 'Pending'){ o.pend++; if(f.end && now - t(f.end) > DAY) o.late++; } });
   var piRows = Object.keys(pi).map(function(n){ var o = pi[n], m = med(o.hrs), ot = o.hrs.filter(function(h){ return h <= 24; }).length;
-    return [n, o.n, o.sub, o.pend, o.late, m == null ? '' : (m < 48 ? Math.round(m) + ' h' : Math.round(m / 24) + ' d'), (o.hrs.length + o.late) ? Math.round(100 * ot / (o.hrs.length + o.late)) + '%' : '']; }).sort(function(a, b){ return (b[4] - a[4]) || (b[3] - a[3]) || (b[1] - a[1]); });
-  var PH = ['Interviewer','Feedback asked','Submitted','Pending','Overdue','Median time','On time'];
+    return [n, o.n, o.sub, o.pend, o.late, m == null ? '' : (m < 1 ? Math.round(m * 60) + ' min' : m < 48 ? Math.round(m) + ' h' : Math.round(m / 24) + ' d'), (o.hrs.length + o.late) ? Math.round(100 * ot / (o.hrs.length + o.late)) + '%' : '']; }).sort(function(a, b){ return (b[4] - a[4]) || (b[3] - a[3]) || (b[1] - a[1]); });
+  var PH = ['Interviewer','Feedback asked','Given (Cliq or Recruit)','Pending','Overdue','Median time','On time'];
   var table = function(id, head, body, num, link){ return '<div class="tblw"><table class="tbl dtbl" id="' + id + '"><thead><tr>' + head.map(function(h, i){ return '<th' + (i >= num ? ' class="n"' : '') + '>' + esc(h) + '</th>'; }).join('') + '</tr></thead><tbody>' +
     (body.length ? body.map(function(r){ return '<tr' + (link ? ' data-dj="' + esc(r[r.length - 1]) + '" tabindex="0"' : '') + '>' + head.map(function(h, i){ return '<td' + (i >= num ? ' class="n"' : '') + '>' + (i === 0 ? '<b>' + esc(r[i]) + '</b>' : esc(r[i])) + '</td>'; }).join('') + '</tr>'; }).join('') : '<tr><td colspan="' + head.length + '" class="hint">No data.</td></tr>') + '</tbody></table></div>'; };
   var sec = function(title, id, sub){ return '<div class="dsec"><div class="dsh"><h3>' + esc(title) + '</h3>' + (sub ? '<span class="hint">' + esc(sub) + '</span>' : '') + (id ? '<button class="btn sm" data-csv="' + id + '">⬇ CSV</button>' : '') + '</div>'; };
@@ -937,7 +942,7 @@ function viewDash(){
     '<div class="dgrid">' + sec('Candidates by stage', '', 'in process now, open jobs') + funnel + '</div>' + sec('Interviews per day', '', 'last 3 weeks and the next 7 days (lighter = booked)') + cols + '</div></div>' +
     sec('Jobs', 'job', 'click a job to open its pipeline') + table('dj', JH, jobRows, 2, true) + '</div>' +
     sec('Recruiters', 'rec', 'a job with two recruiters counts for both') + table('dr', RH, recRows, 1) + '</div>' +
-    sec('Interviewers: panel feedback', 'pi', 'last 30 days; on time = within 24 h of the interview ending') + table('dp', PH, piRows, 1) + '</div>';
+    sec('Interviewers: panel feedback', 'pi', 'last 30 days; given = submitted on Cliq or filed in Recruit; on time = within 24 h of the interview ending') + table('dp', PH, piRows, 1) + '</div>';
   bindJobSelect();
   document.getElementById('drf').onclick = function(){ loadSum(true, viewDash); };
   document.getElementById('dwork').onclick = function(){ goWork(); };
