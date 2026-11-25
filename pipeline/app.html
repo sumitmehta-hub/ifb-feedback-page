@@ -131,6 +131,23 @@ a{color:var(--brand-d);font-weight:600;text-decoration:none}a:hover{text-decorat
 .nxform input,.nxform select,.nxform textarea{font:inherit;font-weight:500;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff;color:var(--ink)}
 .nxform textarea{min-height:70px;resize:vertical}.nxform .row2{display:grid;grid-template-columns:1fr 140px;gap:10px}
 .nxnote{font-size:12.5px;color:var(--ink2);background:var(--panel);border-radius:10px;padding:8px 10px}
+.ldbar{height:6px;background:var(--brand-ll);border-radius:99px;margin-top:12px;overflow:hidden}.ldbar i{display:block;height:100%;background:var(--brand);border-radius:99px;transition:width .3s}
+.qjump{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}.qjump .chip{text-decoration:none;background:#fff;border:1px solid var(--line);color:var(--ink)}.qjump .chip b{color:var(--brand-d)}.qjump .chip.dim{opacity:.55}
+.qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px;align-items:start}
+.qcard2{background:#fff;border:1px solid var(--line);border-top:4px solid var(--c);border-radius:14px;padding:12px 14px;box-shadow:var(--shadow);scroll-margin-top:12px}.qcard2.none{opacity:.8}
+.qcard2 .qh{display:flex;flex-direction:column;gap:2px;margin-bottom:6px}.qcard2 h3{margin:0;font-size:15px;display:flex;gap:6px;align-items:center}
+.qn{background:var(--c);color:#fff;border-radius:99px;padding:0 8px;font-size:12px;line-height:20px}
+.qrow{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:8px;border-radius:10px;cursor:pointer;border-bottom:1px solid var(--line)}.qrow:last-of-type{border-bottom:0}.qrow:hover,.qrow:focus{background:var(--brand-ll);outline:none}
+.qrow .who{font-weight:700;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.qrow .sub{font-size:12.5px;color:var(--ink2)}.qrow .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;flex-shrink:0}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:14px}
+.dsec{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow);margin-bottom:14px;min-width:0}
+.dsh{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;margin-bottom:10px}.dsh h3{margin:0;font-size:15px}.dsh .btn{margin-left:auto}
+.hbars{display:grid;gap:6px}.hb{display:grid;grid-template-columns:96px 1fr 44px;gap:8px;align-items:center;font-size:12.5px}.hb .tr{height:14px;background:var(--panel);border-radius:4px}.hb i{display:block;height:100%;background:var(--brand);border-radius:0 4px 4px 0}.hb b{text-align:right}.hb:hover i{background:var(--brand-d)}
+.vbars{display:grid;grid-template-columns:repeat(29,1fr);gap:2px;align-items:end;height:170px}.vb{display:flex;flex-direction:column;align-items:center;height:100%;min-width:0}.vb .tr{flex:1;width:100%;display:flex;align-items:flex-end}.vb i{display:block;width:100%;background:var(--brand);border-radius:4px 4px 0 0}.vb.fut i{background:#c9b3f7}.vb:hover i{background:var(--brand-d)}
+.vb small{font-size:10.5px;color:var(--muted);white-space:nowrap;height:16px;margin-top:4px}.vb.now small{color:var(--brand-d);font-weight:800}.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.dtbl td:first-child{min-width:190px}.dtbl td:nth-child(2){min-width:150px}
+.dtbl th.n,.dtbl td.n{text-align:right;font-variant-numeric:tabular-nums}.dtbl tr[data-dj]{cursor:pointer}.dtbl tr[data-dj]:hover td{background:var(--brand-ll)}
+@media (max-width:860px){.qgrid{grid-template-columns:1fr}.dgrid{grid-template-columns:1fr}}
 .kv{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
 .kv div{background:#fff;border:1px solid var(--line);border-radius:12px;padding:9px 12px}
 .kv small{display:block;color:var(--muted);font-size:11.5px;font-weight:700}
@@ -281,7 +298,7 @@ function setTop(){ var m = S.me || {}; document.getElementById('meBox').hidden =
 
 // routing: #job=<id>&c=<id> keeps your place on refresh and back/forward
 function readHash(){ var h = new URLSearchParams(location.hash.replace(/^#/, '')); return { job: h.get('job') || '', c: h.get('c') || '' }; }
-function writeHash(job, c){ var h = (job ? 'job=' + job : S.page === 'iv' ? 'view=iv' : '') + (c ? (h0() ? '&' : '') + 'c=' + c : ''); function h0(){ return job || S.page === 'iv'; } if((h ? '#' + h : '') === location.hash) return; history.pushState(null, '', location.pathname + location.search + (h ? '#' + h : '')); }
+function writeHash(job, c){ var h = (job ? 'job=' + job : VIEWS[S.page] ? 'view=' + S.page : '') + (c ? (h0() ? '&' : '') + 'c=' + c : ''); function h0(){ return job || VIEWS[S.page]; } if((h ? '#' + h : '') === location.hash) return; history.pushState(null, '', location.pathname + location.search + (h ? '#' + h : '')); }
 window.addEventListener('popstate', function(){ route(); });
 
 // sign in (Sign in with Zoho, popup; falls back to a redirect back here)
@@ -319,20 +336,22 @@ function drawSide(){
   document.getElementById('sideTitle').textContent = 'Jobs';
   var sgm = document.getElementById('sgm'); sgm.innerHTML = '<button data-m="1" aria-pressed="' + S.onlyMine + '">My jobs<b>' + nMine + '</b></button><button data-m="0" aria-pressed="' + !S.onlyMine + '">All jobs<b>' + S.jobs.length + '</b></button>';
   var sc = scoped(), sgs = document.getElementById('sgs'); sgs.innerHTML = GROUPS.map(function(g){ return '<button data-g="' + g[0] + '" aria-pressed="' + (S.jstat === g[0]) + '">' + g[1] + '<b>' + sc.filter(function(x){ return x.group === g[0]; }).length + '</b></button>'; }).join('');
-  sgm.querySelectorAll('button').forEach(function(b){ b.onclick = function(){ S.onlyMine = b.dataset.m === '1'; store('hire_mine', S.onlyMine ? '1' : '0'); drawSide(); if(S.page === 'home') viewHome(); if(S.page === 'iv') viewInterviews(); }; });
+  sgm.querySelectorAll('button').forEach(function(b){ b.onclick = function(){ S.onlyMine = b.dataset.m === '1'; store('hire_mine', S.onlyMine ? '1' : '0'); drawSide(); if(S.page === 'home') viewHome(); if(S.page === 'iv') viewInterviews(); if(S.page === 'work') loadSum(false, viewWork); if(S.page === 'dash') loadSum(false, viewDash); }; });
   sgs.querySelectorAll('button').forEach(function(b){ b.onclick = function(){ S.jstat = b.dataset.g; drawSide(); if(S.page === 'home') viewHome(); }; });
   var item = function(x){ return '<button class="ji" data-j="' + esc(x.id) + '" aria-current="' + (x.id === S.jobId) + '" title="' + esc(x.title) + '"><span class="dot" aria-hidden="true">' + esc(jobInitials(x.title)) + '</span><span class="tx"><span class="tt">' + esc(x.title) + '</span><span class="ss">' + esc(x.group === 'open' ? (x.dept || '') : (x.status || '') + (x.dept ? ' · ' + x.dept : '')) + '</span></span><span class="n">' + (x.candidates || 0).toLocaleString('en-IN') + '</span></button>'; };
   var mine = list.filter(function(x){ return x.mine; }), rest = list.filter(function(x){ return !x.mine; });
-  el.innerHTML = '<button class="home-link" id="hm" aria-current="' + (S.page === 'home') + '">⌂ Overview</button><button class="home-link" id="ivl" aria-current="' + (S.page === 'iv') + '">🗓 Interviews</button>' + (list.length ? (!S.onlyMine && mine.length && rest.length ? '<div class="grp">My jobs</div>' + mine.map(item).join('') + '<div class="grp">Other jobs</div>' + rest.map(item).join('') : list.map(item).join(''))
+  el.innerHTML = '<button class="home-link" id="wk" aria-current="' + (S.page === 'work') + '">✅ My work</button><button class="home-link" id="dsb" aria-current="' + (S.page === 'dash') + '">📊 Dashboard</button><button class="home-link" id="hm" aria-current="' + (S.page === 'home') + '">⌂ All jobs</button><button class="home-link" id="ivl" aria-current="' + (S.page === 'iv') + '">🗓 Interviews</button>' + (list.length ? (!S.onlyMine && mine.length && rest.length ? '<div class="grp">My jobs</div>' + mine.map(item).join('') + '<div class="grp">Other jobs</div>' + rest.map(item).join('') : list.map(item).join(''))
     : '<div class="hint" style="padding:12px">' + (S.jq ? 'No jobs match.' : S.onlyMine ? 'No ' + (S.jstat === 'open' ? 'open' : S.jstat === 'hold' ? 'on-hold' : 'closed') + ' jobs where you are the recruiter or hiring manager. Try “All jobs”.' : 'No jobs here.') + '</div>');
   el.querySelectorAll('[data-j]').forEach(function(b){ b.onclick = function(){ openJob(b.dataset.j); }; });
   document.getElementById('hm').onclick = goHome;
+  document.getElementById('wk').onclick = function(){ goWork(); };
+  document.getElementById('dsb').onclick = function(){ goDash(); };
   document.getElementById('ivl').onclick = goInterviews;
 }
 function jobSelect(){
-  return '<div class="jsel"><select id="jsel" aria-label="Choose a job"><option value="">Overview</option><option value="__iv"' + (S.page === 'iv' ? ' selected' : '') + '>🗓 Interviews</option>' + visibleJobs().map(function(x){ return '<option value="' + esc(x.id) + '"' + (x.id === S.jobId ? ' selected' : '') + '>' + esc(x.title) + ' (' + (x.candidates || 0) + ')</option>'; }).join('') + '</select></div>';
+  return '<div class="jsel"><select id="jsel" aria-label="Choose a job"><option value="__work"' + (S.page === 'work' ? ' selected' : '') + '>✅ My work</option><option value="__dash"' + (S.page === 'dash' ? ' selected' : '') + '>📊 Dashboard</option><option value=""' + (S.page === 'home' ? ' selected' : '') + '>⌂ All jobs</option><option value="__iv"' + (S.page === 'iv' ? ' selected' : '') + '>🗓 Interviews</option>' + visibleJobs().map(function(x){ return '<option value="' + esc(x.id) + '"' + (x.id === S.jobId ? ' selected' : '') + '>' + esc(x.title) + ' (' + (x.candidates || 0) + ')</option>'; }).join('') + '</select></div>';
 }
-function bindJobSelect(){ var s = document.getElementById('jsel'); if(s) s.onchange = function(){ if(this.value === '__iv') goInterviews(); else if(this.value) openJob(this.value); else goHome(); }; }
+function bindJobSelect(){ var s = document.getElementById('jsel'); if(s) s.onchange = function(){ if(this.value === '__iv') goInterviews(); else if(this.value === '__work') goWork(); else if(this.value === '__dash') goDash(); else if(this.value) openJob(this.value); else goHome(); }; }
 
 function loadJobs(){
   root.innerHTML = loading('Loading open jobs…');
@@ -342,6 +361,8 @@ function loadJobs(){
 function route(first){
   if(!S.jobs) return;
   var h = readHash(), job = h.job;
+  var vw = (location.hash.match(/view=(work|dash)/) || [])[1];
+  if(vw || (first && !job)){ S.jobId = ''; if(S.page !== vw || first){ if(vw === 'dash') goDash(true); else goWork(true); } if(h.c && h.c !== S.candId) openCandidate(h.c, true); else if(!h.c) closeDrawer(true); return; }
   if(location.hash.indexOf('view=iv') >= 0){ S.jobId = ''; if(S.page !== 'iv' || !S.ivs) goInterviews(true); if(h.c && h.c !== S.candId) openCandidate(h.c, true); else if(!h.c) closeDrawer(true); return; }
   if(first && !job){ var last = store('hire_job'); if(last && S.jobs.some(function(x){ return x.id === last; })){ job = last; history.replaceState(null, '', location.pathname + location.search + '#job=' + last); } }
   if(job && S.jobs.some(function(x){ return x.id === job; })){
@@ -747,6 +768,183 @@ function fileEval(b){
   }).catch(function(e){ toastMsg(e.message); b.disabled = false; b.textContent = 'File evaluation now'; });
 }
 
+// ---------- My work + Dashboard (25 Nov): what TA act on today, and the team picture for Tabir ----------
+// Data: every open job in scope (My / All) through the cached 'job' route (in-process candidates), plus 'activity'
+// (interviews 30 days back to 7 ahead, panel feedback rows of the last 30 days). All counting happens here.
+var VIEWS = { iv: 1, work: 1, dash: 1 };
+var IVNAME = { blitz: 'blitz interview', r1: 'round 1 interview', r2: 'round 2 interview', r3: 'round 3 interview', vibe: 'vibe check interview' };
+var WAIT_ROUND = { 'blitz interview scheduled': 'blitz', 'r1 interview-scheduled': 'r1', 'interview-scheduled': 'r1', 'r2 interview-scheduled': 'r2', 'r3 interview-scheduled': 'r3', 'f2f vibe check pending': 'vibe' };
+var TO_SCHED = { 'selected-r1>>r2': 'R2', 'selected-r2>>r3': 'R3', 'selected r3>> vibe check': 'Vibe check', 'r1 interview-to-be-scheduled': 'R1', 'r1 - no show': 'R1 again', 'r2 - no show': 'R2 again', 'r3 - no show': 'R3 again', 'technical assessment submitted': 'R1' };
+var OFFER_ST = /^(to-be-offered|offer-made|on hold after offer|offer discussion - pending|offer discussion - completed|selected-r3>>offer)$/;
+var ACTIVE_STAGE = { screen: 1, assess: 1, blitz: 1, r1: 1, r2: 1, r3: 1, vibe: 1, offer: 1 };
+var DAY = 86400000;
+S.jr = S.jr || {};   // jobId → { at, rows }
+function scopeJobs(){ return (S.jobs || []).filter(function(x){ return x.group === 'open' && (!S.onlyMine || x.mine); }); }
+function goWork(fromRoute){ S.page = 'work'; S.jobId = ''; if(fromRoute !== true) writeHash('', ''); closeDrawer(true); drawSide(); loadSum(false, viewWork); }
+function goDash(fromRoute){ S.page = 'dash'; S.jobId = ''; if(fromRoute !== true) writeHash('', ''); closeDrawer(true); drawSide(); loadSum(false, viewDash); }
+function loadSum(fresh, then){
+  var main = document.getElementById('main'), jobs = scopeJobs(), need = jobs.filter(function(x){ var c = S.jr[x.id]; return fresh || !c || c.at < Date.now() - 10 * 60000; });
+  var actOk = S.act && !fresh && S.actAt > Date.now() - 5 * 60000;
+  if(!need.length && actOk){ then(); return; }
+  var done = 0, page = S.page, draw = function(){ if(S.page !== page) return; main.innerHTML = jobSelect() + '<div class="hero"><h1>' + (page === 'dash' ? 'Dashboard' : 'My work') + '</h1><div class="hint" style="margin-top:4px">Reading ' + need.length + ' open job' + (need.length === 1 ? '' : 's') + ' from Recruit… ' + done + ' done</div><div class="ldbar"><i style="width:' + Math.round(100 * done / Math.max(1, need.length)) + '%"></i></div></div>'; bindJobSelect(); };
+  draw();
+  var q = need.slice(), errs = 0;
+  var one = function(){ var x = q.shift(); if(!x) return Promise.resolve();
+    return post('job', { jobId: x.id, fresh: !!fresh }).then(function(j){ if(j.ok) S.jr[x.id] = { at: Date.now(), rows: j.candidates || [] }; else errs++; }).catch(function(){ errs++; }).then(function(){ done++; draw(); return one(); }); };
+  var act = actOk ? Promise.resolve() : post('activity', { fresh: !!fresh }).then(function(j){ if(j.ok){ S.act = j; S.actAt = Date.now(); } else S.actErr = j.error; });
+  Promise.all([one(), one(), act]).then(function(){ S.sumErr = errs ? errs + ' job' + (errs === 1 ? '' : 's') + ' could not be read; numbers may be low.' : ''; if(S.page === page) then(); });
+}
+function buildSum(){
+  var jobs = scopeJobs(), ids = {}, now = Date.now(), act = S.act || { interviews: [], feedback: [] };
+  jobs.forEach(function(x){ ids[x.id] = x; });
+  var rows = []; jobs.forEach(function(x){ ((S.jr[x.id] || {}).rows || []).forEach(function(r){ rows.push({ id: r.id, name: r.Full_Name, status: r.Candidate_Status || '', st: String(r.Candidate_Status || '').toLowerCase(), stage: stageOf(r.Candidate_Status), upd: r.Updated_On || r.Created_Time || '', owner: r.Owner || '', jobId: x.id, job: x.title }); }); });
+  var ivs = act.interviews.filter(function(v){ return !S.onlyMine || ids[v.jobId]; });
+  var ivById = {}; ivs.forEach(function(v){ ivById[v.id] = v; });
+  var fb = act.feedback.filter(function(f){ return ivById[f.iv]; });
+  var fbBy = {}; fb.forEach(function(f){ (fbBy[f.iv] = fbBy[f.iv] || []).push(f); });
+  var t = function(x){ var d = new Date(x).getTime(); return isNaN(d) ? 0 : d; };
+  var ckey = function(c, j){ return c + '|' + j; };
+  var ivByCJ = {}; ivs.forEach(function(v){ (ivByCJ[ckey(v.candId, v.jobId)] = ivByCJ[ckey(v.candId, v.jobId)] || []).push(v); });
+  var Q = {};
+  Q.today = ivs.filter(function(v){ return dayKey(v.start) === new Date().toDateString(); }).sort(function(a, b){ return t(a.start) - t(b.start); });
+  Q.overdue = ivs.filter(function(v){ var e = t(v.end || v.start); return e && now - e > DAY && (fbBy[v.id] || []).some(function(f){ return f.st === 'Pending'; }); })
+    .map(function(v){ return { v: v, pend: fbBy[v.id].filter(function(f){ return f.st === 'Pending'; }) }; }).sort(function(a, b){ return t(a.v.end || a.v.start) - t(b.v.end || b.v.start); });
+  Q.toFile = ivs.filter(function(v){ var e = t(v.end || v.start), f = fbBy[v.id] || [], sub = f.filter(function(x){ return x.st === 'Submitted'; }).length, pend = f.filter(function(x){ return x.st === 'Pending'; }).length;
+    return e && e < now && !v.reviewed && sub > 0 && (pend === 0 || now - e > 2 * DAY); }).map(function(v){ var f = fbBy[v.id]; return { v: v, sub: f.filter(function(x){ return x.st === 'Submitted'; }), pend: f.filter(function(x){ return x.st === 'Pending'; }) }; });
+  Q.decide = []; Q.toSched = []; Q.offers = []; Q.stuck = [];
+  rows.forEach(function(r){
+    var list = ivByCJ[ckey(r.id, r.jobId)] || [];
+    var rd = WAIT_ROUND[r.st];
+    if(rd){ var mine = list.filter(function(v){ return String(v.round).toLowerCase() === IVNAME[rd]; }).sort(function(a, b){ return t(b.start) - t(a.start); })[0];
+      if(mine && mine.reviewed) Q.decide.push({ r: r, v: mine }); }
+    if(TO_SCHED[r.st] && !list.some(function(v){ return t(v.start) > now; })) Q.toSched.push({ r: r, next: TO_SCHED[r.st], days: Math.floor((now - t(r.upd)) / DAY) });
+    if(OFFER_ST.test(r.st)) Q.offers.push({ r: r, days: Math.floor((now - t(r.upd)) / DAY) });
+    if(ACTIVE_STAGE[r.stage] && r.stage !== 'offer' && t(r.upd) && now - t(r.upd) > 14 * DAY) Q.stuck.push({ r: r, days: Math.floor((now - t(r.upd)) / DAY) });
+  });
+  Q.toSched.sort(function(a, b){ return b.days - a.days; }); Q.offers.sort(function(a, b){ return b.days - a.days; }); Q.stuck.sort(function(a, b){ return b.days - a.days; });
+  return { jobs: jobs, ids: ids, rows: rows, ivs: ivs, fb: fb, fbBy: fbBy, Q: Q, now: now, t: t };
+}
+// one queue row: click opens the candidate (with this queue as Prev/Next)
+function qRow(candId, jobId, main, sub, right){ return '<div class="qrow" tabindex="0" data-qc="' + esc(candId) + '" data-qj="' + esc(jobId) + '"><div style="min-width:0"><div class="who">' + main + '</div><div class="sub">' + sub + '</div></div><div class="acts">' + right + '</div></div>'; }
+function qCard(id, icon, title, why, items, n, tone){
+  var open = S.qOpen && S.qOpen[id], shown = open ? items : items.slice(0, 6);
+  return '<section class="qcard2' + (n ? '' : ' none') + '" id="q-' + id + '" style="--c:' + tone + '"><div class="qh"><h3>' + icon + ' ' + esc(title) + ' <span class="qn">' + n + '</span></h3><span class="hint">' + esc(why) + '</span></div>' +
+    (n ? shown.join('') + (items.length > 6 ? '<button class="btn sm" data-qmore="' + id + '" style="margin-top:6px">' + (open ? 'Show fewer' : 'Show all ' + items.length) + '</button>' : '') : '<div class="hint" style="padding:6px 2px">Nothing here. 🎉</div>') + '</section>';
+}
+function viewWork(){
+  var main = document.getElementById('main'); if(!main || S.page !== 'work') return;
+  var D = buildSum(), Q = D.Q, first = String((S.me && S.me.name) || '').split(' ')[0];
+  var cand = function(name, job){ return esc(name) + ' <span class="hint" style="font-weight:600">· ' + esc(job) + '</span>'; };
+  var c = {};
+  c.today = Q.today.map(function(v){ var f = D.fbBy[v.id] || [], past = D.t(v.end || v.start) < D.now;
+    return qRow(v.candId, v.jobId, '<b>' + esc(timeOf(v.start)) + '</b> ' + cand(v.cand, v.job), esc(String(v.round).replace(/ Interview$/, '')) + (v.panel.length ? ' · ' + esc(v.panel.join(', ')) : ' · <span style="color:var(--warn)">no interviewer set</span>'),
+      (past && f.length ? '<span class="chip ' + (f.every(function(x){ return x.st !== 'Pending'; }) ? 'ok' : 'pend') + '">' + f.filter(function(x){ return x.st !== 'Pending'; }).length + ' of ' + f.length + ' feedback</span>' : '') + (v.url && !past ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener" data-stop="1">Join ↗</a>' : '')); });
+  c.overdue = Q.overdue.map(function(o){ var v = o.v;
+    return qRow(v.candId, v.jobId, cand(v.cand, v.job), esc(String(v.round).replace(/ Interview$/, '')) + ' ended ' + esc(ago(v.end || v.start)) + ' · waiting on <b>' + esc(o.pend.map(function(f){ return f.who; }).join(', ')) + '</b>' + (o.pend[0].nudged ? ' · last reminded ' + esc(ago(o.pend[0].nudged)) : ''),
+      o.pend.map(function(f){ return '<button class="btn sm" data-qremind="' + esc(f.id) + '" data-stop="1">🔔 ' + esc(String(f.who).split(' ')[0]) + '</button>'; }).join('')); });
+  c.toFile = Q.toFile.map(function(o){ var v = o.v;
+    return qRow(v.candId, v.jobId, cand(v.cand, v.job), esc(String(v.round).replace(/ Interview$/, '')) + ' · ' + o.sub.length + ' of ' + (o.sub.length + o.pend.length) + ' submitted' + (o.pend.length ? ' (' + esc(o.pend.map(function(f){ return f.who; }).join(', ')) + ' still pending)' : ''),
+      '<button class="btn sm primary" data-qfile="' + esc(v.id) + '" data-stop="1">File evaluation</button>'); });
+  c.decide = Q.decide.map(function(o){ return qRow(o.r.id, o.r.jobId, cand(o.r.name, o.r.job), 'Evaluation filed' + (o.v.status ? ': <b>' + esc(o.v.status) + '</b>' : '') + ' · still at ' + esc(o.r.status), '<span class="btn sm primary">Move →</span>'); });
+  c.toSched = Q.toSched.map(function(o){ return qRow(o.r.id, o.r.jobId, cand(o.r.name, o.r.job), esc(o.r.status) + ' · waiting ' + o.days + 'd', '<span class="btn sm primary">Schedule ' + esc(o.next) + '</span>'); });
+  c.offers = Q.offers.map(function(o){ return qRow(o.r.id, o.r.jobId, cand(o.r.name, o.r.job), esc(o.r.status) + ' · ' + o.days + 'd in this step', ''); });
+  c.stuck = Q.stuck.map(function(o){ return qRow(o.r.id, o.r.jobId, cand(o.r.name, o.r.job), esc(o.r.status) + ' · no change for <b>' + o.days + ' days</b>', ''); });
+  var cards = [['today','🗓','Interviews today','Who you are meeting and the join links',c.today,'#8644f0'],['overdue','⏰','Feedback overdue','Interviews over 24 h ago with panel feedback still missing',c.overdue,'#c8102e'],
+    ['toFile','📝','Ready to file','Panel feedback is in: file the Recruit evaluation',c.toFile,'#b45309'],['decide','✅','Decide the next step','Evaluation filed, status not moved yet',c.decide,'#2f7d00'],
+    ['toSched','📅','To schedule','Selected or no-show, with no interview booked',c.toSched,'#1d4ed8'],['offers','🤝','Offers in flight','To be offered, offer made or on hold',c.offers,'#15803d'],['stuck','🧊','Stuck 14+ days','In process with no change for two weeks',c.stuck,'#8a849c']];
+  var total = Q.overdue.length + Q.toFile.length + Q.decide.length + Q.toSched.length;
+  main.innerHTML = jobSelect() + '<div class="hero"><div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap"><div style="flex:1;min-width:240px"><h1>' + (first ? 'Hi ' + esc(first) + ' 👋' : 'My work') + '</h1><div class="hint" style="margin-top:4px">' +
+    (total ? '<b>' + total + ' thing' + (total === 1 ? '' : 's') + '</b> need you' : 'Nothing is waiting on you') + ' across ' + (S.onlyMine ? 'your ' : 'all ') + D.jobs.length + ' open job' + (D.jobs.length === 1 ? '' : 's') + '. Interviews today: ' + Q.today.length + '.</div></div>' +
+    '<div style="display:flex;gap:6px;align-items:center"><span class="hint">Updated ' + esc(ago(new Date(S.actAt || Date.now()).toISOString()) || 'now') + '</span><button class="btn sm" id="wrf">↻ Refresh</button><button class="btn sm" id="wdash">📊 Dashboard</button></div></div>' +
+    '<div class="qjump">' + cards.map(function(k){ return '<a href="#q-' + k[0] + '" data-jump="' + k[0] + '" class="chip' + (k[4].length ? '' : ' dim') + '">' + k[1] + ' ' + esc(k[2]) + ' <b>' + k[4].length + '</b></a>'; }).join('') + '</div>' +
+    (S.sumErr ? '<div class="hint" style="color:var(--warn);margin-top:6px">' + esc(S.sumErr) + '</div>' : '') + (S.act && S.act.fbErr ? '<div class="hint" style="margin-top:6px">' + esc(S.act.fbErr) + '</div>' : '') + '</div>' +
+    '<div class="qgrid">' + cards.map(function(k){ return qCard(k[0], k[1], k[2], k[3], k[4], k[4].length, k[5]); }).join('') + '</div>';
+  bindJobSelect();
+  document.getElementById('wrf').onclick = function(){ S.ivFresh = true; loadSum(true, viewWork); };
+  document.getElementById('wdash').onclick = function(){ goDash(); };
+  main.querySelectorAll('[data-jump]').forEach(function(a){ a.onclick = function(e){ e.preventDefault(); var el = document.getElementById('q-' + a.dataset.jump); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }; });
+  main.querySelectorAll('[data-qmore]').forEach(function(b){ b.onclick = function(){ S.qOpen = S.qOpen || {}; S.qOpen[b.dataset.qmore] = !S.qOpen[b.dataset.qmore]; viewWork(); }; });
+  bindQRows(main);
+  main.querySelectorAll('[data-qremind]').forEach(function(b){ b.onclick = function(e){ e.stopPropagation(); b.disabled = true; var lbl = b.textContent; b.textContent = 'Sending…';
+    post('remind', { rowId: b.dataset.qremind }).then(function(j){ if(j.ok){ b.textContent = '✓ Reminded'; toastMsg('Reminder sent on Cliq to ' + (j.to || 'the interviewer')); (S.act.feedback || []).forEach(function(f){ if(f.id === b.dataset.qremind) f.nudged = j.at; }); } else { b.disabled = false; b.textContent = lbl; toastMsg(j.error || 'Could not send'); } }); }; });
+  main.querySelectorAll('[data-qfile]').forEach(function(b){ b.onclick = function(e){ e.stopPropagation(); b.disabled = true; b.textContent = 'Filing…';
+    post('fileeval', { ivId: b.dataset.qfile }).then(function(j){ if(j.ok){ b.textContent = '✓ Filing started'; toastMsg('Filing in Recruit with ' + (j.with || 'the submitted feedback')); (S.act.interviews || []).forEach(function(v){ if(v.id === b.dataset.qfile) v.reviewed = new Date().toISOString(); }); } else { b.disabled = false; b.textContent = 'File evaluation'; toastMsg(j.error || 'Could not file'); } }); }; });
+}
+function bindQRows(root){
+  var all = Array.prototype.map.call(root.querySelectorAll('[data-qc]'), function(el){ return el.dataset.qc; });
+  root.querySelectorAll('[data-qc]').forEach(function(r){ var go = function(){ S.visible = all.filter(function(x, i){ return all.indexOf(x) === i; }); S.focusJob = r.dataset.qj; S.nxJob = r.dataset.qj; openCandidate(r.dataset.qc); };
+    r.onclick = function(e){ if(e.target.closest('[data-stop]')) return; go(); }; r.onkeydown = function(e){ if(e.key === 'Enter') go(); }; });
+}
+function csvDownload(name, head, rows){
+  var q = function(v){ v = v == null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  var txt = [head].concat(rows).map(function(r){ return r.map(q).join(','); }).join('\n');
+  var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + txt], { type: 'text/csv' })); a.download = name + '-' + new Date().toISOString().slice(0, 10) + '.csv'; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+function viewDash(){
+  var main = document.getElementById('main'); if(!main || S.page !== 'dash') return;
+  var D = buildSum(), Q = D.Q, now = D.now, t = D.t;
+  var inProc = D.rows.filter(function(r){ return ACTIVE_STAGE[r.stage]; });
+  var wk0 = new Date(); wk0.setHours(0, 0, 0, 0); wk0.setDate(wk0.getDate() - ((wk0.getDay() + 6) % 7)); var wk1 = wk0.getTime() + 7 * DAY;
+  var ivWeek = D.ivs.filter(function(v){ var s = t(v.start); return s >= wk0.getTime() && s < wk1; });
+  var subs = D.fb.filter(function(f){ return f.st === 'Submitted' && f.sub && f.end; }).map(function(f){ return Math.max(0, (t(f.sub) - t(f.end)) / 3600000); });
+  var lateOpen = D.fb.filter(function(f){ return f.st === 'Pending' && f.end && now - t(f.end) > DAY; }).length;
+  var onTime = subs.filter(function(h){ return h <= 24; }).length, judged = subs.length + lateOpen;
+  var med = function(a){ if(!a.length) return null; var s = a.slice().sort(function(x, y){ return x - y; }), m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+  var medH = med(subs);
+  var hired30 = D.rows.filter(function(r){ return r.stage === 'hired' && now - t(r.upd) <= 30 * DAY; }).length;
+  var tiles = [['Open jobs', D.jobs.length, '#8644f0'], ['In process', inProc.length, '#1d4ed8'], ['Interviews this week', ivWeek.length, '#0f766e'], ['Feedback on time (24 h)', judged ? Math.round(100 * onTime / judged) + '%' : '—', '#2f7d00'],
+    ['Median time to feedback', medH == null ? '—' : (medH < 48 ? Math.round(medH) + ' h' : Math.round(medH / 24) + ' d'), '#b45309'], ['Feedback overdue', lateOpen, '#c8102e'], ['Offers in flight', Q.offers.length, '#15803d'], ['Hired / joined (30 d)', hired30, '#15803d']];
+  // funnel: candidates in process per stage (one series, so one hue; labels carry identity)
+  var FUN = ['screen','assess','blitz','r1','r2','r3','vibe','offer','hired','hold'], cnt = {}; FUN.forEach(function(k){ cnt[k] = 0; }); D.rows.forEach(function(r){ if(cnt[r.stage] != null) cnt[r.stage]++; });
+  var fmax = Math.max.apply(null, FUN.map(function(k){ return cnt[k]; }).concat([1]));
+  var funnel = '<div class="hbars" role="table" aria-label="Candidates by stage">' + FUN.map(function(k){ var m = stageMeta(k), v = cnt[k];
+    return '<div class="hb" role="row" title="' + esc(m[1] + ': ' + v + ' candidates') + '"><span role="cell">' + esc(m[1]) + '</span><span class="tr" role="cell"><i style="width:' + Math.max(v ? 1.5 : 0, 100 * v / fmax) + '%"></i></span><b role="cell">' + v + '</b></div>'; }).join('') + '</div>';
+  // interviews per day: 21 days back to 7 ahead
+  var days = []; for(var i = -21; i <= 7; i++){ var d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() + i); days.push(d); }
+  var per = days.map(function(d){ var k = d.toDateString(); return D.ivs.filter(function(v){ return dayKey(v.start) === k; }).length; }), pmax = Math.max.apply(null, per.concat([1]));
+  var cols = '<div class="vbars" role="table" aria-label="Interviews per day">' + days.map(function(d, i){ var fut = i > 21, lbl = d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+    return '<div class="vb' + (fut ? ' fut' : '') + (i === 21 ? ' now' : '') + '" role="row" title="' + esc(lbl + ': ' + per[i] + ' interview' + (per[i] === 1 ? '' : 's') + (fut ? ' booked' : '')) + '"><span class="tr"><i style="height:' + (per[i] ? Math.max(3, 100 * per[i] / pmax) : 0) + '%"></i></span><small role="cell">' + (i % 7 === 0 || i === 21 ? esc(i === 21 ? 'Today' : d.getDate() + ' ' + d.toLocaleDateString('en-IN', { month: 'short' })) : '') + '</small><b class="sr" role="cell">' + per[i] + '</b></div>'; }).join('') + '</div>';
+  // per job
+  var cntJ = function(jid, fn){ return D.rows.filter(function(r){ return r.jobId === jid && fn(r); }).length; };
+  var jobRows = D.jobs.map(function(x){
+    var g = function(ks){ return cntJ(x.id, function(r){ return ks.indexOf(r.stage) >= 0; }); };
+    return [x.title, x.recruiters.join(', ') || x.manager || '', g(['screen','assess','blitz','r1','r2','r3','vibe','offer']), g(['screen']), g(['assess']), g(['blitz','r1','r2','r3']), g(['vibe']), g(['offer']), g(['hired']), g(['hold']),
+      D.ivs.filter(function(v){ return v.jobId === x.id && t(v.start) <= now; }).length, Q.toSched.filter(function(o){ return o.r.jobId === x.id; }).length, Q.stuck.filter(function(o){ return o.r.jobId === x.id; }).length,
+      x.opened ? Math.floor((now - t(x.opened)) / DAY) : '', x.id];
+  }).sort(function(a, b){ return b[2] - a[2]; });
+  var JH = ['Job','Recruiter(s)','In process','Screening','Assessment','Interviews','Vibe / Ref','Offer','Hired','On hold','Interviews (30 d)','To schedule','Stuck 14 d+','Days open'];
+  // per recruiter (a job with two recruiters counts for both)
+  var rec = {};
+  D.jobs.forEach(function(x){ (x.recruiters.length ? x.recruiters : [x.manager || 'No recruiter']).forEach(function(n){ var o = rec[n] = rec[n] || { jobs: 0, inproc: 0, week: 0, sched: 0, decide: 0, overdue: 0, stuck: 0 };
+    o.jobs++; o.inproc += cntJ(x.id, function(r){ return ACTIVE_STAGE[r.stage]; }); o.week += ivWeek.filter(function(v){ return v.jobId === x.id; }).length;
+    o.sched += Q.toSched.filter(function(q){ return q.r.jobId === x.id; }).length; o.decide += Q.decide.filter(function(q){ return q.r.jobId === x.id; }).length;
+    o.overdue += Q.overdue.filter(function(q){ return q.v.jobId === x.id; }).length; o.stuck += Q.stuck.filter(function(q){ return q.r.jobId === x.id; }).length; }); });
+  var recRows = Object.keys(rec).map(function(n){ var o = rec[n]; return [n, o.jobs, o.inproc, o.week, o.sched, o.decide, o.overdue, o.stuck]; }).sort(function(a, b){ return b[2] - a[2]; });
+  var RH = ['Recruiter','Open jobs','In process','Interviews this week','To schedule','Decisions due','Feedback overdue','Stuck 14 d+'];
+  // per interviewer (panel feedback, last 30 days)
+  var pi = {};
+  D.fb.forEach(function(f){ var o = pi[f.who || '—'] = pi[f.who || '—'] || { n: 0, sub: 0, pend: 0, late: 0, hrs: [] }; o.n++;
+    if(f.st === 'Submitted'){ o.sub++; if(f.sub && f.end) o.hrs.push(Math.max(0, (t(f.sub) - t(f.end)) / 3600000)); } else if(f.st === 'Pending'){ o.pend++; if(f.end && now - t(f.end) > DAY) o.late++; } });
+  var piRows = Object.keys(pi).map(function(n){ var o = pi[n], m = med(o.hrs), ot = o.hrs.filter(function(h){ return h <= 24; }).length;
+    return [n, o.n, o.sub, o.pend, o.late, m == null ? '' : (m < 48 ? Math.round(m) + ' h' : Math.round(m / 24) + ' d'), (o.hrs.length + o.late) ? Math.round(100 * ot / (o.hrs.length + o.late)) + '%' : '']; }).sort(function(a, b){ return (b[4] - a[4]) || (b[3] - a[3]) || (b[1] - a[1]); });
+  var PH = ['Interviewer','Feedback asked','Submitted','Pending','Overdue','Median time','On time'];
+  var table = function(id, head, body, num, link){ return '<div class="tblw"><table class="tbl dtbl" id="' + id + '"><thead><tr>' + head.map(function(h, i){ return '<th' + (i >= num ? ' class="n"' : '') + '>' + esc(h) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+    (body.length ? body.map(function(r){ return '<tr' + (link ? ' data-dj="' + esc(r[r.length - 1]) + '" tabindex="0"' : '') + '>' + head.map(function(h, i){ return '<td' + (i >= num ? ' class="n"' : '') + '>' + (i === 0 ? '<b>' + esc(r[i]) + '</b>' : esc(r[i])) + '</td>'; }).join('') + '</tr>'; }).join('') : '<tr><td colspan="' + head.length + '" class="hint">No data.</td></tr>') + '</tbody></table></div>'; };
+  var sec = function(title, id, sub){ return '<div class="dsec"><div class="dsh"><h3>' + esc(title) + '</h3>' + (sub ? '<span class="hint">' + esc(sub) + '</span>' : '') + (id ? '<button class="btn sm" data-csv="' + id + '">⬇ CSV</button>' : '') + '</div>'; };
+  main.innerHTML = jobSelect() + '<div class="jh"><div><h1>Dashboard</h1><div class="meta"><span>' + (S.onlyMine ? 'Your' : 'All') + ' ' + D.jobs.length + ' open jobs · interviews and feedback from the last 30 days · switch My / All jobs in the sidebar</span></div></div><div class="acts"><span class="hint">Updated ' + esc(ago(new Date(S.actAt || Date.now()).toISOString()) || 'now') + '</span><button class="btn sm" id="drf">↻ Refresh</button><button class="btn sm" id="dwork">✅ My work</button></div></div>' +
+    (S.sumErr ? '<div class="hint" style="color:var(--warn)">' + esc(S.sumErr) + '</div>' : '') +
+    '<div class="tiles">' + tiles.map(function(x){ return '<div class="tile" style="--c:' + x[2] + '"><small>' + esc(x[0]) + '</small><b>' + esc(x[1]) + '</b></div>'; }).join('') + '</div>' +
+    '<div class="dgrid">' + sec('Candidates by stage', '', 'in process now, open jobs') + funnel + '</div>' + sec('Interviews per day', '', 'last 3 weeks and the next 7 days (lighter = booked)') + cols + '</div></div>' +
+    sec('Jobs', 'job', 'click a job to open its pipeline') + table('dj', JH, jobRows, 2, true) + '</div>' +
+    sec('Recruiters', 'rec', 'a job with two recruiters counts for both') + table('dr', RH, recRows, 1) + '</div>' +
+    sec('Interviewers: panel feedback', 'pi', 'last 30 days; on time = within 24 h of the interview ending') + table('dp', PH, piRows, 1) + '</div>';
+  bindJobSelect();
+  document.getElementById('drf').onclick = function(){ loadSum(true, viewDash); };
+  document.getElementById('dwork').onclick = function(){ goWork(); };
+  main.querySelectorAll('[data-dj]').forEach(function(r){ r.onclick = function(){ openJob(r.dataset.dj); }; r.onkeydown = function(e){ if(e.key === 'Enter') openJob(r.dataset.dj); }; });
+  main.querySelectorAll('[data-csv]').forEach(function(b){ b.onclick = function(){ var k = b.dataset.csv;
+    if(k === 'job') csvDownload('jobs', JH, jobRows.map(function(r){ return r.slice(0, JH.length); })); else if(k === 'rec') csvDownload('recruiters', RH, recRows); else csvDownload('interviewer-feedback', PH, piRows); }; });
+}
 function render(){
   if(S.pending){ var pd = S.pending; S.pending = null; if(pd.ok){ gotAuth(pd); return; } S.authErr = pd.error || 'Sign-in failed.'; }
   try{ S.me = S.me || JSON.parse(store('hire_me') || 'null'); }catch(e){}
