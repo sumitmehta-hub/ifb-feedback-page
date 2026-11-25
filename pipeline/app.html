@@ -183,24 +183,23 @@ body.previewing [data-qremind],body.previewing [data-qfile],body.previewing [dat
 @media (prefers-reduced-motion:reduce){.mdl .mpn,.mrow,.frow i,.ptab .pbar i,.gb i{animation:none}}
 @media (max-width:560px){.mrow{grid-template-columns:32px minmax(0,1fr) 14px}.mrow .mdt{grid-column:2/3}.mdl{padding:8px}}
 .pvnote{margin-top:10px;font-size:12.5px;background:#fff4e5;border:1px solid #f3c98b;color:#5a3500;border-radius:10px;padding:8px 10px}.pvnote b{color:#1b1530}
-.lqs{position:fixed;inset:0;z-index:300;overflow:hidden;color:#1b1530}
-.lq-bg{position:absolute;inset:0;background:radial-gradient(circle at 50% 38%,#fff 0,#fbf8ff 45%,#f7edff 100%)}
-.lq-bg::before{content:"";position:absolute;inset:0;background-image:radial-gradient(#e6d7ff 1px,transparent 1px);background-size:24px 24px;-webkit-mask:radial-gradient(circle at 50% 40%,#000 20%,transparent 70%);mask:radial-gradient(circle at 50% 40%,#000 20%,transparent 70%)}
-.lq-fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}.lq-sharp{position:absolute;inset:0;pointer-events:none}
-.lq-pc{position:absolute;left:0;top:0;transform-origin:0 0;opacity:0;will-change:transform,opacity}
-.lq-badge{display:flex;flex-direction:column;align-items:center;gap:6px}.lq-bi{width:40px;height:40px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 8px 18px -8px rgba(76,29,149,.45)}
-.lq-bl{background:#fff;border-radius:10px;padding:4px 10px;font:700 11px/1.3 inherit;color:#1b1530;white-space:nowrap;text-align:center;box-shadow:0 6px 16px -10px rgba(76,29,149,.5)}.lq-bl small{display:block;font-weight:500;font-size:10px;color:#5d5d5d}
-.lq-disc{width:46px;height:46px;border-radius:50%;background:#fff;display:grid;place-items:center;box-shadow:0 8px 18px -8px rgba(22,1,54,.45)}.lq-disc svg{width:24px;height:26px}
-.lq-htxt{color:#fff;font-weight:800;font-size:17px;line-height:1.1;white-space:nowrap}.lq-htxt small{display:block;font-weight:500;font-size:11px;opacity:.85}
-.lq-tl{color:#fff;white-space:nowrap}.lq-tl .l{font-weight:700;font-size:11.5px;opacity:.92}.lq-tl .v{font-weight:800;font-size:22px;margin-top:4px}
-.lq-rl{display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:12px;white-space:nowrap}.lq-rl i{width:22px;height:8px;border-radius:99px;background:rgba(255,255,255,.55)}
-.lq-status{position:absolute;left:16px;right:16px;bottom:max(7vh,56px);display:grid;justify-items:center;gap:6px;text-align:center}
-.lq-greet{font-weight:800;font-size:19px;color:#1b1530}.lq-greet small{display:block;font-weight:500;font-size:12.5px;color:#5d5d5d;margin-top:2px}
-.lq-line{display:flex;gap:10px;align-items:baseline;justify-content:center;max-width:min(560px,92vw)}.lq-log{font-size:12.5px;color:#3f3f3f;min-height:19px;white-space:nowrap;overflow:hidden}.lq-log div{display:none}.lq-log div:last-child{display:block;overflow:hidden;text-overflow:ellipsis}
-.lq-pct{font-weight:800;font-size:13px;color:#6c2fd6;font-variant-numeric:tabular-nums}.lq-pct small{font-size:10px}
-.lq-bar{width:min(320px,70vw);height:4px;border-radius:999px;background:#ece5fb;overflow:hidden}.lq-bar i{display:block;width:0;height:100%;border-radius:999px;background:linear-gradient(90deg,#8644f0,#cb8fff);transition:width .3s ease}
-.lq-foot{position:absolute;left:0;right:0;bottom:16px;text-align:center;font-size:11.5px;font-weight:600;color:#6c62a8}
-@media (max-height:520px){.lq-foot{display:none}.lq-status{bottom:36px}}
+.pfx{position:fixed;inset:0;z-index:300;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:20px;background:linear-gradient(135deg,#f7f0ff 0%,#ffeef6 45%,#fff3e3 100%);transition:opacity .55s ease,transform .55s ease,filter .55s ease}
+.pfx.out{opacity:0;transform:translateY(-24px) scale(1.04);filter:blur(4px);pointer-events:none}
+.pf-bub{position:absolute;inset:0;pointer-events:none}.pf-bub i{position:absolute;bottom:-60px;aspect-ratio:1;border-radius:50%;opacity:.12;animation:pfup linear infinite}
+@keyframes pfup{from{transform:translateY(0)}to{transform:translateY(-120vh)}}
+.pf-stage{position:relative;width:min(860px,96vw)}.pf-stage svg{width:100%;height:auto;overflow:visible}
+.pf-pop{transform-box:fill-box;transform-origin:center;animation:pfpop .55s cubic-bezier(.3,1.6,.5,1) both}@keyframes pfpop{from{transform:scale(0)}to{transform:scale(1)}}
+.pf-node.hit .pf-halo{animation:pfhalo .5s ease-out}@keyframes pfhalo{from{opacity:.55;transform:scale(1)}to{opacity:.16;transform:scale(1.35)}}.pf-halo{transform-box:fill-box;transform-origin:center}
+.pf-num{font:800 14px/1 'Plus Jakarta Sans',system-ui,sans-serif;fill:#fff}.pf-lab{font:800 12.5px/1 'Plus Jakarta Sans',system-ui,sans-serif;fill:#1b1530}
+.pf-spark circle{animation:pfsp .8s ease-out forwards}@keyframes pfsp{from{transform:translate(0,0);opacity:1}to{transform:translate(var(--dx),var(--dy));opacity:0}}
+.pf-txt{display:grid;justify-items:center;gap:8px;text-align:center;z-index:1}
+.pf-greet{font-weight:800;font-size:22px;background:linear-gradient(90deg,#3b1290,#8644f0 55%,#d4459a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.pf-greet small{display:block;font-weight:600;font-size:13px;color:#5d5d5d;-webkit-text-fill-color:#5d5d5d;margin-top:2px}
+.pf-line{display:flex;gap:10px;align-items:baseline}.pf-log{font-size:13px;color:#3f3f3f;min-height:18px;max-width:70vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pf-pct{font-weight:800;font-size:13px;color:#6c2fd6;font-variant-numeric:tabular-nums}
+.pf-bar{width:min(340px,70vw);height:6px;border-radius:99px;background:#eadfff;overflow:hidden}.pf-bar i{display:block;width:0;height:100%;border-radius:99px;background:linear-gradient(90deg,#8644f0,#d4459a,#f59e0b);transition:width .3s ease}
+.pf-foot{position:absolute;bottom:16px;font-size:11.5px;font-weight:700;color:#7a6aa8}
+.pf-rise{animation:pfrise .6s cubic-bezier(.2,.8,.2,1)}@keyframes pfrise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.pf-bub i,.pf-pop{animation:none}}
 /* joy (25 Nov) */
 .ji .dot{background:color-mix(in srgb,var(--jc,#8644f0) 16%,#fff);color:var(--jc,#6a2bd6)}
 .cav{background:linear-gradient(135deg,var(--jc,#8644f0),color-mix(in srgb,var(--jc,#8644f0) 60%,#ff8fc7));color:#fff}
@@ -1264,156 +1263,83 @@ function viewDash(){
     else csvDownload('interviewer-feedback', ['Interviewer','Asked','Given','Overdue','Median time','On time'], piRows); }; });
 }
 
-// ---------- opening animation (25 Nov): the Renewals Sheet "liquid" intro, People Ops edition ----------
-// Four sources (Zoho Recruit, Candidates, Interviews, Panel feedback) melt into the Hiring Pipeline bar, drip into the KPI
-// tiles and two row bars, idle until the page is drawn, then every shape lands on the real header / tiles / callouts and
-// cross-fades into them. Engine ported from renewals-sheet/widget (frame maths unchanged); progress comes from real loading.
+var JOY = ['#8644f0','#1d4ed8','#0f766e','#c2410c','#be185d','#15803d','#7c3aed','#0369a1','#b45309','#a3166a'];
+// ---------- opening animation (25 Nov, original): "the pipeline comes alive" ----------
+// A curved path draws in, six stage stations pop up (Screening → Blitz → R1 → R2 → Offer → Hired), little candidate dots flow
+// along it (most step off at early stations, a few reach Hired and spark), and once candidates load every station counts up to
+// the real number. Status line + % come from the real loading; the scene lifts away into the page.
 var SPL = (function(){
-  var el = null, api = null, SP = { pct: 0, target: 0, t0: 0, done: false, raf: 0, queue: [], typing: false }, rowsTxt = ['', ''];
-  var ICON = {
-    recruit: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8644f0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg>',
-    cands: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/></svg>',
-    iv: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f766e" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 11h18M8 15h3"/></svg>',
-    fb: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b45309" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 12l2.3 2.3 4.7-4.6"/></svg>' };
-  var MARK = '<svg viewBox="0 0 30 32"><path d="M0 1.37L.25 31.09 6.83 14.01Z" fill="#EF991B"/><path d="M29.98 31.17L0 1.37l16.01 29.59Z" fill="#F26966"/><path d="M.21 31.17H30L3.63 22.33Z" fill="#7530E2"/><path d="M0 1.37l24.18 27.85 5.81 1.95Z" fill="#FF837C"/><path d="M.21 31.17L2.83 6.52 0 1.37Z" fill="#FFAD26"/><path d="M.21 31.17H30L1.47 27.97Z" fill="#903FF9"/><path d="M0 1.37l13.05 24.12 5.26 1.76Z" fill="#DD4E4E"/><path d="M3.63 22.33l-1.06 2.73 27.42 6.11Z" fill="#5A1FCC"/><path d="M6.84 14.01L4.97 10.56.21 31.17Z" fill="#D88212"/></svg>';
-  var TILES = [['Interviews this week', '#8644f0'], ['Evaluations filed', '#0f766e'], ['Active candidates', '#1d4ed8'], ['Feedback on time', '#b45309'], ['Offers in flight', '#15803d']];
+  var el = null, svg = null, path = null, len = 0, raf = 0, t0 = 0, done = false, leaving = false, ready = false, pct = 0, target = 0, q = [], typing = false, dots = [], lastSpawn = 0, counts = null;
+  var ST = [['screen','Screening','#7c6cf0'],['blitz','Blitz','#0e7490'],['r1','R1','#8644f0'],['r2','R2','#0f766e'],['offer','Offer','#c2410c'],['hired','Hired','#15803d']];
+  var POS = [.06, .24, .42, .6, .78, .95];
+  var RM = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   function make(name){
     if(el) return;
     var h = new Date().getHours(), hello = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening', first = String(name || '').split(' ')[0];
-    var badge = function(ic, t, sub){ return '<div class="lq-pc lq-badge"><span class="lq-bi">' + ic + '</span><span class="lq-bl">' + t + '<small>' + sub + '</small></span></div>'; };
-    el = document.createElement('div'); el.className = 'lqs'; el.setAttribute('role', 'status'); el.setAttribute('aria-live', 'polite'); el.setAttribute('aria-label', 'Loading the hiring pipeline');
-    el.innerHTML = '<div class="lq-bg"></div><svg class="lq-fx" aria-hidden="true"><defs><filter id="lqGoo" filterUnits="userSpaceOnUse" x="0" y="0" width="100" height="100" color-interpolation-filters="sRGB"><feGaussianBlur id="lqBlur" in="SourceGraphic" stdDeviation="10" result="b"/><feColorMatrix in="b" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -9"/></filter>' +
-      '<linearGradient id="lqGv" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9d6cff"/><stop offset="1" stop-color="#6c2fd6"/></linearGradient><radialGradient id="lqGs"><stop offset="0" stop-color="#160136" stop-opacity=".26"/><stop offset="1" stop-color="#160136" stop-opacity="0"/></radialGradient></defs>' +
-      '<ellipse id="lqShadow" fill="url(#lqGs)"/><g id="lqLiq" filter="url(#lqGoo)"><circle class="lq-src" fill="#1d4ed8"/><circle class="lq-src" fill="#0f766e"/><circle class="lq-src" fill="#b45309"/><rect id="lqHead" fill="url(#lqGv)"/>' +
-      TILES.map(function(){ return '<circle class="lq-drip" fill="#8644f0"/>'; }).join('') + TILES.map(function(x){ return '<rect class="lq-tile" fill="' + x[1] + '"/>'; }).join('') +
-      '<rect class="lq-bead" fill="#9d6cff"/><rect class="lq-bead" fill="#9d6cff"/><circle id="lqIdle" fill="#8644f0"/><circle id="lqCur" fill="#b58cff"/></g></svg>' +
-      '<div class="lq-sharp" aria-hidden="true">' + badge(ICON.recruit, 'Zoho Recruit', 'open roles') + badge(ICON.cands, 'Candidates', 'in process') + badge(ICON.iv, 'Interviews', 'last 9 weeks') + badge(ICON.fb, 'Panel feedback', 'who still owes it') +
-      '<div class="lq-pc" id="lqMark"><div class="lq-disc">' + MARK + '</div></div><div class="lq-pc lq-htxt" id="lqHtxt">Hiring Pipeline<small id="lqHsub">syncing</small></div>' +
-      TILES.map(function(x){ return '<div class="lq-pc lq-tl"><div class="l">' + x[0] + '</div><div class="v">…</div></div>'; }).join('') +
-      '<div class="lq-pc lq-rl"><i></i><span>Reading open roles…</span></div><div class="lq-pc lq-rl"><i></i><span>Matching interviews…</span></div></div>' +
-      '<div class="lq-status" id="lqStatus"><div class="lq-greet">' + hello + (first ? ', ' + esc(first) : '') + '<small>Setting up your hiring pipeline</small></div><div class="lq-line"><span class="lq-log" id="spLog"></span><span class="lq-pct" id="spPct">0<small>%</small></span></div><div class="lq-bar"><i id="spBar"></i></div></div>' +
-      '<div class="lq-foot" id="spStep">Leegality · People Ops · live from Zoho Recruit</div>';
-    document.body.appendChild(el); SP.t0 = performance.now(); api = engine(el);
-    setTimeout(function(){ if(el && !SP.done) finish(true); }, 15000);
+    el = document.createElement('div'); el.className = 'pfx'; el.setAttribute('role', 'status'); el.setAttribute('aria-label', 'Loading the hiring pipeline');
+    var bubbles = ''; for(var i = 0; i < 14; i++) bubbles += '<i style="left:' + (Math.random() * 100).toFixed(1) + '%;width:' + (14 + Math.random() * 40).toFixed(0) + 'px;animation-delay:' + (-Math.random() * 9).toFixed(1) + 's;animation-duration:' + (8 + Math.random() * 7).toFixed(1) + 's;background:' + JOY[i % JOY.length] + '"></i>';
+    el.innerHTML = '<div class="pf-bub" aria-hidden="true">' + bubbles + '</div>' +
+      '<div class="pf-stage"><svg viewBox="0 0 760 240" aria-hidden="true"><defs><linearGradient id="pfG" x1="0" x2="1"><stop offset="0" stop-color="#7c6cf0"/><stop offset=".5" stop-color="#8644f0"/><stop offset="1" stop-color="#15803d"/></linearGradient>' +
+      '<filter id="pfGlow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>' +
+      '<path id="pfPath" d="M30 150 C 140 60, 220 60, 300 130 S 460 210, 540 120 S 690 60, 740 110" fill="none" stroke="url(#pfG)" stroke-width="6" stroke-linecap="round"/>' +
+      '<g id="pfDots"></g><g id="pfNodes"></g></svg></div>' +
+      '<div class="pf-txt"><div class="pf-greet">' + hello + (first ? ', ' + esc(first) : '') + ' 👋<small>Warming up your hiring pipeline</small></div>' +
+      '<div class="pf-line"><span class="pf-log" id="spLog"></span><span class="pf-pct" id="spP">0%</span></div><div class="pf-bar"><i id="spB"></i></div></div>' +
+      '<div class="pf-foot">Leegality · People Ops · live from Zoho Recruit</div>';
+    document.body.appendChild(el); svg = el.querySelector('svg'); path = el.querySelector('#pfPath'); len = path.getTotalLength();
+    path.style.strokeDasharray = len; path.style.strokeDashoffset = RM ? 0 : len;
+    var ng = el.querySelector('#pfNodes');
+    ST.forEach(function(s, i){ var p = path.getPointAtLength(len * POS[i]);
+      var g = document.createElementNS('http://www.w3.org/2000/svg', 'g'); g.setAttribute('class', 'pf-node'); g.setAttribute('transform', 'translate(' + p.x.toFixed(1) + ',' + p.y.toFixed(1) + ')');
+      g.innerHTML = '<g class="pf-pop" style="animation-delay:' + (RM ? 0 : 320 + i * 120) + 'ms"><circle class="pf-halo" r="30" fill="' + s[2] + '" opacity=".16"/><circle r="22" fill="' + s[2] + '" filter="url(#pfGlow)"/><circle r="22" fill="none" stroke="#fff" stroke-width="3"/>' +
+        '<text class="pf-num" y="5" text-anchor="middle">' + (i === 5 ? '★' : '·') + '</text><text class="pf-lab" y="46" text-anchor="middle">' + s[1] + '</text></g>';
+      ng.appendChild(g); s.g = g; s.p = p; });
+    t0 = performance.now(); if(!RM) raf = requestAnimationFrame(frame);
+    setTimeout(function(){ if(el && !done) finish(true); }, 15000);
   }
-  function engine(el){
-    var q = function(s){ return Array.prototype.slice.call(el.querySelectorAll(s)); };
-    var RM = matchMedia('(prefers-reduced-motion: reduce)').matches, LITE = (navigator.hardwareConcurrency || 8) <= 4 || (navigator.deviceMemory || 8) <= 2;
-    var goo = el.querySelector('#lqGoo'), blur = el.querySelector('#lqBlur'), liq = el.querySelector('#lqLiq'), shadow = el.querySelector('#lqShadow');
-    var srcs = q('.lq-src'), head = el.querySelector('#lqHead'), drips = q('.lq-drip'), tiles = q('.lq-tile'), beads = q('.lq-bead'), idleD = el.querySelector('#lqIdle'), cur = el.querySelector('#lqCur');
-    var badges = q('.lq-badge'), pMark = el.querySelector('#lqMark'), pHead = el.querySelector('#lqHtxt'), pT = q('.lq-tl'), pR = q('.lq-rl');
-    var bg = el.querySelector('.lq-bg'), status = el.querySelector('#lqStatus'), foot = el.querySelector('#spStep');
-    var clamp = function(v){ return v < 0 ? 0 : v > 1 ? 1 : v; }, lerp = function(a, b, t){ return a + (b - a) * t; }, io = function(t){ return t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
-    var back = function(t){ return t <= 0 ? 0 : 1 + 2.7 * Math.pow(t - 1, 3) + 1.7 * Math.pow(t - 1, 2); };
-    var attr = function(n, o){ for(var a in o) n.setAttribute(a, o[a]); };
-    var place = function(n, x, y, s, o){ n.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + y.toFixed(1) + 'px,0) scale(' + s.toFixed(3) + ')'; n.style.opacity = o.toFixed(3); };
-    var L = null, k = 1, cx = 0, cy = 0, NT = pT.length;
-    var layout = function(){ var cols = innerWidth < 640 ? 2 : NT, TW = cols >= 4 ? 150 : 150, TG = 14, TH = 80, W = cols * TW + (cols - 1) * TG, rowsN = Math.ceil(NT / cols), RH = 34;
-      var total = 56 + 24 + rowsN * TH + (rowsN - 1) * TG + 22 + 2 * RH + 16, top = -total / 2;
-      L = { cols: cols, TW: TW, TG: TG, TH: TH, W: W, RH: RH, HB: { x: -W / 2, y: top, w: W, h: 56 }, TY: top + 56 + 24 };
-      L.tile = function(i){ return { x: -W / 2 + (i % cols) * (TW + TG), y: L.TY + Math.floor(i / cols) * (TH + TG) }; };
-      var tb = L.TY + rowsN * TH + (rowsN - 1) * TG; L.RY = [tb + 22, tb + 22 + RH + 16];
-      L.HOME = [[-W * .36, top + 70], [W * .36, top + 70], [-W * .22, top + total * .62], [W * .22, top + total * .62]];
-      k = Math.max(.5, Math.min(1, (innerWidth - 32) / (W + 48), (innerHeight - 210) / (total + 48)));
-      cx = innerWidth / 2; cy = Math.min(innerHeight * .42, (innerHeight - 170) / 2 + 12);
-      attr(goo, { x: 0, y: 0, width: innerWidth, height: innerHeight }); };
-    layout(); addEventListener('resize', layout);
-    var ptr = { x: 0, y: 0, tx: 0, ty: 0, on: false, r: 0 };
-    var aim = function(e){ ptr.tx = (e.clientX - cx) / k; ptr.ty = (e.clientY - cy) / k; if(!ptr.on){ ptr.on = true; ptr.x = ptr.tx; ptr.y = ptr.ty; } };
-    el.addEventListener('pointermove', aim); el.addEventListener('pointerdown', aim); el.addEventListener('pointerleave', function(){ ptr.on = false; });
-    var splitAt = -1e9, splitEnv = function(u){ return u < 0 ? 0 : u < 300 ? 1 - Math.pow(1 - u / 300, 3) : u < 650 ? 1 : u < 1250 ? 1 - io((u - 650) / 600) : 0; };
-    el.addEventListener('click', function(){ if(RM || exitAt) return; var n = performance.now(); if(n - splitAt > 1250) splitAt = n; });
-    var DT = [1650, 1760, 1870, 1980, 2090], BT = [2400, 2540], XS = 1.25;
-    var exitAt = 0, T = null, last = performance.now(), onDone = null;
-    var settled = function(n){ var r = n.getBoundingClientRect(); return { x: r.left, y: r.top, w: r.width, h: r.height }; };
-    function frame(now){
-      var t = RM ? 1e5 : now - SP.t0, cs = RM ? 0 : splitEnv(now - splitAt);
-      var S = Math.max(1 - io(clamp((t - 450) / 650)), cs), H = io(clamp((t - 1100) / 480)) * (1 - cs), vis = 1 - clamp(cs * 3);
-      var idle = RM ? 0 : clamp((t - 2900) / 600) * (1 - clamp(cs * 4));
-      var e = exitAt ? (RM ? 1 : io(clamp((now - exitAt) / (720 * XS)))) : 0, ex = exitAt ? (RM ? 1 : clamp((now - exitAt - 470 * XS) / (280 * XS))) : 0, gone = 1 - clamp(e * 3);
-      var f = 1 - Math.pow(.86, Math.min(50, now - last) / 16.7); last = now;
-      ptr.x += (ptr.tx - ptr.x) * f; ptr.y += (ptr.ty - ptr.y) * f;
-      ptr.r += ((ptr.on && !RM && !exitAt ? 16 * clamp((1 - Math.hypot(ptr.x / (L.W * .62), ptr.y / 260)) / .25) : 0) - ptr.r) * f;
-      var pull = function(x, y, s){ var dx = ptr.x - x, dy = ptr.y - y, w = ptr.r / 16 * s * clamp(1 - Math.hypot(dx, dy) / 160) * .22; return [x + dx * w, y + dy * w]; };
-      var X = function(u){ return cx + u * k; }, Y = function(v){ return cy + v * k; }, rr = function(r){ return r < .5 ? 0 : r; }, HB = L.HB, MB = [0, HB.y + 90];
-      var blobs = L.HOME.map(function(hp, i){ var a = back(clamp((t - 40 - i * 90) / 420));
-        var p = pull(lerp(MB[0], hp[0], S) + Math.sin(t / 700 + i * 2) * 6 * S, lerp(MB[1], hp[1], S) + Math.cos(t / 800 + i * 2.3) * 6 * S, 1 - .8 * H); return { x: p[0], y: p[1], a: a }; });
-      srcs.forEach(function(n, i){ var b = blobs[i + 1]; attr(n, { cx: X(b.x), cy: Y(b.y), r: rr(40 * b.a * (.45 + .55 * S) * (1 - H) * k * gone) }); });
-      var b0 = blobs[0], rv = Math.max(0, lerp(60, 42, S) * b0.a), wob = idle * 2 * Math.sin(t / 650);
-      var C = { x: X(lerp(b0.x - rv, HB.x - wob / 2, H)), y: Y(lerp(b0.y - rv, HB.y, H)), w: lerp(2 * rv, HB.w + wob, H) * k, h: lerp(2 * rv, HB.h, H) * k, rx: lerp(rv, 18, H) * k };
-      if(T && T.bar){ var sb = T.bar; C = { x: lerp(C.x, sb.x, e), y: lerp(C.y, sb.y, e), w: lerp(C.w, sb.w, e), h: lerp(C.h, sb.h, e), rx: lerp(C.rx, 16, e) }; }
-      attr(head, { x: C.x, y: C.y, width: Math.max(0, C.w), height: Math.max(0, C.h), rx: Math.min(C.rx, C.w / 2, C.h / 2) });
-      var tileR = [];
-      drips.forEach(function(n, i){ var d = DT[i], u = clamp((t - d) / 120), v = clamp((t - d - 120) / 220), g = io(clamp((t - d - 300) / 320)), P = L.tile(i);
-        var tx = P.x + L.TW / 2, y = lerp(HB.y + HB.h - 4 + 10 * u, P.y + L.TH / 2, v * v);
-        attr(n, { cx: X(tx), cy: Y(y), r: rr(15 * back(u) * H * (1 - g) * k * gone) });
-        var R = { x: X(lerp(tx - 15, P.x, g)), y: Y(lerp(P.y + L.TH / 2 - 15, P.y, g)), w: (v > 0 ? lerp(30, L.TW, g) : 0) * k, h: (v > 0 ? lerp(30, L.TH, g) : 0) * k, rx: lerp(15, 14, g) * k };
-        var tg = T && T.k[i]; if(tg){ R = { x: lerp(R.x, tg.x, e), y: lerp(R.y, tg.y, e), w: lerp(R.w, tg.w, e), h: lerp(R.h, tg.h, e), rx: lerp(R.rx, 14, e) }; }
-        var fade = T && !tg ? 1 - e : 1; tileR.push({ g: g, R: R, fade: fade }); var sz = clamp(g * 4) * fade;
-        attr(tiles[i], { x: R.x, y: R.y, width: Math.max(0, R.w * sz), height: Math.max(0, R.h * sz), rx: Math.max(0, Math.min(R.rx, R.w / 2, R.h / 2)) }); });
-      var bd = BT.map(function(d, j){ var b = back(clamp((t - d) / 320)), g = io(clamp((t - d - 60) / 300)), ry = L.RY[j];
-        var B = { x: X(lerp(-30, HB.x, g)), y: Y(lerp(L.RY[0] - 30, ry, b)), w: lerp(60, L.W, g) * k * H, h: lerp(18, L.RH, clamp(b)) * k * H };
-        var tg = T && T.r[j]; if(tg) B = { x: lerp(B.x, tg.x, e), y: lerp(B.y, tg.y, e), w: lerp(B.w, tg.w, e), h: lerp(B.h, tg.h, e) }; else if(T) B.h *= 1 - e;
-        return { B: B, b: b }; });
-      beads.forEach(function(n, j){ var B = bd[j].B; attr(n, { x: B.x, y: B.y, width: Math.max(0, B.w), height: Math.max(0, B.h), rx: Math.max(0, Math.min(B.h / 2, (B.h / 2) * (1 - e) + 10 * e)) }); });
-      attr(idleD, { cx: X(HB.x + HB.w - 6 + 18 * (.5 - .5 * Math.cos(t / 900))), cy: Y(HB.y + HB.h / 2 + 10 * Math.sin(t / 1700)), r: rr(9 * idle * H * k * gone) });
-      attr(cur, { cx: X(ptr.x), cy: Y(ptr.y), r: rr(ptr.r * k * gone) });
-      var low = Math.max.apply(null, [C.y + C.h].concat(tileR.map(function(x){ return x.R.y + x.R.h * clamp(x.g * 4); }), bd.map(function(x){ return x.B.h > 1 ? x.B.y + x.B.h : 0; })));
-      attr(shadow, { cx: cx, cy: low + 16 * k, rx: (H > .5 ? L.W / 2 : 80) * k, ry: 12 * k, opacity: ((1 - S) * .8 * gone).toFixed(3) });
-      var x0 = C.x, y0 = C.y, x1 = C.x + C.w, y1 = C.y + C.h, grow = function(a, b, c, d){ x0 = Math.min(x0, a); y0 = Math.min(y0, b); x1 = Math.max(x1, c); y1 = Math.max(y1, d); };
-      srcs.concat(drips, [idleD, cur]).forEach(function(n){ var r = +n.getAttribute('r'); if(r > .5){ var x = +n.getAttribute('cx'), y = +n.getAttribute('cy'); grow(x - r, y - r, x + r, y + r); } });
-      tiles.concat(beads).forEach(function(n){ var w = +n.getAttribute('width'); if(w > .5){ var x = +n.getAttribute('x'), y = +n.getAttribute('y'); grow(x, y, x + w, y + +n.getAttribute('height')); } });
-      x0 = Math.max(x0 - 40, -40); y0 = Math.max(y0 - 40, -40); x1 = Math.min(x1 + 40, innerWidth + 40); y1 = Math.min(y1 + 40, innerHeight + 40);
-      attr(goo, { x: x0, y: y0, width: Math.max(1, x1 - x0), height: Math.max(1, y1 - y0) });
-      blur.setAttribute('stdDeviation', Math.max(.01, (LITE ? 7 : 10) * k * (1 - clamp((e - .3) / .6))).toFixed(2));
-      liq.style.opacity = (1 - ex).toFixed(3);
-      if(exitAt){ bg.style.opacity = (1 - clamp((now - exitAt) / (450 * XS))).toFixed(3); status.style.opacity = foot.style.opacity = (1 - clamp((now - exitAt) / (250 * XS))).toFixed(3); }
-      badges.forEach(function(n, i){ var b = blobs[i]; place(n, X(b.x) - n.offsetWidth / 2 * k, Y(b.y) - 20 * k, k, clamp(b.a) * clamp((S - .3) / .35) * (1 - clamp(e * 4))); });
-      var m = back(clamp((t - 950) / 380)), mo = clamp(m) * (1 - clamp(S * 5)), mx = lerp(b0.x, HB.x + 36, H), my = lerp(b0.y, HB.y + HB.h / 2, H);
-      var px = X(mx) - 23 * k, py = Y(my) - 23 * k, ps = k * lerp(1, .8, H);
-      if(T && T.bar){ px = lerp(px, T.bar.x + 10, e); py = lerp(py, T.bar.y + T.bar.h / 2 - 18, e); ps = lerp(ps, .78, e); }
-      place(pMark, px, py, ps, (exitAt ? 1 - ex : mo) * vis);
-      place(pHead, X(HB.x + 70), Y(HB.y + 12), k, clamp((H - .6) / .4) * vis * (1 - ex));
-      pT.forEach(function(n, i){ var o = tileR[i]; place(n, o.R.x + 14 * k, o.R.y + 12 * k, k, clamp((o.g - .55) / .45) * vis * (1 - ex) * o.fade); });
-      pR.forEach(function(n, j){ var B = bd[j].B; place(n, B.x + 16 * k, B.y + B.h / 2 - 8 * k, k, clamp((bd[j].b - .7) / .3) * vis * (1 - ex)); });
-      if(exitAt && now - exitAt > 760 * XS){ if(onDone){ var f2 = onDone; onDone = null; f2(); } return false; }
-      return true;
-    }
-    var loop = function(now){ if(!document.body.contains(el)) return; if(document.hidden){ SP.raf = requestAnimationFrame(loop); return; } if(frame(now) !== false) SP.raf = requestAnimationFrame(loop); };
-    SP.raf = requestAnimationFrame(loop);
-    return {
-      badge: function(i, txt){ var b = badges[i] && badges[i].querySelector('small'); if(b && txt) b.textContent = txt; },
-      rows: function(a, b){ var r = pR.map(function(n){ return n.querySelector('span'); }); if(a) r[0].textContent = a; if(b) r[1].textContent = b; },
-      // hand over: the real header, the KPI tiles (Overview) or queue cards (My work), the first two callouts
-      exit: function(done){
-        var vis = function(n){ return n && n.offsetParent; };
-        var bar = document.querySelector('#main .whead') || document.querySelector('#main .hero');
-        var ks = Array.prototype.slice.call(document.querySelectorAll('#main .kpis .kpi')).filter(vis); if(!ks.length) ks = Array.prototype.slice.call(document.querySelectorAll('#main .qgrid .qcard2')).filter(vis).slice(0, NT);
-        var rs = Array.prototype.slice.call(document.querySelectorAll('#main .calls .call')).filter(vis).slice(0, 2);
-        T = { bar: vis(bar) ? settled(bar) : null, k: pT.map(function(_, i){ return ks[i] ? settled(ks[i]) : null; }), r: rs.map(settled) };
-        ks.slice(0, NT).forEach(function(n, i){ var v = n.querySelector('.kpi b, .qn'), l = n.querySelector('small, h3'); if(v) pT[i].querySelector('.v').textContent = v.textContent; if(l) pT[i].querySelector('.l').textContent = l.textContent.replace(/\s*\d+\s*$/, '').replace(/^\W+\s*/, '').slice(0, 26); });
-        el.querySelector('#lqHsub').textContent = 'ready'; onDone = done; exitAt = performance.now(); if(RM) frame(exitAt + 800 * XS); }
-    };
+  function spawn(now){
+    // where this candidate steps off: most at the early stations, a few reach Hired
+    var r = Math.random(), stop = r < .32 ? 0 : r < .58 ? 1 : r < .76 ? 2 : r < .88 ? 3 : r < .95 ? 4 : 5;
+    var c = document.createElementNS('http://www.w3.org/2000/svg', 'g'); c.setAttribute('class', 'pf-dot');
+    var col = JOY[Math.floor(Math.random() * JOY.length)];
+    c.innerHTML = '<circle r="8" fill="' + col + '"/><circle cy="-2.5" r="2.6" fill="#fff"/><path d="M-4 4.5a4 3.4 0 0 1 8 0" fill="#fff"/>';
+    el.querySelector('#pfDots').appendChild(c);
+    dots.push({ n: c, t: now, stop: stop, speed: .00028 + Math.random() * .00012, off: 0, yJ: (Math.random() - .5) * 8 });
   }
-  function type(){ var log = document.getElementById('spLog'), nx = SP.queue.shift(); if(!log || !nx){ SP.typing = false; return; } SP.typing = true;
-    var line = document.createElement('div'); line.className = nx[1]; log.appendChild(line); while(log.children.length > 2) log.removeChild(log.firstChild);
-    var i = 0, st = function(){ i = Math.min(nx[0].length, i + 3); line.textContent = nx[0].slice(0, i); if(i < nx[0].length) setTimeout(st, 12); else setTimeout(type, 60); }; st(); }
-  function tick(){ var el2 = document.getElementById('spPct'); if(!el2) return; SP.pct += Math.max(.4, (SP.target - SP.pct) * .12); if(SP.pct > SP.target) SP.pct = SP.target;
-    el2.firstChild.nodeValue = String(Math.round(SP.pct)); document.getElementById('spBar').style.width = SP.pct + '%'; if(SP.pct < SP.target) requestAnimationFrame(tick); else SP.ticking = false; }
-  // step(%, log line, key, value): keys fill the source badges and the two row bars with real numbers
-  function step(p, text, key, val){ if(!el || SP.done) return; SP.target = Math.max(SP.target, p); if(text){ SP.queue.push([text, '']); if(!SP.typing) type(); }
-    if(api && key && val != null && val !== 'run'){ var B = { roles: [0, val + ' open roles'], cands: [1, val + ' in process'], iv: [2, val + ' in 9 weeks'], fb: [3, val + ' requests'] }[key]; if(B) api.badge(B[0], B[1]);
-      if(key === 'roles') api.rows('Open roles · ' + val, null); if(key === 'iv') api.rows(null, 'Interviews · ' + val); }
-    if(!SP.ticking){ SP.ticking = true; requestAnimationFrame(tick); } }
-  function finish(force){ if(!el || SP.done) return; SP.done = true; step(100);
-    var wait = force ? 0 : Math.max(0, 2750 - (performance.now() - SP.t0));
-    setTimeout(function(){ var s = el, fin = function(){ cancelAnimationFrame(SP.raf); if(s && s.parentNode) s.remove(); el = null; };
-      if(api && !force) api.exit(fin); else fin();
-      setTimeout(function(){ if(s && document.body.contains(s)) fin(); }, 2600); }, wait); }
-  return { make: make, step: function(p, text, key, val){ step(p, text, key, val); }, done: function(){ finish(false); }, active: function(){ return !!el && !SP.done; } };
+  function frame(now){
+    if(!el) return; var t = now - t0;
+    path.style.strokeDashoffset = Math.max(0, len * (1 - Math.min(1, t / 700)));
+    if(t > 500 && now - lastSpawn > 150 && !leaving){ spawn(now); lastSpawn = now; }
+    dots = dots.filter(function(d){
+      var f = Math.min(POS[d.stop], (now - d.t) * d.speed + 0);
+      var p = path.getPointAtLength(len * Math.max(0, f));
+      if(f >= POS[d.stop]){ d.off += 16; if(d.off === 16){ pulse(d.stop); } }
+      var y = p.y + d.yJ * Math.sin((now - d.t) / 160) * .4 + (d.stop < 5 ? d.off * .9 : -d.off * .4), op = Math.max(0, 1 - d.off / 420);
+      d.n.setAttribute('transform', 'translate(' + p.x.toFixed(1) + ',' + y.toFixed(1) + ') scale(' + (d.stop === 5 && d.off ? 1 + d.off / 300 : 1).toFixed(2) + ')'); d.n.style.opacity = op.toFixed(2);
+      if(op <= 0){ d.n.remove(); return false; } return true; });
+    raf = requestAnimationFrame(frame);
+  }
+  function pulse(i){ var s = ST[i]; if(!s || !s.g) return; s.g.classList.remove('hit'); void s.g.getBoundingClientRect(); s.g.classList.add('hit');
+    if(i === 5){ var b = document.createElementNS('http://www.w3.org/2000/svg', 'g'); b.setAttribute('class', 'pf-spark'); b.setAttribute('transform', 'translate(' + s.p.x + ',' + s.p.y + ')');
+      var h = ''; for(var k = 0; k < 10; k++){ var a = k / 10 * Math.PI * 2; h += '<circle r="3" fill="' + JOY[k % JOY.length] + '" style="--dx:' + (Math.cos(a) * 46).toFixed(0) + 'px;--dy:' + (Math.sin(a) * 46).toFixed(0) + 'px"/>'; } b.innerHTML = h; svg.appendChild(b); setTimeout(function(){ b.remove(); }, 900); } }
+  function setCounts(c){ counts = c; ST.forEach(function(s, i){ var n = s.g && s.g.querySelector('.pf-num'); if(!n) return; var to = c[s[0]] || 0, st = performance.now();
+    (function up(){ var f = Math.min(1, (performance.now() - st) / 900), v = Math.round(to * (1 - Math.pow(1 - f, 3))); n.textContent = v; if(f < 1 && el) requestAnimationFrame(up); })(); }); }
+  function type(){ var log = document.getElementById('spLog'), nx = q.shift(); if(!log || !nx){ typing = false; return; } typing = true;
+    var i = 0, st = function(){ i = Math.min(nx.length, i + 3); log.textContent = nx.slice(0, i); if(i < nx.length) setTimeout(st, 12); else setTimeout(type, 260); }; st(); }
+  function tick(){ var p = document.getElementById('spP'), b = document.getElementById('spB'); if(!p) return; pct += Math.max(.5, (target - pct) * .12); if(pct > target) pct = target;
+    p.textContent = Math.round(pct) + '%'; b.style.width = pct + '%'; if(pct < target) requestAnimationFrame(tick); }
+  function step(p, text, key, val){ if(!el || done) return; target = Math.max(target, p); if(text){ q.push(text); if(!typing) type(); }
+    if(key === 'cands' && val != null && val !== 'run'){ var c = { screen: 0, blitz: 0, r1: 0, r2: 0, offer: 0, hired: 0 };
+      Object.keys(S.jr || {}).forEach(function(k){ ((S.jr[k] || {}).rows || []).forEach(function(r){ var sg = stageOf(r.Candidate_Status); if(sg === 'assess') sg = 'screen'; if(sg === 'r3' || sg === 'vibe') sg = 'r2'; if(c[sg] != null) c[sg]++; }); });
+      setCounts(c); }
+    requestAnimationFrame(tick); }
+  function finish(force){ if(!el || done) return; if(!counts && !force) step(100, null, 'cands', 'x'); step(100); done = true;
+    var wait = force ? 0 : Math.max(0, 2600 - (performance.now() - t0));
+    setTimeout(function(){ if(!el) return; leaving = true; el.classList.add('out'); var m = document.getElementById('main'); if(m){ m.classList.remove('pf-rise'); void m.offsetWidth; m.classList.add('pf-rise'); }
+      setTimeout(function(){ cancelAnimationFrame(raf); if(el){ el.remove(); el = null; } }, 650); }, wait); }
+  return { make: make, step: step, done: function(){ finish(false); }, active: function(){ return !!el && !done; } };
 })();
 // ---------- joy (25 Nov): a stable colour per role / person, and a small confetti burst when something gets done ----------
-var JOY = ['#8644f0','#1d4ed8','#0f766e','#c2410c','#be185d','#15803d','#7c3aed','#0369a1','#b45309','#a3166a'];
 function hueOf(t){ var h = 0, x = String(t || ''); for(var i = 0; i < x.length; i++) h = (h * 31 + x.charCodeAt(i)) >>> 0; return JOY[h % JOY.length]; }
 function confetti(){
   if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
