@@ -1056,6 +1056,7 @@ function candFetch(id){ var c = CAND_PF[id]; if(c && c.at > Date.now() - 60000) 
 document.addEventListener('mouseover', function(e){ var el = e.target.closest && e.target.closest('[data-c],[data-qc],[data-mc]'); if(!el || el._pf) return; var id = el.dataset.c || el.dataset.qc || el.dataset.mc; if(!id || !/^\d+$/.test(id)) return; el._pf = 1;
   var t = setTimeout(function(){ if(S.token && S.ta) candFetch(id); }, 150); el.addEventListener('mouseleave', function(){ clearTimeout(t); el._pf = 0; }, { once: true }); });
 function openCandidate(id, fromRoute){
+  if(String(id) !== String(S.candId)) candTab = 'over';   // another candidate always opens on Overview (Sumit 26 Nov)
   S.candId = id; if(!fromRoute) writeHash(S.jobId, id); markCurrent();
   dr.hidden = false; document.body.style.overflow = 'hidden';
   var row = (S.rows || []).filter(function(r){ return r.id === id; })[0];
