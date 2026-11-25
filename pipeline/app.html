@@ -418,6 +418,7 @@ function viewCandidate(){
     });
   } else {
     var ev = (j.history || []).filter(function(e){ return (e.fields && e.fields.length) || e.action || e.comment; });
+    if(j.historyMeta && ev.length) h += '<details style="margin-bottom:10px"><summary class="hint" style="font-size:11.5px;cursor:pointer">Admin debug (field names only)</summary><pre style="font-size:11px;white-space:pre-wrap;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px">' + esc(JSON.stringify(j.historyMeta, null, 1)) + '</pre></details>';
     if(ev.length) h += '<div class="tl">' + ev.map(function(e){ return '<div class="ev"><div class="w">' + esc(dt(e.at, true)) + (e.by ? ' · ' + esc(e.by) : '') + '</div><div><b>' + esc(e.action) + '</b>' + (e.fields || []).map(function(f){ return '<div>' + esc(f.f) + ': ' + (f.from ? '<s style="color:var(--muted)">' + esc(f.from) + '</s> → ' : '') + '<b>' + esc(f.to == null ? '' : f.to) + '</b></div>'; }).join('') + (e.comment ? '<div class="hint">' + esc(e.comment) + '</div>' : '') + '</div></div>'; }).join('') + '</div>';
     else h += '<div class="empty">' + (j.notes && j.notes.history ? esc(j.notes.history) : 'No history returned by Recruit.') + '</div>' + (j.historyMeta ? '<div class="hint" style="margin-top:8px;font-size:11.5px">Admin debug: ' + esc(JSON.stringify(j.historyMeta)) + '</div>' : '');
   }
