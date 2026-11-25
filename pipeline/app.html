@@ -530,6 +530,14 @@ body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden
 .me{color:var(--ink)}.me .av{background:var(--brand-l);border:1px solid var(--brand-line);color:var(--brand-d)}#mePr{color:var(--muted);opacity:1!important}
 .sidet{border:1px solid var(--line);background:#fff;color:var(--ink2)}.sidet:hover{background:var(--brand-l);color:var(--brand-d);border-color:var(--brand-line)}.sidet:focus-visible{outline:2px solid var(--brand)}
 @media (max-width:600px){.tsep{display:none}.lglogo{height:18px}}
+/* sign-in (26 Nov): centred, same Leegality gradient as the top bar, logo-colour edge */
+.signin{margin:clamp(24px,10vh,110px) auto 40px;width:min(900px,calc(100% - 32px));box-shadow:0 18px 50px rgba(6,0,59,.16)}
+.signin .art{position:relative;background:radial-gradient(120% 120% at 100% 100%,rgba(144,63,249,.6) 0%,rgba(144,63,249,0) 60%),linear-gradient(150deg,#06003B 0%,#1c0758 40%,#3d14a3 75%,#5A1FCC 100%);padding:38px 34px}
+.signin .art:after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:linear-gradient(90deg,#DD4E4E,#F26966 22%,#FFAD26 45%,#903FF9 75%,#5A1FCC)}
+.signin .art li{line-height:1.4;display:flex;gap:8px}.signin .art li:before{content:"✓";flex:0 0 auto;color:#FFAD26;font-weight:800}
+.signin .art .sgn{margin:auto 0 0;font-size:12px;color:rgba(255,255,255,.7);letter-spacing:.02em}
+.signin .frm{padding:38px 34px}
+@media (max-width:860px){.signin{grid-template-columns:1fr;margin:16px auto}.signin .art,.signin .frm{padding:26px 22px}.signin .art .sgn{display:none}}
 /* 26 Nov: top bar in Leegality's own colours: the wordmark navy into the logo's purples, with the logo's coral-orange-purple as a thin edge */
 .top{background:radial-gradient(120% 220% at 100% 0%,rgba(144,63,249,.55) 0%,rgba(144,63,249,0) 55%),linear-gradient(100deg,#06003B 0%,#1c0758 38%,#3d14a3 72%,#5A1FCC 100%);color:#fff;border-bottom:0;box-shadow:0 4px 16px rgba(6,0,59,.22)}
 .top:after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,#DD4E4E,#F26966 22%,#FFAD26 45%,#903FF9 75%,#5A1FCC);pointer-events:none}
@@ -646,7 +654,7 @@ function post(action, body){
 }
 function signOut(){ S.token = ''; S.me = null; S.jobs = null; store('hire_t', null); store('hire_me', null); closeDrawer(true); render(); }
 document.getElementById('signout').onclick = signOut;
-function setTop(){ var m = S.me || {}; document.getElementById('meBox').hidden = !S.token; document.getElementById('signout').hidden = !S.token; var hbt = document.getElementById('helpBtn'); if(hbt) hbt.hidden = !S.token;
+function setTop(){ var m = S.me || {}; document.getElementById('meBox').hidden = !S.token; document.getElementById('signout').hidden = !S.token; var hbt = document.getElementById('helpBtn'); if(hbt) hbt.hidden = !S.token; var gsb = document.getElementById('gs'); if(gsb) gsb.style.visibility = S.token ? '' : 'hidden';
   document.getElementById('meName').textContent = m.name || ''; document.getElementById('mePr').textContent = m.profile ? m.profile + ' profile' : ''; document.getElementById('meAv').textContent = initials(m.name || m.email); }
 
 // routing: #job=<id>&c=<id> keeps your place on refresh and back/forward
@@ -664,7 +672,7 @@ function gotAuth(d){
 if(location.hash.indexOf('#hire_auth=') === 0){ try{ var ha = JSON.parse(decodeURIComponent(location.hash.slice(11))); if(ha && ha.type === 'hire-auth') S.pending = ha; }catch(e){} history.replaceState(null, '', location.pathname + location.search); }
 window.addEventListener('message', function(e){ if(e.origin !== BASE || !e.data || e.data.type !== 'hire-auth') return; gotAuth(e.data); });
 function viewSignin(){
-  root.innerHTML = '<div class="signin"><div class="art"><h2>Every open role, every candidate, one view.</h2><ul><li>Pipeline by stage for each open job</li><li>Each interviewer’s feedback side by side</li><li>Full history of a candidate</li><li>You see exactly what Recruit lets you see</li></ul></div>' +
+  root.innerHTML = '<div class="signin"><div class="art"><h2>Every open role, every candidate, one view.</h2><ul><li>My work: today’s interviews and what needs doing next</li><li>Every open role as a board by stage</li><li>Book rounds from the panel’s free time, with Google Meet</li><li>Each interviewer’s feedback side by side</li><li>You see exactly what Recruit lets you see</li></ul><p class="sgn">Leegality · Talent Acquisition</p></div>' +
     '<div class="frm"><h3>Sign in with Zoho</h3><p class="hint" style="margin:0">Uses your Zoho Recruit login. The first time, a small Zoho window asks you to allow access. After that this page signs you in by itself.</p>' +
     '<button class="btn primary" id="zgo" style="padding:12px 18px;font-size:15px">Continue with Zoho</button><div class="err" id="serr" role="alert">' + esc(S.authErr || '') + '</div></div></div>';
   document.getElementById('zgo').onclick = function(){ var w = window.open(AUTH, 'hire_auth', 'width=520,height=700'); if(!w) document.getElementById('serr').textContent = 'Your browser blocked the sign-in window. Allow pop-ups for this page and try again.'; };
