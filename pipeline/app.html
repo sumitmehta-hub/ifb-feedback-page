@@ -538,6 +538,20 @@ body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden
 .helpb{background:#fff4d6;border:1.5px solid #e0a800;color:#6b4a00;font-weight:800;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:13px}.helpb span{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#7a5300;color:#fff;font-size:12px}.helpb:hover{background:#ffe8a8;border-color:#b98a00}
 .hp{padding:4px 18px 18px}.hp-sec{margin-bottom:16px}.hp-sec h4{font-size:13px;font-weight:800;color:var(--ink);margin:0 0 6px;padding-bottom:4px;border-bottom:1px solid var(--line)}
 .hp-sec dl{margin:0}.hp-i{display:grid;grid-template-columns:minmax(150px,240px) 1fr;gap:6px 14px;padding:7px 0;border-bottom:1px dashed #ece9f5;align-items:start}.hp-i dt{margin:0;font-weight:700;font-size:13px}.hp-i dd{margin:0;font-size:13px;line-height:1.45;color:var(--ink2)}
+.hp-how{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin:4px 0 6px}
+.ht{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:#fff;display:flex;flex-direction:column}
+.ht .vw{position:relative;aspect-ratio:16/9;background:#f1edf8;cursor:pointer;border-bottom:1px solid var(--line)}
+.ht video{width:100%;height:100%;object-fit:cover;display:block}
+.ht .pl{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(22,1,54,.18);transition:opacity .2s}
+.ht .pl span{width:46px;height:46px;border-radius:50%;background:rgba(22,1,54,.85);color:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;padding-left:3px;box-shadow:0 6px 18px rgba(22,1,54,.3)}
+.ht.on .pl{opacity:0}.ht.on .vw:hover .pl{opacity:1}.ht.on .pl span{padding-left:0}
+.ht .tx{padding:10px 14px 12px}.ht h5{margin:0 0 6px;font-size:14px;font-weight:800;color:var(--ink)}
+.ht ol{margin:0;padding-left:18px;font-size:13px;line-height:1.5;color:var(--ink2)}.ht li{margin:2px 0}
+.ht .who{display:inline-block;margin-left:6px;font-size:11px;font-weight:700;color:var(--brand-d,#5b2bb5);background:var(--brand-l);border-radius:999px;padding:1px 8px;vertical-align:1px}
+.hp-tabs{display:flex;gap:6px;padding:0 18px 10px}.hp-tabs button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 14px;font:600 13px inherit;color:var(--ink2);cursor:pointer}.hp-tabs button[aria-selected=true]{background:var(--brand-dd);border-color:var(--brand-dd);color:#fff}
+body.ivonly .ht[data-ta]{display:none}
+.ht.on{grid-column:1/-1;flex-direction:row}.ht.on .vw{flex:0 0 68%;border-bottom:0;border-right:1px solid var(--line)}.ht.on .tx{padding:16px 18px}
+@media (max-width:760px){.ht.on{flex-direction:column}.ht.on .vw{flex:none;border-right:0;border-bottom:1px solid var(--line)}}
 @media (max-width:600px){.helpb{padding:5px 6px;font-size:0;gap:0}.helpb span{width:18px;height:18px;font-size:12px}.hp-i{grid-template-columns:1fr}}
 /* job board (26 Nov): columns share the width when there are few stages; status as a soft chip; Closed tile explains itself */
 .col{max-width:none}
@@ -2287,17 +2301,43 @@ var HELP = [
   ['Sidebar', 'Drag its edge to resize, « Hide (or Ctrl+B) to hide it, and the » Jobs tab on the left to bring it back.'],
   ['Search', 'The top search finds any candidate by name, email or phone. Press / to jump to it.']]}
 ];
+var HOWTO = [
+ { v: 'find', h: 'Find a candidate', ta: 1, steps: ['Type a name, email or phone in the top search (or press /).', 'Pick them from the list. The panel opens on Overview: journey, next step and details.', 'Rounds shows every interview with the evaluation and each interviewer\'s feedback; History is the Recruit timeline.', '↑ Prev / Next ↓ (or K / J) move through the list you came from.'] },
+ { v: 'book', h: 'Book an interview round', ta: 1, steps: ['Open the candidate and pick Schedule R1, R2… under Next step.', 'Choose the day, start time and length. The line underneath reads it back.', 'Panel availability shows free slots from each interviewer\'s hours. Click one to use it, or keep your own time.', 'Book. The interview card opens: create the Google Meet invite, add an interviewer, reschedule or cancel.'] },
+ { v: 'remind', h: 'Chase a missing evaluation', ta: 1, steps: ['My work → Evaluation missing lists rounds held with no evaluation in Recruit.', '🔔 Remind sends the panel a Cliq card asking them to fill it (once every 30 minutes at most).', 'If panel feedback is already in, File evaluation files it in Recruit for you.', 'No evaluation coming? Skip, with a reason that is saved in Recruit.'] },
+ { v: 'interviews', h: 'See the interviews for a day', ta: 1, steps: ['Open Interviews in the left bar.', 'Pick All, Yesterday, Today, Tomorrow or Next 7 days, or Pick a day for any date.', 'Every tile is clickable and lists the interviews behind it.', 'Manage opens the interview card; Recruit ↗ opens it in Recruit.'] },
+ { v: 'availability', h: 'Set your interview availability', steps: ['Open My interviews and scroll to My availability.', 'Tap Morning, Afternoon or Evening for each day. Combine them as you like.', '+ Add time adds your own hours; change them with the dropdowns.', 'Set a daily max, minimum notice and days off, then Save availability.'] },
+ { v: 'numbers', h: 'Read the numbers', ta: 1, steps: ['Open Hiring overview.', 'Click any number, chip, chart part or table cell to see the candidates behind it.', 'Filter the list, or ⬇ Excel to download it.', 'Esc or ✕ closes it.'] }
+];
+function howHtml(){
+  return '<div class="hp-how">' + HOWTO.map(function(t){
+    return '<article class="ht hp-i2"' + (t.ta ? ' data-ta' : '') + '><div class="vw" data-hv="' + t.v + '" role="button" tabindex="0" aria-label="Play: ' + esc(t.h) + '"><video muted loop playsinline preload="metadata" src="help/' + t.v + '.mp4#t=0.6"></video><div class="pl"><span>▶</span></div></div>' +
+      '<div class="tx"><h5>' + esc(t.h) + (t.ta ? '' : '<span class="who">Interviewers</span>') + '</h5><ol>' + t.steps.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') + '</ol></div></article>';
+  }).join('') + '</div>';
+}
+function toggleClip(vw){ var v = vw.querySelector('video'), card = vw.closest('.ht'); if(!v) return;
+  if(v.paused){ document.querySelectorAll('.ht.on video').forEach(function(o){ if(o !== v){ o.pause(); o.closest('.ht').classList.remove('on'); o.closest('.ht').querySelector('.pl span').textContent = '▶'; } });
+    v.play().catch(function(){}); card.classList.add('on'); vw.querySelector('.pl span').textContent = '❚❚'; setTimeout(function(){ card.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, 50); }
+  else { v.pause(); card.classList.remove('on'); vw.querySelector('.pl span').textContent = '▶'; } }
 function openHelp(){
   closeDrill(true);
   var ov = document.createElement('div'); ov.className = 'mdl'; ov.id = 'mdl';
   var body = HELP.map(function(sec, k){ return '<section class="hp-sec"><h4>' + esc(sec.h) + '</h4><dl>' + sec.items.map(function(it){ return '<div class="hp-i"><dt>' + esc(it[0]) + '</dt><dd>' + esc(it[1]) + '</dd></div>'; }).join('') + '</dl></section>'; }).join('');
-  ov.innerHTML = '<div class="mbk"></div><section class="mpn" role="dialog" aria-modal="true" aria-labelledby="hpT" style="--c:#e0a800"><header><div><h3 id="hpT">Help · what things mean</h3><p>Every page, label and number in the Hiring Pipeline</p></div><button class="btn sm" id="mdlX" aria-label="Close">✕</button></header>' +
-    '<div class="mtools"><label class="search">' + ICON_SEARCH + '<input id="hpQ" type="search" placeholder="Search, e.g. pass rate, remind, rating" aria-label="Search help"></label></div><div class="mlist hp">' + body + '<p class="hint hp-none" hidden>Nothing matches. Ask the Business Systems team.</p></div></section>';
+  ov.innerHTML = '<div class="mbk"></div><section class="mpn" role="dialog" aria-modal="true" aria-labelledby="hpT" style="--c:#e0a800"><header><div><h3 id="hpT">Help</h3><p>Short how-to clips, and what every page, label and number means</p></div><button class="btn sm" id="mdlX" aria-label="Close">✕</button></header>' +
+    '<div class="mtools"><label class="search">' + ICON_SEARCH + '<input id="hpQ" type="search" placeholder="Search, e.g. book, pass rate, remind, rating" aria-label="Search help"></label></div>' +
+    '<div class="hp-tabs" role="tablist"><button role="tab" data-hpt="how" aria-selected="true">How to</button><button role="tab" data-hpt="mean" aria-selected="false">What things mean</button></div>' +
+    '<div class="mlist hp"><div data-hpp="how">' + howHtml() + '</div><div data-hpp="mean" hidden>' + body + '</div><p class="hint hp-none" hidden>Nothing matches. Ask the Business Systems team.</p></div></section>';
   document.body.appendChild(ov); document.body.style.overflow = 'hidden';
   ov.querySelector('.mbk').onclick = function(){ closeDrill(); }; document.getElementById('mdlX').onclick = function(){ closeDrill(); };
   var q = document.getElementById('hpQ'); setTimeout(function(){ q.focus(); }, 60);
+  var tab = 'how', setTab = function(t){ tab = t; ov.querySelectorAll('[data-hpt]').forEach(function(b){ b.setAttribute('aria-selected', b.dataset.hpt === t ? 'true' : 'false'); });
+    ov.querySelectorAll('[data-hpp]').forEach(function(p){ p.hidden = p.dataset.hpp !== t; }); if(t !== 'how') ov.querySelectorAll('.ht.on .vw').forEach(toggleClip); q.oninput(); };
+  ov.querySelectorAll('[data-hpt]').forEach(function(b){ b.onclick = function(){ setTab(b.dataset.hpt); }; });
+  ov.querySelectorAll('[data-hv]').forEach(function(vw){ vw.onclick = function(){ toggleClip(vw); }; vw.onkeydown = function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggleClip(vw); } }; });
   q.oninput = function(){ var v = q.value.trim().toLowerCase(), any = false;
-    ov.querySelectorAll('.hp-sec').forEach(function(sec){ var n = 0, hs = sec.querySelector('h4').textContent.toLowerCase(); sec.querySelectorAll('.hp-i').forEach(function(i){ var on = !v || i.textContent.toLowerCase().indexOf(v) >= 0 || hs.indexOf(v) >= 0; i.hidden = !on; if(on) n++; }); sec.hidden = !n; if(n) any = true; });
+    if(tab === 'how'){ ov.querySelectorAll('.ht').forEach(function(c){ var on = !v || c.textContent.toLowerCase().indexOf(v) >= 0; c.hidden = !on; if(on && getComputedStyle(c).display !== 'none') any = true; });
+      if(v && !any){ var m = false; ov.querySelectorAll('.hp-i').forEach(function(i){ if(i.textContent.toLowerCase().indexOf(v) >= 0) m = true; }); if(m){ setTab('mean'); return; } } }
+    else ov.querySelectorAll('.hp-sec').forEach(function(sec){ var n = 0, hs = sec.querySelector('h4').textContent.toLowerCase(); sec.querySelectorAll('.hp-i').forEach(function(i){ var on = !v || i.textContent.toLowerCase().indexOf(v) >= 0 || hs.indexOf(v) >= 0; i.hidden = !on; if(on) n++; }); sec.hidden = !n; if(n) any = true; });
     ov.querySelector('.hp-none').hidden = any; };
 }
 document.addEventListener('click', function(e){ if(e.target.closest && e.target.closest('#helpBtn')){ e.preventDefault(); openHelp(); } });
