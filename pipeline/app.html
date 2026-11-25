@@ -422,6 +422,47 @@ b.pn,.sub b,.hint b,.dtbl td b{color:var(--ink);font-weight:800}
 .qcard2 .qrow .acts{display:flex;gap:6px;flex-wrap:nowrap;justify-content:flex-end;margin-left:0}
 .qcard2{container-type:inline-size}
 @container (max-width:520px){.qcard2 .qrow{grid-template-columns:1fr}.qcard2 .qrow .acts{justify-content:flex-start;flex-wrap:wrap}}
+
+/* ===== custom dropdowns (26 Nov): every <select> shows as a styled button + list with search; the native select stays hidden so values and change events work as before ===== */
+.dd-n{display:none!important}
+.dd{display:inline-flex;align-items:center;justify-content:space-between;gap:10px;min-width:0;max-width:100%;font:inherit;font-size:13.5px;font-weight:600;line-height:1.3;text-align:left;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:7px 10px 7px 12px;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.dd:hover{border-color:var(--brand-line)}.dd[aria-expanded=true]{border-color:var(--brand);box-shadow:0 0 0 3px rgba(134,68,240,.15)}
+.dd:disabled{opacity:.5;cursor:default}
+.dd-l{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dd::after{content:'';flex:none;width:7px;height:7px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:translateY(-2px) rotate(45deg);transition:transform .15s}
+.dd[aria-expanded=true]::after{transform:translateY(2px) rotate(225deg)}
+.vas .dd,.jsel .dd,.av-set .dd,.nxform .dd,.wprow .dd{width:100%}
+.jsel .dd{padding:10px 12px;border-radius:12px;font-weight:700}
+.dd-pop{position:fixed;z-index:1000;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 14px 36px rgba(43,17,96,.2);padding:6px;display:flex;flex-direction:column;gap:6px;animation:ddIn .12s ease both}
+@keyframes ddIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.dd-q{font:inherit;font-size:13.5px;padding:8px 10px;border:1.5px solid var(--line);border-radius:9px;outline:none;width:100%}.dd-q:focus{border-color:var(--brand)}
+.dd-list{overflow:auto;display:grid;gap:1px;overscroll-behavior:contain}
+.dd-o{border:0;background:none;text-align:left;padding:7px 10px 7px 30px;border-radius:8px;cursor:pointer;font:inherit;font-size:13.5px;color:var(--ink);position:relative;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dd-o:hover,.dd-o:focus{background:var(--brand-ll);outline:none}.dd-o:disabled{color:var(--muted);cursor:default;background:none}
+.dd-o.on{font-weight:700;color:var(--brand-d)}.dd-o.on::before{content:'✓';position:absolute;left:11px}
+.dd-none{padding:10px;color:var(--muted);font-size:13px}
+@media (prefers-reduced-motion:reduce){.dd-pop{animation:none}}
+
+/* ===== zoom-aware layout (26 Nov), same approach as the Renewals analytics: grids fold to fewer columns as the window narrows or the browser zooms in ===== */
+:root{--side:clamp(220px,19vw,290px)}
+.main{padding:clamp(12px,1.4vw,22px) clamp(12px,1.6vw,24px) 30px;container-type:inline-size;container-name:main}
+.qgrid{grid-template-columns:repeat(auto-fill,minmax(min(100%,500px),1fr))}
+.dgrid{grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr))}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr))}
+.calls{grid-template-columns:repeat(auto-fit,minmax(min(100%,190px),1fr))}
+.kv{grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr))}
+.wgrid{grid-template-columns:minmax(0,1fr) clamp(260px,26%,340px)}
+@container main (max-width:900px){.wgrid{grid-template-columns:1fr}}
+.kpi b{font-size:clamp(20px,1.2vw + 10px,28px)}
+.whead h1{font-size:clamp(19px,.8vw + 13px,24px)}
+.qcard2 h3,.dsh h3,.h3{font-size:clamp(14px,.4vw + 11px,15.5px)}
+.qcard2 .qrow .sub{gap:2px 14px}.qcard2 .qrow .sub .mt{white-space:nowrap}.qcard2 .qrow .sub .mt+.mt::before{content:none}
+.seg.full button{white-space:nowrap;padding:5px 4px}.me .nm{white-space:nowrap}.top .t1,.top .t2{white-space:nowrap}
+@media (max-width:1180px){.top .t2,#mePr{display:none}.seg.full button{font-size:12px}}
+/* buttons stay on the right of each row (user, 26 Nov); they wrap inside their own column, the row only stacks on a very narrow card */
+.qcard2 .qrow .acts{flex-wrap:wrap;max-width:340px;align-self:center}
+@container (max-width:520px){.qcard2 .qrow{grid-template-columns:minmax(0,1fr) auto}.qcard2 .qrow .acts{justify-content:flex-end}}
+@container (max-width:340px){.qcard2 .qrow{grid-template-columns:1fr}.qcard2 .qrow .acts{justify-content:flex-start;max-width:none}}
 </style>
 </head>
 <body>
@@ -1786,6 +1827,75 @@ function render(){
   loadJobs();
 }
 render();
+})();
+
+/* ---- custom dropdowns (26 Nov) ---- */
+(function(){
+  var pop = null, cur = null;
+  function nrm(t){ return String(t || '').toLowerCase().replace(/[^a-z0-9@.]+/g, ''); }
+  function esc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function lab(sel){ var o = sel.options[sel.selectedIndex]; return o ? o.textContent : ''; }
+  function sync(sel){ var b = sel._dd; if(!b) return; var t = lab(sel) || 'Choose…'; var l = b.firstChild; if(l.textContent !== t) l.textContent = t; b.title = t; b.disabled = sel.disabled; }
+  function nameOf(sel){ if(sel.getAttribute('aria-label')) return sel.getAttribute('aria-label'); var l = sel.closest('label') || (sel.id && document.querySelector('label[for="' + sel.id + '"]')); return l ? (l.firstChild && l.firstChild.nodeType === 3 ? l.firstChild.textContent : l.textContent).trim() : ''; }
+  function enhance(sel){
+    if(sel._dd || sel.multiple || sel.size > 1 || sel.hasAttribute('data-native')) return;
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'dd'; b.setAttribute('aria-haspopup', 'listbox'); b.setAttribute('aria-expanded', 'false');
+    var n = nameOf(sel); if(n) b.setAttribute('aria-label', n + ': ' + lab(sel));
+    if(sel.style.cssText) b.style.cssText = sel.style.cssText;
+    b.innerHTML = '<span class="dd-l"></span>'; sel._dd = b; sel.classList.add('dd-n'); sel.parentNode.insertBefore(b, sel); sync(sel);
+    b.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); if(cur === sel) close(true); else open(sel); });
+    b.addEventListener('keydown', function(e){ if(e.key === 'ArrowDown' || e.key === 'ArrowUp'){ e.preventDefault(); open(sel); } });
+  }
+  function opts(){ return Array.prototype.slice.call(pop.querySelectorAll('.dd-o:not(:disabled)')); }
+  function fill(q){
+    var list = pop.querySelector('.dd-list'), h = '', k = nrm(q);
+    Array.prototype.forEach.call(cur.options, function(o, i){ if(o.hidden) return; var t = o.textContent; if(k && nrm(t).indexOf(k) < 0) return; var on = i === cur.selectedIndex;
+      h += '<button type="button" role="option" class="dd-o' + (on ? ' on' : '') + '" data-i="' + i + '" aria-selected="' + on + '" title="' + esc(t) + '"' + (o.disabled ? ' disabled' : '') + '>' + esc(t) + '</button>'; });
+    list.innerHTML = h || '<div class="dd-none">No match</div>';
+  }
+  function place(){
+    var b = cur._dd, r = b.getBoundingClientRect(), vw = window.innerWidth, vh = window.innerHeight, list = pop.querySelector('.dd-list'), q = pop.querySelector('.dd-q');
+    var w = Math.min(Math.max(r.width, 200), 380, vw - 16); pop.style.width = w + 'px'; pop.style.left = Math.max(8, Math.min(r.left, vw - w - 8)) + 'px';
+    var below = vh - r.bottom - 12, above = r.top - 12, up = below < 220 && above > below, room = (up ? above : below) - (q ? 52 : 14);
+    list.style.maxHeight = Math.max(120, Math.min(320, room)) + 'px';
+    if(up){ pop.style.top = ''; pop.style.bottom = (vh - r.top + 4) + 'px'; } else { pop.style.bottom = ''; pop.style.top = (r.bottom + 4) + 'px'; }
+  }
+  function open(sel){
+    close(); if(sel.disabled) return; cur = sel; var many = sel.options.length > 10;
+    pop = document.createElement('div'); pop.className = 'dd-pop';
+    pop.innerHTML = (many ? '<input class="dd-q" type="search" placeholder="Type to search…" aria-label="Search" autocomplete="off">' : '') + '<div class="dd-list" role="listbox"></div>';
+    document.body.appendChild(pop); fill(''); place(); sel._dd.setAttribute('aria-expanded', 'true');
+    var list = pop.querySelector('.dd-list'), on = list.querySelector('.on'); if(on) list.scrollTop = on.offsetTop - list.clientHeight / 2 + on.offsetHeight / 2;
+    var q = pop.querySelector('.dd-q');
+    if(q){ q.focus(); q.addEventListener('input', function(){ fill(q.value); });
+      q.addEventListener('keydown', function(e){ var o = opts(); if(e.key === 'ArrowDown' && o[0]){ e.preventDefault(); o[0].focus(); } else if(e.key === 'Enter'){ e.preventDefault(); if(o.length) pick(+o[0].dataset.i); } }); }
+    else (on || opts()[0] || sel._dd).focus();
+    pop.addEventListener('click', function(e){ var o = e.target.closest('.dd-o'); if(o && !o.disabled) pick(+o.dataset.i); });
+    pop.addEventListener('keydown', function(e){
+      if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); close(true); return; }
+      if(e.key === 'Tab'){ close(true); return; }
+      if(!e.target.classList.contains('dd-o')) return;
+      var o = opts(), i = o.indexOf(e.target);
+      if(e.key === 'ArrowDown'){ e.preventDefault(); (o[i + 1] || o[i]).focus(); }
+      else if(e.key === 'ArrowUp'){ e.preventDefault(); if(i > 0) o[i - 1].focus(); else if(q) q.focus(); }
+      else if(e.key === 'Home'){ e.preventDefault(); o[0].focus(); } else if(e.key === 'End'){ e.preventDefault(); o[o.length - 1].focus(); }
+      else if(e.key.length === 1 && /\S/.test(e.key)){ if(q){ q.focus(); } else { var c = e.key.toLowerCase(), nx = o.slice(i + 1).concat(o.slice(0, i + 1)).filter(function(x){ return x.textContent.trim().toLowerCase().charAt(0) === c; })[0]; if(nx) nx.focus(); } }
+    });
+  }
+  function close(refocus){ if(!pop) return; var s = cur; pop.remove(); pop = null; cur = null; if(s && s._dd){ s._dd.setAttribute('aria-expanded', 'false'); if(refocus && document.contains(s._dd)) s._dd.focus(); } }
+  function pick(i){ var s = cur; if(!s) return; var ch = s.selectedIndex !== i; s.selectedIndex = i; close(true); sync(s); if(ch){ s.dispatchEvent(new Event('input', { bubbles: true })); s.dispatchEvent(new Event('change', { bubbles: true })); } }
+  document.addEventListener('mousedown', function(e){ if(pop && !pop.contains(e.target) && !(cur && cur._dd.contains(e.target))) close(); }, true);
+  window.addEventListener('scroll', function(e){ if(pop && !pop.contains(e.target)) close(); }, true);
+  window.addEventListener('resize', function(){ close(); });
+  var syncAll = function(){ Array.prototype.forEach.call(document.querySelectorAll('select.dd-n'), sync); if(cur && !document.contains(cur)) close(); };
+  ['change', 'click', 'input', 'keyup'].forEach(function(ev){ document.addEventListener(ev, function(){ setTimeout(syncAll, 0); }); });
+  function scan(root){ if(root.tagName === 'SELECT') enhance(root); else if(root.querySelectorAll) Array.prototype.forEach.call(root.querySelectorAll('select'), enhance); }
+  new MutationObserver(function(ms){ ms.forEach(function(m){
+    var t = m.target, sel = t.tagName === 'SELECT' ? t : (t.parentNode && t.parentNode.tagName === 'SELECT' ? t.parentNode : null);
+    if(sel){ sync(sel); return; }
+    Array.prototype.forEach.call(m.addedNodes, function(n){ if(n.nodeType === 1) scan(n); });
+  }); }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'selected'] });
+  scan(document.body);
 })();
 </script>
 </body>
