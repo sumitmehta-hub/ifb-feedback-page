@@ -464,7 +464,7 @@ b.pn,.sub b,.hint b,.dtbl td b{color:var(--ink);font-weight:800}
 @container (max-width:520px){.qcard2 .qrow{grid-template-columns:minmax(0,1fr) auto}.qcard2 .qrow .acts{justify-content:flex-end}}
 @container (max-width:340px){.qcard2 .qrow{grid-template-columns:1fr}.qcard2 .qrow .acts{justify-content:flex-start;max-width:none}}
 /* masonry (26 Nov): My work cards pack under each other, no gaps when cards differ in height; row spans set by JS */
-.qgrid{grid-auto-rows:4px;gap:0 14px;align-items:start}
+.qgrid{gap:14px;align-items:stretch}
 .qgrid>.mfill,.mas>.mfill{align-self:stretch;margin-bottom:14px}
 /* overview + Interviews pack like My work (26 Nov) */
 .mas{grid-auto-rows:4px;row-gap:0!important;align-items:start}.dgrid.mas{grid-template-columns:repeat(auto-fill,minmax(min(100%,540px),1fr))}.mas>.dsec{margin-bottom:0}
@@ -1921,7 +1921,19 @@ render();
     return Math.max(1, Math.ceil((h + GAP) / ROW)); }
   function fillRows(c, n){ var hid = c.querySelectorAll('.qx'); for(var i = 0; i < hid.length; i++){ hid[i].classList.add('qshow'); if(natural(c) > n){ hid[i].classList.remove('qshow'); break; } } }
   function setSpan(c, n){ var v = 'span ' + n; if(c.style.gridRowEnd !== v) c.style.gridRowEnd = v; }
+  function px(c){ return (natural(c) * ROW) - GAP; }
+  // My work: a plain grid whose rows line up; shorter cards in a row show more of their rows to match the tallest one (26 Nov)
+  function rowsMode(g){
+    Array.prototype.forEach.call(g.querySelectorAll('.qshow'), function(x){ x.classList.remove('qshow'); });
+    var cs = Array.prototype.filter.call(g.children, function(c){ return c.offsetParent !== null; }), rows = {};
+    cs.forEach(function(c){ if(c.style.gridRowEnd) c.style.gridRowEnd = ''; var t = Math.round(c.getBoundingClientRect().top); (rows[t] = rows[t] || []).push(c); });
+    Object.keys(rows).forEach(function(t){ var grp = rows[t]; if(grp.length < 2) return; var tgt = Math.max.apply(null, grp.map(natural));
+      grp.forEach(function(c){ if(natural(c) < tgt) fillRows(c, tgt); }); });
+    hideMore(cs);
+  }
+  function hideMore(cs){ cs.forEach(function(c){ var b = c.querySelector('[data-qmore]'); if(b && !/fewer/i.test(b.textContent)){ var rest = c.querySelectorAll('.qx:not(.qshow)').length, all = +(c.querySelector('.qn') || {}).textContent || 0, vis = c.querySelectorAll('.qrow:not(.qx),.qx.qshow').length; b.hidden = !rest && vis >= all; } }); }
   function balance(g){
+    if(g.classList.contains('qgrid')) return rowsMode(g);
     var cs = Array.prototype.filter.call(g.children, function(c){ return c.offsetParent !== null; }); if(!cs.length) return;
     Array.prototype.forEach.call(g.querySelectorAll('.qshow'), function(x){ x.classList.remove('qshow'); });
     var nat = cs.map(natural);
@@ -1932,7 +1944,7 @@ render();
     var many = Object.keys(cols).length > 1;
     cs.forEach(function(c){ c.classList.remove('mfill'); });
     if(many) Object.keys(cols).forEach(function(k){ var x = cols[k], n = maxEnd - x.st; if(n > nat[x.i]){ fillRows(x.c, n); setSpan(x.c, n); x.c.classList.add('mfill'); } });
-    cs.forEach(function(c){ var b = c.querySelector('[data-qmore]'); if(b && !/fewer/i.test(b.textContent)){ var rest = c.querySelectorAll('.qx:not(.qshow)').length, all = +(c.querySelector('.qn') || {}).textContent || 0, vis = c.querySelectorAll('.qrow:not(.qx),.qx.qshow').length; b.hidden = !rest && vis >= all; } });
+    hideMore(cs);
   }
   function queue(g){ if(pend.indexOf(g) < 0) pend.push(g); if(pend.length === 1) requestAnimationFrame(function(){ var l = pend; pend = []; l.forEach(function(x){ if(document.contains(x)) balance(x); }); }); }
   var ro = new ResizeObserver(function(es){ es.forEach(function(e){ var g = e.target.parentNode; if(isGrid(g)) queue(g); }); });
