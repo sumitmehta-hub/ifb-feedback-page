@@ -675,7 +675,7 @@ function route(first){
   if(location.hash.indexOf('view=mine') >= 0 || (first && !job && !S.ta && !S.admin && !S.jobs.some(function(x){ return x.mine; }))){ S.jobId = ''; goMine(true); return; }
   if(location.hash.indexOf('view=iv') >= 0){ S.jobId = ''; if(S.page !== 'iv' || !S.ivs) goInterviews(true); if(h.c && h.c !== S.candId) openCandidate(h.c, true); else if(!h.c) closeDrawer(true); return; }
   var vw = (location.hash.match(/view=(work|dash)/) || [])[1];
-  if(vw || (first && !job)){ S.jobId = ''; if(S.page !== vw || first){ if(vw === 'dash' || (!vw && S.admin)) goDash(true); else goWork(true); } if(h.c && h.c !== S.candId) openCandidate(h.c, true); else if(!h.c) closeDrawer(true); return; }
+  if(vw || (first && !job)){ S.jobId = ''; if(first && !vw && !h.c) history.replaceState(null, '', location.pathname + location.search + '#view=' + (S.admin ? 'dash' : 'work')); if(S.page !== vw || first){ if(vw === 'dash' || (!vw && S.admin)) goDash(true); else goWork(true); } if(h.c && h.c !== S.candId) openCandidate(h.c, true); else if(!h.c) closeDrawer(true); return; }
   if(first && !job){ var last = store('hire_job'); if(last && S.jobs.some(function(x){ return x.id === last; })){ job = last; history.replaceState(null, '', location.pathname + location.search + '#job=' + last); } }
   if(job && S.jobs.some(function(x){ return x.id === job; })){
     if(job !== S.jobId || !S.rows) openJob(job, false, true, h.c);
