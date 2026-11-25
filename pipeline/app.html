@@ -410,7 +410,7 @@ function openJob(id, fresh, fromRoute, candToOpen){
     if(S.jobId !== id) return;
     if(!j.ok){ main.innerHTML = jobSelect() + '<div class="card err">' + esc(j.error) + '</div>'; bindJobSelect(); return; }
     j.candidates.forEach(function(r){ r._st = stageOf(r.Candidate_Status); });
-    S.rows = j.candidates; S.cachedAt = j.cachedAt; S.scopeLoaded = j.scope || scope; S.cache[id + '|' + S.scopeLoaded] = { rows: j.candidates, at: j.cachedAt, scope: S.scopeLoaded }; viewJob(); if(candToOpen) openCandidate(candToOpen, true);
+    S.filterNote = j.filterNote || ''; S.rows = j.candidates; S.cachedAt = j.cachedAt; S.scopeLoaded = j.scope || scope; S.cache[id + '|' + S.scopeLoaded] = { rows: j.candidates, at: j.cachedAt, scope: S.scopeLoaded }; viewJob(); if(candToOpen) openCandidate(candToOpen, true);
   }).catch(function(e){ main.innerHTML = '<div class="card err">' + esc(e.message) + '</div>'; });
 }
 function viewJob(){
@@ -426,6 +426,7 @@ function viewJob(){
     '<div class="toolbar"><label class="search">' + ICON_SEARCH + '<input id="cq" type="search" placeholder="Search name, status, company or title" aria-label="Search candidates" value="' + esc(S.q) + '"><span class="k kbd">/</span></label>' +
     '<label class="chk"><input type="checkbox" id="all"' + (S.showAll ? ' checked' : '') + '> Show closed &amp; not in process' + (S.scopeLoaded !== 'all' && job.candidates > 300 ? ' <span class="hint">(loads all ' + job.candidates.toLocaleString('en-IN') + ')</span>' : '') + '</label>' +
     '<div class="seg" role="group" aria-label="View"><button data-v="board" aria-pressed="' + (S.view === 'board') + '">Board</button><button data-v="list" aria-pressed="' + (S.view === 'list') + '">List</button></div></div>' +
+    (S.filterNote ? '<div class="hint" style="font-size:11.5px;margin:-4px 0 8px">Admin note: Recruit refused the status filter, loaded everything instead: ' + esc(S.filterNote) + '</div>' : '') +
     '<div class="chips" id="chips"></div><div id="bd"></div>';
   bindJobSelect();
   document.getElementById('rf').onclick = function(){ openJob(job.id, true); };
