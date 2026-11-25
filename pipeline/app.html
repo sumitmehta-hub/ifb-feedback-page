@@ -201,6 +201,21 @@ body.previewing [data-qremind],body.previewing [data-qfile],body.previewing [dat
 .lq-bar{width:min(320px,70vw);height:4px;border-radius:999px;background:#ece5fb;overflow:hidden}.lq-bar i{display:block;width:0;height:100%;border-radius:999px;background:linear-gradient(90deg,#8644f0,#cb8fff);transition:width .3s ease}
 .lq-foot{position:absolute;left:0;right:0;bottom:16px;text-align:center;font-size:11.5px;font-weight:600;color:#6c62a8}
 @media (max-height:520px){.lq-foot{display:none}.lq-status{bottom:36px}}
+/* joy (25 Nov) */
+.ji .dot{background:color-mix(in srgb,var(--jc,#8644f0) 16%,#fff);color:var(--jc,#6a2bd6)}
+.cav{background:linear-gradient(135deg,var(--jc,#8644f0),color-mix(in srgb,var(--jc,#8644f0) 60%,#ff8fc7));color:#fff}
+.hero{background:linear-gradient(120deg,#fff 0%,#f6efff 40%,#ffeef7 75%,#fff6e6 100%);border-color:#ead9ff;position:relative;overflow:hidden}
+.hero:after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(203,143,255,.35),transparent 70%);pointer-events:none}
+.whead h1,.hero h1{background:linear-gradient(90deg,#3b1290,#8644f0 55%,#d4459a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.btn.primary{background:linear-gradient(135deg,#9b5cf5,#6a2bd6);border-color:#7c3aed}.btn.primary:hover{background:linear-gradient(135deg,#8644f0,#5b21b6)}
+.qcard2 .qh{background:linear-gradient(90deg,color-mix(in srgb,var(--c) 10%,#fff),#fff 70%);margin:-12px -14px 8px;padding:12px 14px 8px;border-radius:12px 12px 0 0}
+.qjump .chip{transition:transform .15s}.qjump .chip:hover{transform:translateY(-1px)}
+.yay{display:flex;align-items:center;gap:10px;padding:10px 6px;color:#2f7d00;font-weight:700;font-size:13px}.yay span{font-size:22px;animation:yay 1.6s ease-in-out infinite}
+@keyframes yay{0%,100%{transform:rotate(-8deg) scale(1)}50%{transform:rotate(10deg) scale(1.15)}}
+.cfx{position:fixed;left:50%;top:48%;z-index:400;pointer-events:none}.cfx i{position:absolute;width:9px;height:12px;border-radius:2px;opacity:0;animation:cfx 1.2s cubic-bezier(.2,.7,.3,1) forwards}
+@keyframes cfx{0%{opacity:1;transform:translate(0,0) rotate(0)}70%{opacity:1}100%{opacity:0;transform:translate(var(--x),calc(var(--y) + 340px)) rotate(var(--r))}}
+#toast{background:linear-gradient(135deg,#3b1290,#8644f0)!important}
+@media (prefers-reduced-motion:reduce){.yay span{animation:none}}
 .ldbar{height:6px;background:var(--brand-ll);border-radius:99px;margin-top:12px;overflow:hidden}.ldbar i{display:block;height:100%;background:var(--brand);border-radius:99px;transition:width .3s}
 .qjump{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}.qjump .chip{text-decoration:none;background:#fff;border:1px solid var(--line);color:var(--ink)}.qjump .chip b{color:var(--brand-d)}.qjump .chip.dim{opacity:.55}
 .qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px;align-items:start}
@@ -439,9 +454,9 @@ function drawSide(){
   var sc = scoped(), sgs = document.getElementById('sgs'); sgs.innerHTML = GROUPS.map(function(g){ return '<button data-g="' + g[0] + '" aria-pressed="' + (S.jstat === g[0]) + '">' + g[1] + '<b>' + sc.filter(function(x){ return x.group === g[0]; }).length + '</b></button>'; }).join('');
   sgm.querySelectorAll('button').forEach(function(b){ b.onclick = function(){ S.onlyMine = b.dataset.m === '1'; store('hire_mine', S.onlyMine ? '1' : '0'); drawSide(); if(S.page === 'home') viewHome(); if(S.page === 'iv') viewInterviews(); if(S.page === 'work') loadSum(false, viewWork); if(S.page === 'dash') loadSum(false, viewDash); }; });
   sgs.querySelectorAll('button').forEach(function(b){ b.onclick = function(){ S.jstat = b.dataset.g; drawSide(); if(S.page === 'home') viewHome(); }; });
-  var item = function(x){ return '<button class="ji" data-j="' + esc(x.id) + '" aria-current="' + (x.id === S.jobId) + '" title="' + esc(x.title) + '"><span class="dot" aria-hidden="true">' + esc(jobInitials(x.title)) + '</span><span class="tx"><span class="tt">' + esc(x.title) + '</span><span class="ss">' + esc(x.group === 'open' ? (x.dept || '') : (x.status || '') + (x.dept ? ' · ' + x.dept : '')) + '</span></span><span class="n">' + (x.candidates || 0).toLocaleString('en-IN') + '</span></button>'; };
+  var item = function(x){ return '<button class="ji" data-j="' + esc(x.id) + '" aria-current="' + (x.id === S.jobId) + '" title="' + esc(x.title) + '"><span class="dot" aria-hidden="true" style="--jc:' + hueOf(x.title) + '">' + esc(jobInitials(x.title)) + '</span><span class="tx"><span class="tt">' + esc(x.title) + '</span><span class="ss">' + esc(x.group === 'open' ? (x.dept || '') : (x.status || '') + (x.dept ? ' · ' + x.dept : '')) + '</span></span><span class="n">' + (x.candidates || 0).toLocaleString('en-IN') + '</span></button>'; };
   var mine = list.filter(function(x){ return x.mine; }), rest = list.filter(function(x){ return !x.mine; });
-  el.innerHTML = '<button class="home-link" id="wk" aria-current="' + (S.page === 'work') + '">✅ My work</button>' + (isHead() ? '<button class="home-link" id="dsb" aria-current="' + (S.page === 'dash') + '">📊 Hiring overview</button>' : '') + '<button class="home-link" id="hm" aria-current="' + (S.page === 'home') + '">⌂ All jobs</button><button class="home-link" id="ivl" aria-current="' + (S.page === 'iv') + '">🗓 Interviews</button>' + (list.length ? (!S.onlyMine && mine.length && rest.length ? '<div class="grp">My jobs</div>' + mine.map(item).join('') + '<div class="grp">Other jobs</div>' + rest.map(item).join('') : list.map(item).join(''))
+  el.innerHTML = '<button class="home-link" id="wk" aria-current="' + (S.page === 'work') + '">✅ My work</button><button class="home-link" id="dsb" aria-current="' + (S.page === 'dash') + '">📊 Hiring overview</button><button class="home-link" id="hm" aria-current="' + (S.page === 'home') + '">⌂ All jobs</button><button class="home-link" id="ivl" aria-current="' + (S.page === 'iv') + '">🗓 Interviews</button>' + (list.length ? (!S.onlyMine && mine.length && rest.length ? '<div class="grp">My jobs</div>' + mine.map(item).join('') + '<div class="grp">Other jobs</div>' + rest.map(item).join('') : list.map(item).join(''))
     : '<div class="hint" style="padding:12px">' + (S.jq ? 'No jobs match.' : S.onlyMine ? 'No ' + (S.jstat === 'open' ? 'open' : S.jstat === 'hold' ? 'on-hold' : 'closed') + ' jobs where you are the recruiter or hiring manager. Try “All jobs”.' : 'No jobs here.') + '</div>');
   el.querySelectorAll('[data-j]').forEach(function(b){ b.onclick = function(){ openJob(b.dataset.j); }; });
   if(realAdmin()){ var ppl = viewAsPeople(); if(ppl.length){ var va = document.createElement('div'); va.className = 'vas'; va.innerHTML = '<label for="vasel">👁 View as</label><select id="vasel"><option value="">Me (' + esc(String((S.me && S.me.name) || 'you').split(' ')[0]) + ')</option>' + ppl.map(function(n){ return '<option' + (n === S.viewAs ? ' selected' : '') + '>' + esc(n) + '</option>'; }).join('') + '</select>';
@@ -466,7 +481,7 @@ function setViewAs(name){
 }
 function previewBanner(){ return S.viewAs ? '<div class="pvbar" role="status">👁 You are viewing the page as <b>' + esc(S.viewAs) + '</b>' + (S.admin ? ' (head view)' : '') + ': their roles and their work. Read-only preview, buttons are off. <button class="btn sm" id="pvx">Exit preview</button></div>' : ''; }
 function jobSelect(){
-  return previewBanner() + '<div class="jsel"><select id="jsel" aria-label="Choose a job"><option value="__work"' + (S.page === 'work' ? ' selected' : '') + '>✅ My work</option>' + (isHead() ? '<option value="__dash"' + (S.page === 'dash' ? ' selected' : '') + '>📊 Hiring overview</option>' : '') + '<option value=""' + (S.page === 'home' ? ' selected' : '') + '>⌂ All jobs</option><option value="__iv"' + (S.page === 'iv' ? ' selected' : '') + '>🗓 Interviews</option>' + visibleJobs().map(function(x){ return '<option value="' + esc(x.id) + '"' + (x.id === S.jobId ? ' selected' : '') + '>' + esc(x.title) + ' (' + (x.candidates || 0) + ')</option>'; }).join('') + '</select></div>';
+  return previewBanner() + '<div class="jsel"><select id="jsel" aria-label="Choose a job"><option value="__work"' + (S.page === 'work' ? ' selected' : '') + '>✅ My work</option><option value="__dash"' + (S.page === 'dash' ? ' selected' : '') + '>📊 Hiring overview</option><option value=""' + (S.page === 'home' ? ' selected' : '') + '>⌂ All jobs</option><option value="__iv"' + (S.page === 'iv' ? ' selected' : '') + '>🗓 Interviews</option>' + visibleJobs().map(function(x){ return '<option value="' + esc(x.id) + '"' + (x.id === S.jobId ? ' selected' : '') + '>' + esc(x.title) + ' (' + (x.candidates || 0) + ')</option>'; }).join('') + '</select></div>';
 }
 function bindJobSelect(){ var px = document.getElementById('pvx'); if(px) px.onclick = function(){ setViewAs(''); }; var s = document.getElementById('jsel'); if(s) s.onchange = function(){ if(this.value === '__iv') goInterviews(); else if(this.value === '__work') goWork(); else if(this.value === '__dash') goDash(); else if(this.value) openJob(this.value); else goHome(); }; }
 
@@ -479,7 +494,7 @@ function route(first){
   if(!S.jobs) return;
   var h = readHash(), job = h.job;
   var vw = (location.hash.match(/view=(work|dash)/) || [])[1];
-  if(vw || (first && !job)){ S.jobId = ''; if(S.page !== vw || first){ if((vw === 'dash' || !vw) && S.admin) goDash(true); else goWork(true); } if(h.c && h.c !== S.candId) openCandidate(h.c, true); else if(!h.c) closeDrawer(true); return; }
+  if(vw || (first && !job)){ S.jobId = ''; if(S.page !== vw || first){ if(vw === 'dash' || (!vw && S.admin)) goDash(true); else goWork(true); } if(h.c && h.c !== S.candId) openCandidate(h.c, true); else if(!h.c) closeDrawer(true); return; }
   if(location.hash.indexOf('view=iv') >= 0){ S.jobId = ''; if(S.page !== 'iv' || !S.ivs) goInterviews(true); if(h.c && h.c !== S.candId) openCandidate(h.c, true); else if(!h.c) closeDrawer(true); return; }
   if(first && !job){ var last = store('hire_job'); if(last && S.jobs.some(function(x){ return x.id === last; })){ job = last; history.replaceState(null, '', location.pathname + location.search + '#job=' + last); } }
   if(job && S.jobs.some(function(x){ return x.id === job; })){
@@ -667,7 +682,7 @@ function openCandidate(id, fromRoute){
   S.candId = id; if(!fromRoute) writeHash(S.jobId, id); markCurrent();
   dr.hidden = false; document.body.style.overflow = 'hidden';
   var row = (S.rows || []).filter(function(r){ return r.id === id; })[0];
-  drawer.innerHTML = navBar() + '<div class="dh"><span class="cav" aria-hidden="true">' + esc(initials(row ? row.Full_Name : '')) + '</span><div><h3 id="dTitle">' + esc(row ? row.Full_Name : 'Candidate') + '</h3><div class="hint">' + esc(row ? row.Candidate_Status : '') + '</div></div></div><div class="db">' + loading('Loading candidate…') + '</div>';
+  drawer.innerHTML = navBar() + '<div class="dh"><span class="cav" aria-hidden="true" style="--jc:' + hueOf(row ? row.Full_Name : '') + '">' + esc(initials(row ? row.Full_Name : '')) + '</span><div><h3 id="dTitle">' + esc(row ? row.Full_Name : 'Candidate') + '</h3><div class="hint">' + esc(row ? row.Candidate_Status : '') + '</div></div></div><div class="db">' + loading('Loading candidate…') + '</div>';
   bindNav();
   post('candidate', { id: id }).then(function(j){ if(S.candId !== id) return; if(!j.ok){ drawer.innerHTML = navBar() + '<div class="db"><div class="card err">' + esc(j.error) + '</div></div>'; bindNav(); return; } S.cj = j; viewCandidate(); })
     .catch(function(e){ drawer.innerHTML = navBar() + '<div class="db"><div class="card err">' + esc(e.message) + '</div></div>'; bindNav(); });
@@ -761,7 +776,7 @@ function journey(j){
 function viewCandidate(){
   var j = S.cj, c = j.candidate, tab = candTab;
   var nFb = (j.feedback || []).length, nIv = (j.interviews || []).length;
-  var h = navBar() + '<div class="dh"><span class="cav" aria-hidden="true">' + esc(initials(c.Full_Name)) + '</span><div style="min-width:0;flex:1"><h3 id="dTitle">' + esc(c.Full_Name) + '</h3><div class="hint">' + esc([c.Current_Job_Title, c.Current_Employer].filter(Boolean).join(' · ')) + '</div>' +
+  var h = navBar() + '<div class="dh"><span class="cav" aria-hidden="true" style="--jc:' + hueOf(c.Full_Name) + '">' + esc(initials(c.Full_Name)) + '</span><div style="min-width:0;flex:1"><h3 id="dTitle">' + esc(c.Full_Name) + '</h3><div class="hint">' + esc([c.Current_Job_Title, c.Current_Employer].filter(Boolean).join(' · ')) + '</div>' +
     '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;align-items:center">' + (j.jobs || []).map(function(x){ return '<span class="hint" style="font-size:12px">' + esc(x.title) + '</span> ' + chipFor(x.status); }).join(' ') + '</div></div>' +
     '<a class="btn sm" href="' + RC + 'Candidates&id=' + esc(c.id) + '" target="_blank" rel="noopener">Recruit ↗</a></div>';
   var tabs = [['over','Overview'],['rounds','Rounds' + (nIv ? ' (' + nIv + ')' : '') + (nFb ? ' · ' + nFb + ' feedback' : '')],['hist','History']];
@@ -870,7 +885,7 @@ function doStep(k){
   var b = document.getElementById('nxgo'); b.disabled = true; b.textContent = 'Saving in Recruit…';
   post('move', body).then(function(r){
     if(!r.ok){ toastMsg(r.error || 'Could not save'); if(r.stale){ loadNext(); return; } b.disabled = false; b.textContent = 'Confirm: ' + st.label; return; }
-    toastMsg('Done: ' + st.label);
+    toastMsg('🎉 Done: ' + st.label); confetti();
     (S.rows || []).forEach(function(x){ if(x.id === f.candId && String(S.jobId) === String(f.jobId)) x.Candidate_Status = r.status; });
     S.ivFresh = true;
     if(S.page !== 'iv' && S.jobId) try{ drawJob(); }catch(e){}
@@ -1008,7 +1023,7 @@ function qRow(candId, jobId, main, sub, right, hot){ return '<div class="qrow" t
 function qCard(id, icon, title, why, items, tone){
   var n = items.length, open = S.qOpen && S.qOpen[id], shown = open ? items : items.slice(0, 6);
   return '<section class="qcard2' + (n ? '' : ' none') + '" id="q-' + id + '" style="--c:' + tone + '"><div class="qh"><h3>' + icon + ' ' + esc(title) + ' <span class="qn">' + n + '</span></h3><span class="hint">' + esc(why) + '</span></div>' +
-    (n ? shown.join('') + (n > 6 ? '<button class="btn sm" data-qmore="' + id + '" style="margin-top:6px">' + (open ? 'Show fewer' : 'Show all ' + n) + '</button>' : '') : '<div class="hint" style="padding:6px 2px">Nothing here. 🎉</div>') + '</section>';
+    (n ? shown.join('') + (n > 6 ? '<button class="btn sm" data-qmore="' + id + '" style="margin-top:6px">' + (open ? 'Show fewer' : 'Show all ' + n) + '</button>' : '') : '<div class="yay"><span>🎉</span>All clear here. Nice work!</div>') + '</section>';
 }
 function viewWork(){
   var main = document.getElementById('main'); if(!main || S.page !== 'work') return;
@@ -1028,7 +1043,7 @@ function viewWork(){
   var needs = cards.slice(1, 5).reduce(function(a, k){ return a + k[4].length; }, 0);
   main.innerHTML = jobSelect() + '<div class="hero"><div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap"><div style="flex:1;min-width:240px"><h1>' + (first ? 'Hi ' + esc(first) + ' 👋' : 'My work') + '</h1><div class="hint" style="margin-top:4px">' +
     (needs ? '<b>' + needs + ' thing' + (needs === 1 ? '' : 's') + '</b> need you' : 'Nothing is waiting on you') + ' across ' + (S.onlyMine ? 'your ' : 'all ') + D.jobs.length + ' open role' + (D.jobs.length === 1 ? '' : 's') + '. Interviews today: ' + D.today.length + '.</div></div>' +
-    '<div style="display:flex;gap:6px;align-items:center">' + sumHint() + '<button class="btn sm" id="wrf">↻ Refresh</button>' + (isHead() ? '<button class="btn sm" id="wdash">📊 Hiring overview</button>' : '') + '</div></div>' +
+    '<div style="display:flex;gap:6px;align-items:center">' + sumHint() + '<button class="btn sm" id="wrf">↻ Refresh</button>' + '<button class="btn sm" id="wdash">📊 Hiring overview</button>' + '</div></div>' +
     '<div class="qjump">' + cards.map(function(k){ return '<a href="#q-' + k[0] + '" data-jump="' + k[0] + '" class="chip' + (k[4].length ? '' : ' dim') + '">' + k[1] + ' ' + esc(k[2]) + ' <b>' + k[4].length + '</b></a>'; }).join('') + '</div>' +
     (S.sumErr ? '<div class="hint" style="color:var(--warn);margin-top:6px">' + esc(S.sumErr) + '</div>' : '') + '</div>' +
     '<div class="qgrid">' + cards.map(function(k){ return qCard(k[0], k[1], k[2], k[3], k[4], k[5]); }).join('') + '</div>' +
@@ -1050,15 +1065,15 @@ function bindQActions(main){
     bs[1].onclick = function(){ f.remove(); };
     bs[0].onclick = function(){ var r = ta.value.trim(); if(r.length < 10){ toastMsg('Please give a reason (10+ characters)'); ta.focus(); return; } bs[0].disabled = true; bs[0].textContent = 'Saving…';
       post('skipeval', { ivId: id, reason: r }).then(function(j){ if(!j.ok){ bs[0].disabled = false; bs[0].textContent = 'Skip evaluation'; toastMsg(j.error || 'Could not skip'); return; }
-        toastMsg('Evaluation skipped' + (j.closed ? '; ' + j.closed + ' reminder' + (j.closed === 1 ? '' : 's') + ' stopped' : ''));
+        confetti(); toastMsg('✅ Evaluation skipped' + (j.closed ? '; ' + j.closed + ' reminder' + (j.closed === 1 ? '' : 's') + ' stopped' : ''));
         var cid = row.dataset.qc, jid = row.dataset.qj, jr = S.jr[jid]; if(jr) (jr.rows || []).forEach(function(x){ if(x.id === cid) x.Evaluation_Bypass_Reason = (x.Evaluation_Bypass_Reason ? x.Evaluation_Bypass_Reason + '\n' : '') + j.line; });
         (S.act.feedback || []).forEach(function(x){ if(x.iv === id && x.st === 'Pending') x.st = 'Cancelled'; });
         sumSave(); if(S.page === 'work') viewWork(); else if(S.page === 'dash') viewDash(); }).catch(function(err){ bs[0].disabled = false; bs[0].textContent = 'Skip evaluation'; toastMsg(err.message); }); };
   }; });
   main.querySelectorAll('[data-qremind]').forEach(function(b){ b.onclick = function(e){ e.stopPropagation(); b.disabled = true; var lbl = b.textContent; b.textContent = 'Sending…';
-    post('remind', { rowId: b.dataset.qremind }).then(function(j){ if(j.ok){ b.textContent = '✓ Reminded'; toastMsg('Reminder sent on Cliq to ' + (j.to || 'the interviewer')); (S.act.feedback || []).forEach(function(f){ if(f.id === b.dataset.qremind) f.nudged = j.at; }); } else { b.disabled = false; b.textContent = lbl; toastMsg(j.error || 'Could not send'); } }); }; });
+    post('remind', { rowId: b.dataset.qremind }).then(function(j){ if(j.ok){ b.textContent = '✓ Reminded'; confetti(); toastMsg('🔔 Reminder sent on Cliq to ' + (j.to || 'the interviewer')); (S.act.feedback || []).forEach(function(f){ if(f.id === b.dataset.qremind) f.nudged = j.at; }); } else { b.disabled = false; b.textContent = lbl; toastMsg(j.error || 'Could not send'); } }); }; });
   main.querySelectorAll('[data-qfile]').forEach(function(b){ b.onclick = function(e){ e.stopPropagation(); b.disabled = true; b.textContent = 'Filing…';
-    post('fileeval', { ivId: b.dataset.qfile }).then(function(j){ if(j.ok){ b.textContent = '✓ Filing started'; toastMsg('Filing in Recruit with ' + (j.with || 'the submitted feedback')); (S.act.interviews || []).forEach(function(v){ if(v.id === b.dataset.qfile) v.reviewed = new Date().toISOString(); }); } else { b.disabled = false; b.textContent = 'File evaluation'; toastMsg(j.error || 'Could not file'); } }); }; });
+    post('fileeval', { ivId: b.dataset.qfile }).then(function(j){ if(j.ok){ b.textContent = '✓ Filing started'; confetti(); toastMsg('📝 Filing in Recruit with ' + (j.with || 'the submitted feedback')); (S.act.interviews || []).forEach(function(v){ if(v.id === b.dataset.qfile) v.reviewed = new Date().toISOString(); }); } else { b.disabled = false; b.textContent = 'File evaluation'; toastMsg(j.error || 'Could not file'); } }); }; });
 }
 function bindQRows(root){
   var all = Array.prototype.map.call(root.querySelectorAll('[data-qc]'), function(el){ return el.dataset.qc; });
@@ -1102,7 +1117,7 @@ function openDrill(key){
   var ov = document.createElement('div'); ov.className = 'mdl'; ov.id = 'mdl';
   var q = '';
   var rowsHtml = function(){ var list = d.items.filter(function(it){ return !q || (it.name + ' ' + it.job + ' ' + it.detail).toLowerCase().indexOf(q) >= 0; });
-    return list.length ? list.slice(0, 400).map(function(it, i){ return '<button class="mrow" style="animation-delay:' + Math.min(i, 14) * 22 + 'ms" data-mc="' + esc(it.candId) + '" data-mj="' + esc(it.jobId) + '"><span class="mav" style="--c:' + (it.c || d.c || '#8644f0') + '">' + esc(initials(it.name)) + '</span><span class="mtx"><b>' + esc(it.name) + '</b><span>' + esc(it.job) + '</span></span><span class="mdt">' + it.detail + '</span><span class="mgo" aria-hidden="true">›</span></button>'; }).join('') + (list.length > 400 ? '<div class="hint" style="padding:8px">Showing the first 400.</div>' : '') : '<div class="empty" style="margin:10px">No candidates here.</div>'; };
+    return list.length ? list.slice(0, 400).map(function(it, i){ return '<button class="mrow" style="animation-delay:' + Math.min(i, 14) * 22 + 'ms" data-mc="' + esc(it.candId) + '" data-mj="' + esc(it.jobId) + '"><span class="mav" style="--c:' + hueOf(it.name) + '">' + esc(initials(it.name)) + '</span><span class="mtx"><b>' + esc(it.name) + '</b><span>' + esc(it.job) + '</span></span><span class="mdt">' + it.detail + '</span><span class="mgo" aria-hidden="true">›</span></button>'; }).join('') + (list.length > 400 ? '<div class="hint" style="padding:8px">Showing the first 400.</div>' : '') : '<div class="empty" style="margin:10px">No candidates here.</div>'; };
   ov.innerHTML = '<div class="mbk"></div><section class="mpn" role="dialog" aria-modal="true" aria-labelledby="mdlT" style="--c:' + (d.c || '#8644f0') + '"><header><div><h3 id="mdlT">' + esc(d.title) + ' <span class="qn">' + d.items.length + '</span></h3>' + (d.sub ? '<p>' + esc(d.sub) + '</p>' : '') + '</div><button class="btn sm" id="mdlX" aria-label="Close">✕</button></header>' +
     '<div class="mtools"><label class="search">' + ICON_SEARCH + '<input id="mdlQ" type="search" placeholder="Filter by name, role or detail" aria-label="Filter"></label>' + (d.items.length ? '<button class="btn sm" id="mdlCsv">⬇ Excel</button>' : '') + '</div><div class="mlist" id="mdlL">' + rowsHtml() + '</div></section>';
   document.body.appendChild(ov); document.body.style.overflow = 'hidden';
@@ -1397,6 +1412,16 @@ var SPL = (function(){
       setTimeout(function(){ if(s && document.body.contains(s)) fin(); }, 2600); }, wait); }
   return { make: make, step: function(p, text, key, val){ step(p, text, key, val); }, done: function(){ finish(false); }, active: function(){ return !!el && !SP.done; } };
 })();
+// ---------- joy (25 Nov): a stable colour per role / person, and a small confetti burst when something gets done ----------
+var JOY = ['#8644f0','#1d4ed8','#0f766e','#c2410c','#be185d','#15803d','#7c3aed','#0369a1','#b45309','#a3166a'];
+function hueOf(t){ var h = 0, x = String(t || ''); for(var i = 0; i < x.length; i++) h = (h * 31 + x.charCodeAt(i)) >>> 0; return JOY[h % JOY.length]; }
+function confetti(){
+  if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var box = document.createElement('div'); box.className = 'cfx'; box.setAttribute('aria-hidden', 'true');
+  var html = ''; for(var i = 0; i < 34; i++){ var c = JOY[i % JOY.length], x = (Math.random() * 2 - 1) * 260, y = -(140 + Math.random() * 220), r = Math.random() * 540 - 270;
+    html += '<i style="background:' + c + ';--x:' + x.toFixed(0) + 'px;--y:' + y.toFixed(0) + 'px;--r:' + r.toFixed(0) + 'deg;animation-delay:' + (Math.random() * 80).toFixed(0) + 'ms;' + (i % 3 ? '' : 'border-radius:50%;') + '"></i>'; }
+  box.innerHTML = html; document.body.appendChild(box); setTimeout(function(){ box.remove(); }, 1400);
+}
 function render(){
   if(S.pending){ var pd = S.pending; S.pending = null; if(pd.ok){ gotAuth(pd); return; } S.authErr = pd.error || 'Sign-in failed.'; }
   try{ S.me = S.me || JSON.parse(store('hire_me') || 'null'); }catch(e){}
