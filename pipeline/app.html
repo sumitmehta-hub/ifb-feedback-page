@@ -463,6 +463,8 @@ b.pn,.sub b,.hint b,.dtbl td b{color:var(--ink);font-weight:800}
 .qcard2 .qrow .acts{flex-wrap:wrap;max-width:340px;align-self:center}
 @container (max-width:520px){.qcard2 .qrow{grid-template-columns:minmax(0,1fr) auto}.qcard2 .qrow .acts{justify-content:flex-end}}
 @container (max-width:340px){.qcard2 .qrow{grid-template-columns:1fr}.qcard2 .qrow .acts{justify-content:flex-start;max-width:none}}
+/* masonry (26 Nov): My work cards pack under each other, no gaps when cards differ in height; row spans set by JS */
+.qgrid{grid-auto-rows:4px;gap:0 14px;align-items:start}
 </style>
 </head>
 <body>
@@ -1896,6 +1898,15 @@ render();
     Array.prototype.forEach.call(m.addedNodes, function(n){ if(n.nodeType === 1) scan(n); });
   }); }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ['disabled', 'selected'] });
   scan(document.body);
+})();
+
+/* ---- masonry for My work cards (26 Nov): each card spans as many 4px rows as its height, so cards stack without gaps and keep left-to-right order ---- */
+(function(){
+  if(!window.ResizeObserver) return;
+  var ro = new ResizeObserver(function(es){ es.forEach(function(e){ fit(e.target); }); });
+  function fit(c){ if(!c.parentNode || !c.parentNode.classList || !c.parentNode.classList.contains('qgrid')) return; var h = c.getBoundingClientRect().height; c.style.gridRowEnd = 'span ' + Math.max(1, Math.ceil((h + 14) / 4)); }
+  function scan(){ Array.prototype.forEach.call(document.querySelectorAll('.qgrid > *'), function(c){ if(!c._ms){ c._ms = 1; ro.observe(c); fit(c); } }); }
+  new MutationObserver(scan).observe(document.body, { childList: true, subtree: true }); scan();
 })();
 </script>
 </body>
