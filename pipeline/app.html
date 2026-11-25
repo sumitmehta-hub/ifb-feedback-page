@@ -228,6 +228,8 @@ var S = { token: store('hire_t') || '', me: null, jobs: null, scope: 'mine', job
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function initials(n){ var p = String(n || '').trim().split(/\s+/).filter(Boolean); return ((p[0] || '?')[0] + (p.length > 1 ? p[p.length-1][0] : '')).toUpperCase(); }
 function dt(iso, t){ if(!iso) return ''; var d = new Date(iso); if(isNaN(d)) return String(iso); return d.toLocaleString('en-IN', t ? { day:'numeric', month:'short', year:'numeric', hour:'numeric', minute:'2-digit' } : { day:'numeric', month:'short', year:'numeric' }); }
+// recent = relative ("3h ago", "5d ago"); older than 2 weeks = the date ("12 Jul", or "12 Jul 2025" in another year)
+function when(iso){ var d = new Date(iso); if(isNaN(d)) return ''; var s = (Date.now() - d) / 1000; if(s < 14 * 86400) return ago(iso); return d.toLocaleDateString('en-IN', d.getFullYear() === new Date().getFullYear() ? { day:'numeric', month:'short' } : { day:'numeric', month:'short', year:'numeric' }); }
 function ago(iso){ var d = new Date(iso); if(isNaN(d)) return ''; var s = (Date.now() - d) / 1000; if(s < 3600) return Math.max(1, Math.round(s/60)) + 'm ago'; if(s < 86400) return Math.round(s/3600) + 'h ago'; return Math.round(s/86400) + 'd ago'; }
 function yrs(n){ return n + (Number(n) === 1 ? ' yr' : ' yrs'); }
 function loading(t){ return '<div class="loading"><span class="spin" aria-hidden="true"></span>' + esc(t) + '</div>'; }
@@ -398,7 +400,7 @@ function openJob(id, fresh, fromRoute, candToOpen){
   S.page = 'job'; S.jobId = id; S.job = S.jobs.filter(function(x){ return x.id === id; })[0] || { id: id, title: 'Job' };
   if(S.job.group && S.job.group !== S.jstat){ S.jstat = S.job.group; }
   store('hire_job', id); if(!fromRoute) writeHash(id, ''); drawSide();
-  if(changed){ S.q = ''; S.stage = ''; S.showAll = false; S.older = false; }
+  if(changed){ S.q = ''; S.stage = ''; S.showAll = false; S.older = false; S.colLimit = {}; S.listLimit = 50; }
   closeDrawer(true);
   var main = document.getElementById('main');
   var scope = S.showAll ? 'all' : 'active', ck = id + '|' + scope;
@@ -415,7 +417,7 @@ function openJob(id, fresh, fromRoute, candToOpen){
 }
 var RECENT_DAYS = 180;
 function isRecent(r){ var t = new Date(r.Updated_On || r.Created_Time || 0).getTime(); return t >= Date.now() - RECENT_DAYS * 86400000; }
-function baseRows(){ return S.older ? S.rows : S.rows.filter(isRecent); }
+function baseRows(){ return S.rows; }
 function viewJob(){
   var main = document.getElementById('main'), job = S.job, rows = baseRows();
   var nOlder = S.rows.length - S.rows.filter(isRecent).length;
@@ -428,23 +430,22 @@ function viewJob(){
     '<div class="acts"><span class="hint">Updated ' + esc(ago(S.cachedAt) || 'now') + '</span><button class="btn sm" id="rf">↻ Refresh</button><a class="btn sm" href="' + RC + 'JobOpenings&id=' + esc(job.id) + '" target="_blank" rel="noopener">Open in Recruit ↗</a></div></div>' +
     '<div class="tiles">' + tiles.map(function(t){ return '<div class="tile" style="--c:' + t[2] + '"><small>' + esc(t[0]) + '</small><b>' + (typeof t[1] === 'number' ? t[1].toLocaleString('en-IN') : t[1]) + '</b></div>'; }).join('') + '</div>' +
     '<div class="toolbar"><label class="search">' + ICON_SEARCH + '<input id="cq" type="search" placeholder="Search name, status, company or title" aria-label="Search candidates" value="' + esc(S.q) + '"><span class="k kbd">/</span></label>' +
-    (nOlder || S.older ? '<button class="btn sm" id="older">' + (S.older ? 'Hide older than 6 months' : 'Show older (' + nOlder.toLocaleString('en-IN') + ')') + '</button>' : '') +
     '<label class="chk"><input type="checkbox" id="all"' + (S.showAll ? ' checked' : '') + '> Show closed &amp; not in process' + (S.scopeLoaded !== 'all' && job.candidates > 300 ? ' <span class="hint">(loads all ' + job.candidates.toLocaleString('en-IN') + ')</span>' : '') + '</label>' +
     '<div class="seg" role="group" aria-label="View"><button data-v="board" aria-pressed="' + (S.view === 'board') + '">Board</button><button data-v="list" aria-pressed="' + (S.view === 'list') + '">List</button></div></div>' +
-    '<div class="hint" style="font-size:12.5px;margin:-4px 0 8px">' + (S.older ? 'Showing everyone loaded.' : 'Showing candidates updated in the last 6 months' + (nOlder ? ' · ' + nOlder.toLocaleString('en-IN') + ' older hidden' : '') + '.') + (S.scopeLoaded !== 'all' ? ' Closed and not-in-process candidates are not loaded.' : '') + '</div>' +
+    '<div class="hint" style="font-size:12.5px;margin:-4px 0 8px">Newest first.' + (S.scopeLoaded !== 'all' ? ' Showing candidates in process; tick the box to load closed and not-in-process too.' : '') + '</div>' +
     (S.filterNote ? '<div class="hint" style="font-size:11.5px;margin:-4px 0 8px">Admin note: Recruit refused the status filter, loaded everything instead: ' + esc(S.filterNote) + '</div>' : '') +
     '<div class="chips" id="chips"></div><div id="bd"></div>';
   bindJobSelect();
   document.getElementById('rf').onclick = function(){ openJob(job.id, true); };
-  var ob = document.getElementById('older'); if(ob) ob.onclick = function(){ S.older = !S.older; viewJob(); };
-  document.getElementById('cq').oninput = function(){ S.q = this.value; drawJob(); };
+
+  document.getElementById('cq').oninput = function(){ S.q = this.value; S.colLimit = {}; S.listLimit = 50; drawJob(); };
   document.getElementById('all').onchange = function(){ S.showAll = this.checked; if(!S.showAll && HIDDEN[S.stage]) S.stage = ''; if(S.showAll && S.scopeLoaded !== 'all'){ openJob(S.jobId, false, true); return; } drawJob(); };
   main.querySelectorAll('.seg button').forEach(function(b){ b.onclick = function(){ S.view = b.dataset.v; store('hire_view', S.view); main.querySelectorAll('.seg button').forEach(function(x){ x.setAttribute('aria-pressed', x === b); }); drawJob(); }; });
   drawJob();
 }
 function filtered(){
   var q = S.q.trim().toLowerCase();
-  return S.rows.filter(function(r){ return (S.older || q || isRecent(r)) && (S.showAll || !HIDDEN[r._st] || S.stage === r._st) && (!S.stage || r._st === S.stage) && (!q || [r.Full_Name, r.Candidate_Status, r.Current_Employer, r.Current_Job_Title, r.City, r.Source].join(' ').toLowerCase().indexOf(q) >= 0); });
+  return S.rows.filter(function(r){ return (S.showAll || !HIDDEN[r._st] || S.stage === r._st) && (!S.stage || r._st === S.stage) && (!q || [r.Full_Name, r.Candidate_Status, r.Current_Employer, r.Current_Job_Title, r.City, r.Source].join(' ').toLowerCase().indexOf(q) >= 0); });
 }
 function drawJob(){
   var counts = {}; baseRows().forEach(function(r){ counts[r._st] = (counts[r._st] || 0) + 1; });
@@ -455,27 +456,29 @@ function drawJob(){
   if(S.view === 'list'){
     var k = S.sort.k, d = S.sort.d, order = {}; STAGES.forEach(function(s, i){ order[s[0]] = i; });
     list.sort(function(a,b){ var x, y; if(k === '_st'){ x = order[a._st]; y = order[b._st]; } else { x = a[k]; y = b[k]; } if(x == null) x = ''; if(y == null) y = ''; if(typeof x === 'string') x = x.toLowerCase(); if(typeof y === 'string') y = y.toLowerCase(); return (x > y ? 1 : x < y ? -1 : 0) * d; });
-    var shown = list.slice(0, 500);
+    S.listLimit = S.listLimit || 50; var shown = list.slice(0, S.listLimit);
     S.visible = shown.map(function(r){ return r.id; });
     var cols = [['Full_Name','Candidate'],['_st','Stage'],['Candidate_Status','Status'],['Experience_in_Years','Exp'],['Current_Employer','Company'],['Source','Source'],['Updated_On','Updated']];
     bd.innerHTML = list.length ? '<div class="tblw"><table class="tbl"><thead><tr>' + cols.map(function(c){ return '<th data-k="' + c[0] + '" aria-sort="' + (k === c[0] ? (d > 0 ? 'ascending' : 'descending') : 'none') + '">' + esc(c[1]) + (k === c[0] ? (d > 0 ? ' ↑' : ' ↓') : '') + '</th>'; }).join('') + '</tr></thead><tbody>' +
-      shown.map(function(r){ var m = stageMeta(r._st); return '<tr class="r" tabindex="0" data-c="' + esc(r.id) + '" aria-current="' + (r.id === S.candId) + '"><td class="nm">' + esc(r.Full_Name) + '</td><td><span class="stdot" style="--c:' + m[2] + '"><i></i>' + esc(m[1]) + '</span></td><td>' + esc(r.Candidate_Status) + '</td><td>' + (r.Experience_in_Years != null ? esc(yrs(r.Experience_in_Years)) : '') + '</td><td>' + esc(r.Current_Employer || '') + '</td><td>' + esc(r.Source || '') + '</td><td>' + esc(ago(r.Updated_On)) + '</td></tr>'; }).join('') +
-      '</tbody></table></div>' + (list.length > 500 ? '<div class="more">Showing 500 of ' + list.length + '. Use search or a stage filter.</div>' : '') : emptyMsg();
+      shown.map(function(r){ var m = stageMeta(r._st); return '<tr class="r" tabindex="0" data-c="' + esc(r.id) + '" aria-current="' + (r.id === S.candId) + '"><td class="nm">' + esc(r.Full_Name) + '</td><td><span class="stdot" style="--c:' + m[2] + '"><i></i>' + esc(m[1]) + '</span></td><td>' + esc(r.Candidate_Status) + '</td><td>' + (r.Experience_in_Years != null ? esc(yrs(r.Experience_in_Years)) : '') + '</td><td>' + esc(r.Current_Employer || '') + '</td><td>' + esc(r.Source || '') + '</td><td>' + esc(when(r.Updated_On)) + '</td></tr>'; }).join('') +
+      '</tbody></table></div>' + (list.length > shown.length ? '<div style="text-align:center;margin:12px 0"><button class="btn" id="lmore">Load more · ' + (list.length - shown.length).toLocaleString('en-IN') + ' older</button></div>' : '') : emptyMsg();
     bd.querySelectorAll('th[data-k]').forEach(function(th){ th.onclick = function(){ var kk = th.dataset.k; S.sort = { k: kk, d: S.sort.k === kk ? -S.sort.d : (kk === 'Updated_On' ? -1 : 1) }; drawJob(); }; });
   } else {
     var cols2 = STAGES.filter(function(s){ return list.some(function(r){ return r._st === s[0]; }); });
     var vis = [];
     bd.innerHTML = cols2.length ? '<div class="board">' + cols2.map(function(s){
       var items = list.filter(function(r){ return r._st === s[0]; }).sort(function(a,b){ return String(b.Updated_On || '').localeCompare(String(a.Updated_On || '')); });
-      var shown = items.slice(0, 150); shown.forEach(function(r){ vis.push(r.id); });
-      return '<section class="col" style="--c:' + s[2] + '"><h4><i></i>' + esc(s[1]) + '<span>' + items.length + '</span></h4><div class="cards">' + shown.map(function(r){
-        var meta = []; if(r.Experience_in_Years != null) meta.push(yrs(r.Experience_in_Years)); if(r.Unberry_Verdict) meta.push('Unberry: ' + r.Unberry_Verdict); if(r.Updated_On) meta.push(ago(r.Updated_On));
+      S.colLimit = S.colLimit || {}; var lim = S.colLimit[s[0]] || 25; var shown = items.slice(0, lim); shown.forEach(function(r){ vis.push(r.id); });
+      return '<section class="col" data-st="' + s[0] + '" style="--c:' + s[2] + '"><h4><i></i>' + esc(s[1]) + '<span>' + items.length + '</span></h4><div class="cards">' + shown.map(function(r){
+        var meta = []; if(r.Experience_in_Years != null) meta.push(yrs(r.Experience_in_Years)); if(r.Unberry_Verdict) meta.push('Unberry: ' + r.Unberry_Verdict); if(r.Updated_On) meta.push('Updated ' + when(r.Updated_On));
         return '<button class="cc" style="--c:' + s[2] + '" data-c="' + esc(r.id) + '" aria-current="' + (r.id === S.candId) + '"><div class="nm">' + esc(r.Full_Name) + '</div><div class="s">' + esc(r.Candidate_Status) + '</div>' +
           (r.Current_Job_Title || r.Current_Employer ? '<div class="s" style="color:var(--muted)">' + esc([r.Current_Job_Title, r.Current_Employer].filter(Boolean).join(' · ')) + '</div>' : '') + '<div class="m">' + meta.map(esc).join(' · ') + '</div></button>';
-      }).join('') + (items.length > shown.length ? '<div class="more">+' + (items.length - shown.length) + ' more, use search</div>' : '') + '</div></section>';
+      }).join('') + (items.length > shown.length ? '<button class="btn sm" data-more="' + s[0] + '" style="margin:4px auto 2px;display:block">Load more · ' + (items.length - shown.length).toLocaleString('en-IN') + ' older</button>' : '') + '</div></section>';
     }).join('') + '</div>' : emptyMsg();
     S.visible = vis;
   }
+  bd.querySelectorAll('[data-more]').forEach(function(b){ b.onclick = function(){ var k = b.dataset.more, col = b.closest('.cards'), top = col ? col.scrollTop : 0; S.colLimit[k] = (S.colLimit[k] || 25) + 25; drawJob(); var nb = document.querySelector('.col[data-st="' + k + '"] .cards'); if(nb) nb.scrollTop = top; }; });
+  var lm = document.getElementById('lmore'); if(lm) lm.onclick = function(){ S.listLimit += 50; drawJob(); };
   bd.querySelectorAll('[data-c]').forEach(function(b){ b.onclick = function(){ openCandidate(b.dataset.c); }; b.onkeydown = function(e){ if(e.key === 'Enter') openCandidate(b.dataset.c); }; });
 }
 function emptyMsg(){ return '<div class="empty">' + (S.q || S.stage ? 'No candidates match.' : 'No candidates in process. Tick “Show closed &amp; not in process” to see everyone.') + '</div>'; }
