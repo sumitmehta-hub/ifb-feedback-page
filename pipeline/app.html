@@ -247,6 +247,9 @@ body.previewing [data-qremind],body.previewing [data-qfile],body.previewing [dat
 .av-day{display:grid;grid-template-columns:90px minmax(0,1fr) auto;gap:10px;align-items:start;padding:8px 0;border-bottom:1px solid var(--line)}.av-day:last-child{border-bottom:0}
 .av-dl{display:flex;gap:8px;align-items:center;cursor:pointer;padding-top:6px}.av-dl input{width:17px;height:17px;accent-color:var(--brand)}.av-day.off .av-dl b{color:var(--ink2)}
 .av-ranges{display:grid;gap:6px}.av-rg{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.av-rg select{font:inherit;font-size:13.5px;padding:6px 8px;border-radius:9px;border:1px solid var(--line);background:#fff;color:var(--ink)}
+.av-qp{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 8px}.av-qpl{font-size:12.5px;font-weight:700;color:var(--ink2);margin-right:2px}
+.av-qb{display:grid;gap:0;text-align:left;font:inherit;padding:5px 11px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer;color:var(--ink)}.av-qb b{font-size:13px}.av-qb span{font-size:11.5px;color:var(--ink2)}
+.av-qb:hover{border-color:var(--brand);background:#faf7ff}.av-qb.on{border-color:var(--brand);background:var(--brand-ll);box-shadow:inset 0 0 0 1px var(--brand)}.av-qb:focus-visible{outline:2px solid var(--brand);outline-offset:1px}.av-qph{flex-basis:100%;font-size:12px}
 .av-un{color:var(--ink2);font-size:13.5px;padding-top:6px;display:block}.av-dacts{display:flex;gap:4px;padding-top:2px}
 .av-ib{width:32px;height:32px;border-radius:9px;border:1px solid transparent;background:none;cursor:pointer;color:var(--ink2);font-size:15px}.av-ib:hover{background:#f1ebfd;color:var(--brand)}.av-ib:focus-visible{outline:2px solid var(--brand)}
 @media (max-width:640px){.av-day{grid-template-columns:1fr auto}.av-ranges{grid-column:1/-1;grid-row:2}}
@@ -703,6 +706,7 @@ function goMine(fromRoute){ SPL.done();
 // Weekly 30-minute blocks (7 am to 10 pm IST), a daily cap, notice, days off and a note. No Google Calendar sync.
 var AV = { who: '', av: null, week: {}, dirty: false, people: null, team: null };
 var AV_DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], AV_FROM = 7 * 60, AV_TO = 22 * 60;
+var AV_PRESETS = [['Workday', '10 am – 6 pm', [[600, 1080]]], ['Mornings', '10 am – 1 pm', [[600, 780]]], ['Afternoons', '2 – 5 pm', [[840, 1020]]], ['Evenings', '4 – 8 pm', [[960, 1200]]], ['Around lunch', '10–1 and 2–6', [[600, 780], [840, 1080]]], ['Mornings + evenings', '10–12 and 5–8', [[600, 720], [1020, 1200]]]];
 function avTime(m){ return hm12(Math.floor(m / 60), m % 60).replace(':00 ', ' '); }
 function avSummary(av){ if(!av) return 'Not set yet'; var parts = [];
   for(var d = 1; d <= 7; d++){ var w = (av.week || {})[d]; if(w && w.length) parts.push(AV_DAYS[d - 1] + ' ' + w.map(function(p){ return avTime(p[0]) + '–' + avTime(p[1]); }).join(', ')); }
@@ -723,7 +727,13 @@ function drawAvail(){ var box = document.getElementById('avbox'); if(!box) retur
   var h = '<h3>🗓 ' + (mine ? 'My availability for interviews' : 'Availability: ' + esc(whoName)) + '</h3>';
   if(S.ta) h += '<div class="av-who"><label for="avWho">Edit for</label><select id="avWho"><option value="' + esc((S.me && S.me.email) || '') + '">Me</option>' + (AV.people || []).filter(function(p){ return p.email !== ((S.me && S.me.email) || ''); }).map(function(p){ return '<option value="' + esc(p.email) + '"' + (p.email === AV.who ? ' selected' : '') + '>' + esc(p.name) + '</option>'; }).join('') + '</select><span class="hint">Fill this in for someone who shared their free time on chat.</span></div>';
   h += '<div class="hint" style="margin:2px 0 10px">When ' + (mine ? 'are you' : 'are they') + ' usually free for interviews? Times are IST. The TA team picks the exact slot and length from these hours. Google Calendar is not read.</div>';
-  h += '<h4 class="av-h4">Weekly hours</h4><div class="av-days">';
+  // quick picks (Calendly / Cal.com style presets, 26 Nov): one click fills the ticked days (Mon–Fri if none ticked);
+  // the time pickers below still fine-tune. Evenings for people whose days are taken by sales / CS calls.
+  var tick = []; for(var t = 1; t <= 7; t++) if(W[t] && W[t].length) tick.push(t);
+  var same = function(a, b){ return JSON.stringify(a) === JSON.stringify(b); };
+  h += '<h4 class="av-h4">Weekly hours</h4><div class="av-qp"><span class="av-qpl">Quick pick</span>' + AV_PRESETS.map(function(p, i){ var on = tick.length && tick.every(function(d){ return same(W[d], p[2]); });
+    return '<button type="button" class="av-qb' + (on ? ' on' : '') + '" data-avp="' + i + '" title="' + esc(p[1]) + '"><b>' + esc(p[0]) + '</b><span>' + esc(p[1]) + '</span></button>'; }).join('') +
+    '<span class="hint av-qph">Fills ' + (tick.length ? 'the ticked days' : 'Mon–Fri') + '. Adjust any day below.</span></div><div class="av-days">';
   for(var d = 1; d <= 7; d++){ var rs = W[d] || [], on = rs.length > 0;
     h += '<div class="av-day' + (on ? '' : ' off') + '"><label class="av-dl"><input type="checkbox" data-dayon="' + d + '"' + (on ? ' checked' : '') + '> <b>' + AV_DAYS[d - 1] + '</b></label><div class="av-ranges">' +
       (on ? rs.map(function(p, i){ return '<div class="av-rg"><select data-rs="' + d + ':' + i + '" aria-label="' + AV_DAYS[d - 1] + ' from">' + tOpts(p[0], AV_FROM, AV_TO - 30) + '</select><span>–</span><select data-re="' + d + ':' + i + '" aria-label="' + AV_DAYS[d - 1] + ' to">' + tOpts(p[1], AV_FROM + 30, AV_TO) + '</select><button type="button" class="av-ib" data-rdel="' + d + ':' + i + '" title="Remove these hours" aria-label="Remove">✕</button></div>'; }).join('') : '<span class="av-un">Unavailable</span>') +
@@ -742,6 +752,8 @@ function drawAvail(){ var box = document.getElementById('avbox'); if(!box) retur
   var redraw = function(){ syncForm(); AV.dirty = true; drawAvail(); };
   var key = function(x){ var k = x.split(':'); return { d: +k[0], i: +k[1] }; };
   box.querySelectorAll('[data-dayon]').forEach(function(c){ c.onchange = function(){ var d = +c.dataset.dayon; if(c.checked) W[d] = [[9 * 60, 17 * 60]]; else delete W[d]; redraw(); }; });
+  box.querySelectorAll('[data-avp]').forEach(function(b){ b.onclick = function(){ var p = AV_PRESETS[+b.dataset.avp], days = tick.length ? tick : [1, 2, 3, 4, 5];
+    days.forEach(function(d){ W[d] = p[2].map(function(r){ return [r[0], r[1]]; }); }); redraw(); toastMsg(p[0] + ' (' + p[1] + ') set for ' + days.map(function(d){ return AV_DAYS[d - 1]; }).join(', ')); }; });
   box.querySelectorAll('[data-radd]').forEach(function(b){ b.onclick = function(){ var d = +b.dataset.radd, rs = W[d] || [], lastEnd = rs.length ? rs[rs.length - 1][1] : 9 * 60 - 60;
     var st = Math.min(AV_TO - 60, lastEnd + 60); W[d] = rs.concat([[st, Math.min(AV_TO, st + 120)]]); redraw(); }; });
   box.querySelectorAll('[data-rdel]').forEach(function(b){ b.onclick = function(){ var k = key(b.dataset.rdel); W[k.d].splice(k.i, 1); if(!W[k.d].length) delete W[k.d]; redraw(); }; });
@@ -1216,7 +1228,8 @@ function nxForm(st, f){
   if(st.reason) h += '<label>' + (st.reason === 'withdrawal' ? 'Withdrawal reason' : 'Rejection reason') + ' (required)<textarea id="nxreason" placeholder="Why? Saved on the candidate and as a note with the stage, e.g. Rejected after R2."></textarea></label>';
   if(locked) h += '<label>Reason to skip the evaluation (required, 10+ characters)<textarea id="nxbypass" placeholder="The evaluation is not filed yet. Saved as Evaluation Bypass Reason."></textarea></label>';
   if(!st.reason) h += '<label>Comment (optional)<textarea id="nxnote" rows="2" placeholder="Anything the team should know about this move. Saved as a note on the candidate."></textarea></label>';
-  h += '<div class="nxnote">Changes the status on <b>' + esc(f.jobTitle) + '</b> from <b>' + esc(f.status) + '</b> to <b>' + esc(st.to) + '</b>, the same as Change Status in Recruit, so any status emails to the candidate go out as usual.</div>';
+  var cName = (S.cj && S.cj.candidate && S.cj.candidate.Full_Name) || 'the candidate';
+  h += '<div class="nxnote">Candidate status: <b>' + esc(f.status) + '</b> → <b>' + esc(st.to) + '</b><br><span class="hint">Changes ' + esc(cName) + '’s status on the ' + esc(f.jobTitle) + ' job, the same as Change Status in Recruit, so any status emails to the candidate go out as usual.</span></div>';
   return h + '<div style="display:flex;gap:8px"><button class="btn ' + (st.tone === 'bad' ? 'bad' : 'primary') + '" id="nxgo">Confirm: ' + esc(st.label) + '</button><button class="btn" id="nxcx">Cancel</button></div></div>';
 }
 function doStep(k){
