@@ -894,15 +894,16 @@ function nxForm(st, f){
     h += '' + whenPick('nxwhen', v, 'nxmin', 45) + '' +
       '<div class="nxnote">Interviewer: ' + (st.panel ? '<b>' + esc(st.panel) + '</b> (from the job’s interview panel)' : '<b style="color:var(--warn)">none set on the job</b>, so add one on the interview in Recruit') + '. Recruit’s usual scheduling automations run, and the interviewer gets the heads-up card on Cliq. Once it is booked, the interview card opens so you can add people and send the Google Meet invite.</div>';
   }
-  if(st.reason) h += '<label>' + (st.reason === 'withdrawal' ? 'Withdrawal reason' : 'Rejection reason') + ' (required)<textarea id="nxreason" placeholder="Why? This is saved on the candidate in Recruit."></textarea></label>';
+  if(st.reason) h += '<label>' + (st.reason === 'withdrawal' ? 'Withdrawal reason' : 'Rejection reason') + ' (required)<textarea id="nxreason" placeholder="Why? Saved on the candidate and as a note with the stage, e.g. Rejected after R2."></textarea></label>';
   if(locked) h += '<label>Reason to skip the evaluation (required, 10+ characters)<textarea id="nxbypass" placeholder="The evaluation is not filed yet. Saved as Evaluation Bypass Reason."></textarea></label>';
+  if(!st.reason) h += '<label>Comment (optional)<textarea id="nxnote" rows="2" placeholder="Anything the team should know about this move. Saved as a note on the candidate."></textarea></label>';
   h += '<div class="nxnote">Changes the status on <b>' + esc(f.jobTitle) + '</b> from <b>' + esc(f.status) + '</b> to <b>' + esc(st.to) + '</b>, the same as Change Status in Recruit, so any status emails to the candidate go out as usual.</div>';
   return h + '<div style="display:flex;gap:8px"><button class="btn ' + (st.tone === 'bad' ? 'bad' : 'primary') + '" id="nxgo">Confirm: ' + esc(st.label) + '</button><button class="btn" id="nxcx">Cancel</button></div></div>';
 }
 function doStep(k){
   var f = S.nx, st = f && f.steps.filter(function(x){ return x.k === k; })[0]; if(!st) return;
   var g = function(id){ var el = document.getElementById(id); return el ? el.value : ''; };
-  var body = { candId: f.candId, jobId: f.jobId, step: k, expect: f.status, reason: g('nxreason'), bypass: g('nxbypass'), start: g('nxwhen'), minutes: g('nxmin') };
+  var body = { candId: f.candId, jobId: f.jobId, step: k, expect: f.status, reason: g('nxreason'), bypass: g('nxbypass'), note: g('nxnote'), start: g('nxwhen'), minutes: g('nxmin') };
   if(st.reason && body.reason.trim().length < 5){ toastMsg('Please give a reason'); return; }
   if(st.gate && !st.gateOk && body.bypass.trim().length < 10){ toastMsg('Give a reason to skip the evaluation (10+ characters)'); return; }
   if(st.kind === 'schedule' && !body.start){ toastMsg('Pick the date and time'); return; }
