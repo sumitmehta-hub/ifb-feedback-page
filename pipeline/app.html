@@ -539,6 +539,10 @@ body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden
 .hp{padding:4px 18px 18px}.hp-sec{margin-bottom:16px}.hp-sec h4{font-size:13px;font-weight:800;color:var(--ink);margin:0 0 6px;padding-bottom:4px;border-bottom:1px solid var(--line)}
 .hp-sec dl{margin:0}.hp-i{display:grid;grid-template-columns:minmax(150px,240px) 1fr;gap:6px 14px;padding:7px 0;border-bottom:1px dashed #ece9f5;align-items:start}.hp-i dt{margin:0;font-weight:700;font-size:13px}.hp-i dd{margin:0;font-size:13px;line-height:1.45;color:var(--ink2)}
 @media (max-width:600px){.helpb{padding:5px 6px;font-size:0;gap:0}.helpb span{width:18px;height:18px;font-size:12px}.hp-i{grid-template-columns:1fr}}
+/* job board (26 Nov): columns share the width when there are few stages; status as a soft chip; Closed tile explains itself */
+.col{max-width:none}
+.ccst{display:inline-block;font-size:11.5px;font-weight:700;padding:1px 8px;border-radius:999px;background:color-mix(in srgb,var(--c) 12%,#fff);color:color-mix(in srgb,var(--c) 75%,#1b1530);margin:2px 0}
+.tile-off b{color:var(--muted)}.tile-h{display:block;font-size:11px;color:var(--muted);margin-top:2px}
 </style>
 </head>
 <body>
@@ -981,6 +985,7 @@ function viewJob(){
     '<div class="tiles">' + tiles.map(function(t, ti){ var ks = [['screen','assess','blitz','r1','r2','r3','vibe','offer','hold'], ['blitz','r1','r2','r3','vibe'], ['offer'], ['hired'], ['closed'], null][ti];
       var its = (ks ? rows.filter(function(r){ return ks.indexOf(r._st) >= 0; }) : rows).map(function(r){ return { candId: r.id, jobId: job.id, name: r.Full_Name, job: [r.Current_Job_Title, r.Current_Employer].filter(Boolean).join(' · '), detail: esc(r.Candidate_Status || '') + (r.Updated_On ? ' · ' + esc(ago(r.Updated_On)) : '') }; });
       var dk = t[1] === '—' ? '' : regDrill('job_' + ti, job.title + ': ' + t[0], ti === 5 && S.scopeLoaded !== 'all' ? 'candidates loaded on this page (tick “Show closed” to load everyone)' : 'click a name to open the candidate', its, t[2]);
+      if(t[1] === '—') return '<div class="tile tile-off" style="--c:' + t[2] + '" title="Closed candidates are not loaded yet"><small>' + esc(t[0]) + '</small><b>—</b><span class="tile-h">Tick “Show closed” to count</span></div>';
       return '<div class="tile"' + (dk ? ' data-drill="' + dk + '"' : '') + ' style="--c:' + t[2] + '"><small>' + esc(t[0]) + '</small><b>' + (typeof t[1] === 'number' ? t[1].toLocaleString('en-IN') : t[1]) + '</b></div>'; }).join('') + '</div>' +
     '<div class="toolbar"><label class="search">' + ICON_SEARCH + '<input id="cq" type="search" placeholder="Search name, status, company or title" aria-label="Search candidates" value="' + esc(S.q) + '"><span class="k kbd">/</span></label>' +
     '<label class="chk"><input type="checkbox" id="all"' + (S.showAll ? ' checked' : '') + '> Show closed &amp; not in process' + (S.scopeLoaded !== 'all' && job.candidates > 300 ? ' <span class="hint">(loads all ' + job.candidates.toLocaleString('en-IN') + ')</span>' : '') + '</label>' +
@@ -1025,7 +1030,7 @@ function drawJob(){
       S.colLimit = S.colLimit || {}; var lim = S.colLimit[s[0]] || 25; var shown = items.slice(0, lim); shown.forEach(function(r){ vis.push(r.id); });
       return '<section class="col" data-st="' + s[0] + '" style="--c:' + s[2] + '"><h4><i></i>' + esc(s[1]) + '<span>' + items.length + '</span></h4><div class="cards">' + shown.map(function(r){
         var meta = []; if(r.Experience_in_Years != null) meta.push(yrs(r.Experience_in_Years)); if(r.Unberry_Verdict) meta.push('Unberry: ' + r.Unberry_Verdict); if(r.Updated_On) meta.push('Updated ' + when(r.Updated_On));
-        return '<button class="cc" style="--c:' + s[2] + '" data-c="' + esc(r.id) + '" aria-current="' + (r.id === S.candId) + '"><div class="nm">' + esc(r.Full_Name) + '</div><div class="s">' + esc(r.Candidate_Status) + '</div>' +
+        return '<button class="cc" style="--c:' + s[2] + '" data-c="' + esc(r.id) + '" aria-current="' + (r.id === S.candId) + '"><div class="nm">' + esc(r.Full_Name) + '</div><div class="s"><span class="ccst">' + esc(r.Candidate_Status) + '</span></div>' +
           (r.Current_Job_Title || r.Current_Employer ? '<div class="s" style="color:var(--muted)">' + esc([r.Current_Job_Title, r.Current_Employer].filter(Boolean).join(' · ')) + '</div>' : '') + '<div class="m">' + meta.map(esc).join(' · ') + '</div></button>';
       }).join('') + (items.length > shown.length ? '<button class="btn sm" data-more="' + s[0] + '" style="margin:4px auto 2px;display:block">Load more · ' + (items.length - shown.length).toLocaleString('en-IN') + ' more</button>' : '') +
         (function(){ if(S.older || S.q || (S.olderCols && S.olderCols[s[0]]) || items.length > shown.length) return ''; var old = S.rows.filter(function(r){ return r._st === s[0] && !isRecent(r); }).length; return old ? '<button class="btn sm" data-old="' + s[0] + '" style="margin:4px auto 2px;display:block;color:var(--muted)">Show ' + old.toLocaleString('en-IN') + ' older than 3 months</button>' : ''; })() + '</div></section>';
