@@ -1024,7 +1024,7 @@ function rowHtml(it, parts){
     what = rl + ' on ' + esc(dt(v.start)) + (it.pend.length ? ' · panel pending: <b>' + esc(it.pend.map(function(f){ return f.who; }).join(', ')) + '</b>' + (it.pend[0].nudged ? ' · reminded ' + esc(ago(it.pend[0].nudged)) : '') : it.sub.length ? ' · panel feedback is in' : ' · file it in Recruit');
     btn = it.pend.map(function(f){ return '<button class="btn sm" data-qremind="' + esc(f.id) + '" data-stop="1" aria-label="Remind ' + esc(f.who) + ' on Cliq">🔔 ' + esc(String(f.who).split(' ')[0]) + '</button>'; }).join('') +
       (it.sub.length ? '<button class="btn sm primary" data-qfile="' + esc(v.id) + '" data-stop="1">File evaluation</button>' : !it.pend.length ? '<a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener" data-stop="1">Open in Recruit ↗</a>' : '') +
-      '<button class="btn sm ghostb" data-qskip="' + esc(v.id) + '" data-stop="1" title="Skip this evaluation (a reason is required)">Skip…</button>'; }
+      '<button class="btn sm ghostb" data-qskip="' + esc(v.id) + '" data-stop="1" title="Skip this evaluation (a reason is required)">⏭ Skip evaluation</button>'; }
   if(it.k === 'passed'){ what = rl + ': <b class="tok">' + esc(v.status) + '</b> · nothing booked · still at ' + esc(it.r.status); btn = '<span class="btn sm primary">Schedule ' + esc(it.next) + ' →</span>'; }
   if(it.k === 'rejected'){ what = rl + ': <b class="tbad">' + esc(v.status) + '</b> · status still ' + esc(it.r.status); btn = '<span class="btn sm bad">Close as rejected →</span>'; }
   if(it.k === 'sched'){ what = esc(it.r.status) + ' · nothing booked'; btn = '<span class="btn sm primary">Schedule ' + esc(it.next) + '</span>'; }
