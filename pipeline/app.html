@@ -414,6 +414,13 @@ b.pn,.sub b,.hint b,.dtbl td b{color:var(--ink);font-weight:800}
 .ivrow.st-up{--st:#8644f0}.ivrow.st-live{--st:#0f766e;background:#f2fbf9}
 .ivrow.st-ok{--st:#2fb501;background:#f6fcf2}.ivrow.st-pend{--st:#f29a1f;background:#fffaf1}
 .ivrow.st-late{--st:#c8102e;background:#fff5f7}.ivrow.st-none{--st:#b9b3c9;background:var(--panel)}
+.ivdays{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 8px;margin:0 0 10px;scrollbar-width:thin}
+.ivdc{flex:1 0 64px;max-width:96px;display:grid;justify-items:center;gap:1px;padding:7px 4px 6px;border:1.5px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;font:inherit;color:var(--ink);transition:border-color .12s,background .12s}
+.ivdc small{font-size:11.5px;font-weight:700;color:var(--ink2);line-height:1.2}.ivdc b{font-size:19px;line-height:1.2}.ivdc i{font-style:normal;font-size:11px;font-weight:800;min-width:20px;padding:1px 7px;border-radius:999px;background:var(--brand-ll);color:var(--brand-d)}
+.ivdc:hover{border-color:var(--brand);background:#faf7ff}.ivdc:focus-visible{outline:2px solid var(--brand);outline-offset:1px}
+.ivdc.all{flex-basis:84px}.ivdc.all b{font-size:17px}.ivdc.pastd{background:#f8f7fb}.ivdc.we:not(.on) b{color:var(--ink2)}.ivdc.zero i{background:none;color:var(--muted)}.ivdc.zero:not(.on) b{color:var(--muted)}
+.ivdc.tod:not(.on){border-color:var(--brand-line,#c9b5f5)}.ivdc.tod:not(.on) small{color:var(--brand-d)}
+.ivdc.on{background:var(--brand);border-color:var(--brand);color:#fff}.ivdc.on small,.ivdc.on b{color:#fff}.ivdc.on i{background:rgba(255,255,255,.22);color:#fff}
 .ivlegend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin:2px 2px 6px}
 .ivlegend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 @media (max-width:860px){.ivrow{grid-template-columns:70px 1fr}.ivrow .acts{grid-column:1/-1;justify-content:flex-start}}
@@ -814,6 +821,15 @@ function viewInterviews(){
   var now = Date.now(), upcoming = list.filter(function(v){ return new Date(v.end || v.start) >= now; }), past = list.filter(function(v){ return new Date(v.end || v.start) < now; }).reverse();
   var pendingFb = past.filter(function(v){ return v.fb && v.fb.done < v.fb.total; }).length;
   var today = list.filter(function(v){ return dayKey(v.start) === dayKey(new Date().toISOString()); }).length;
+  // day strip (Google Calendar / Calendly style, 26 Nov): All, then each day from 2 days ago to 7 ahead with its count;
+  // picking a day shows only that day's interviews. The tiles above keep the whole range.
+  var t0 = new Date(), cnt = {}; t0.setHours(0, 0, 0, 0); list.forEach(function(v){ var k = dayKey(v.start); cnt[k] = (cnt[k] || 0) + 1; });
+  var dstrip = '<div class="ivdays" role="tablist" aria-label="Pick a day"><button class="ivdc all' + (!S.ivDay ? ' on' : '') + '" data-ivd="" role="tab" aria-selected="' + !S.ivDay + '"><small>All</small><b>' + list.length + '</b><small>interviews</small></button>';
+  for(var di = -2; di <= 7; di++){ var dd = new Date(t0.getTime() + di * 86400000), dk = dd.toDateString(), n = cnt[dk] || 0, wd = dd.getDay();
+    dstrip += '<button class="ivdc' + (di < 0 ? ' pastd' : '') + (di === 0 ? ' tod' : '') + (wd === 0 || wd === 6 ? ' we' : '') + (n ? '' : ' zero') + (S.ivDay === dk ? ' on' : '') + '" data-ivd="' + esc(dk) + '" role="tab" aria-selected="' + (S.ivDay === dk) + '" title="' + esc(dd.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })) + ' · ' + n + ' interview' + (n === 1 ? '' : 's') + '">' +
+      '<small>' + (di === 0 ? 'Today' : di === 1 ? 'Tmrw' : di === -1 ? 'Yest' : esc(dd.toLocaleDateString('en-IN', { weekday: 'short' }))) + '</small><b>' + dd.getDate() + '</b><i>' + (n ? n : '–') + '</i></button>'; }
+  dstrip += '</div>';
+  if(S.ivDay){ list = list.filter(function(v){ return dayKey(v.start) === S.ivDay; }); upcoming = list.filter(function(v){ return new Date(v.end || v.start) >= now; }); past = list.filter(function(v){ return new Date(v.end || v.start) < now; }).reverse(); }
   S.visible = list.map(function(v){ return v.candId; });
   var row = function(v, isPast){
     var st = ivState(v), fb = '<span class="chip ' + st.chip + '">' + esc(st.label) + '</span>';
@@ -827,11 +843,13 @@ function viewInterviews(){
     '<div class="jh"><div><h1>Interviews</h1><div class="meta"><span>' + (S.onlyMine ? '' + (S.viewAs ? esc(S.viewAs.split(' ')[0]) + '’s' : 'Your') + ' jobs' : 'All jobs') + ' · last 2 days and next 7 days</span></div></div><div class="acts"><span class="hint">Updated ' + esc(ago(new Date(S.ivAt).toISOString()) || 'now') + '</span><button class="btn sm" id="ivrf">↻ Refresh</button></div></div>' +
     '<div class="tiles"><div class="tile" style="--c:#8644f0"><small>Today</small><b>' + today + '</b></div><div class="tile" style="--c:#0f766e"><small>Coming up</small><b>' + upcoming.length + '</b></div><div class="tile" style="--c:#f29a1f"><small>Feedback pending</small><b>' + pendingFb + '</b></div><div class="tile" style="--c:#8a849c"><small>Last 2 days</small><b>' + past.length + '</b></div></div>' +
     '<div class="toolbar"><label class="search">' + ICON_SEARCH + '<input id="ivq" type="search" placeholder="Search candidate, job, round or interviewer" aria-label="Search interviews" value="' + esc(S.ivq || '') + '"><span class="k kbd">/</span></label></div>' +
-    '<div class="ivlegend"><span><i style="background:#8644f0"></i>Upcoming</span><span><i style="background:#0f766e"></i>In progress</span><span><i style="background:#2fb501"></i>Done, all feedback in</span><span><i style="background:#f29a1f"></i>Done, feedback pending</span><span><i style="background:#c8102e"></i>Feedback overdue (24 h+)</span><span><i style="background:#b9b3c9"></i>Done, no panel feedback tracked</span></div>' +
-    (upcoming.length ? '<h3 class="sec" style="margin-top:4px">Coming up</h3>' + groupBy(upcoming, false) : '<div class="empty">No interviews scheduled in the next 7 days' + (S.onlyMine ? ' on ' + (S.viewAs ? esc(S.viewAs.split(' ')[0]) + '’s' : 'your') + ' jobs' : '') + '.</div>') +
+    dstrip + '<div class="ivlegend"><span><i style="background:#8644f0"></i>Upcoming</span><span><i style="background:#0f766e"></i>In progress</span><span><i style="background:#2fb501"></i>Done, all feedback in</span><span><i style="background:#f29a1f"></i>Done, feedback pending</span><span><i style="background:#c8102e"></i>Feedback overdue (24 h+)</span><span><i style="background:#b9b3c9"></i>Done, no panel feedback tracked</span></div>' +
+    (S.ivDay && !list.length ? '<div class="empty">No interviews on ' + esc(dayLabel(new Date(S.ivDay).toISOString())) + (S.onlyMine ? ' on ' + (S.viewAs ? esc(S.viewAs.split(' ')[0]) + '’s' : 'your') + ' jobs' : '') + '.</div>' :
+    (upcoming.length ? '<h3 class="sec" style="margin-top:4px">Coming up</h3>' + groupBy(upcoming, false) : S.ivDay ? '' : '<div class="empty">No interviews scheduled in the next 7 days' + (S.onlyMine ? ' on ' + (S.viewAs ? esc(S.viewAs.split(' ')[0]) + '’s' : 'your') + ' jobs' : '') + '.</div>')) +
     (past.length ? '<h3 class="sec" style="margin-top:22px">Recent · check feedback</h3>' + groupBy(past, true) : '');
   bindJobSelect();
   document.getElementById('ivrf').onclick = function(){ S.ivFresh = true; goInterviews(); };
+  main.querySelectorAll('[data-ivd]').forEach(function(b){ b.onclick = function(){ S.ivDay = b.dataset.ivd; var sx = (main.querySelector('.ivdays') || {}).scrollLeft || 0; viewInterviews(); var nd = main.querySelector('.ivdays'); if(nd) nd.scrollLeft = sx; }; });
   var iq = document.getElementById('ivq'); iq.oninput = function(){ S.ivq = this.value; var pos = this.selectionStart; viewInterviews(); var n = document.getElementById('ivq'); n.focus(); try{ n.setSelectionRange(pos, pos); }catch(e){} };
   main.querySelectorAll('.ivrow').forEach(function(r){ r.onclick = function(e){ if(e.target.closest('[data-stop]')) return; if(r.dataset.c){ S.focusJob = r.dataset.j; openCandidate(r.dataset.c); } }; r.onkeydown = function(e){ if(e.key === 'Enter' && r.dataset.c) openCandidate(r.dataset.c); }; });
 }
