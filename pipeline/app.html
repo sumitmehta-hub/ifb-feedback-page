@@ -201,7 +201,12 @@ a{color:var(--brand-d);font-weight:600;text-decoration:none}a:hover{text-decorat
 .ivrow .tm{font-weight:800;font-size:15px}.ivrow .tm small{display:block;font-weight:600;color:var(--muted);font-size:11.5px}
 .ivrow .who{font-weight:800}.ivrow .sub{font-size:12.5px;color:var(--ink2)}
 .ivrow .acts{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
-.ivrow.past{opacity:.85;background:var(--panel)}
+.ivrow{border-left:6px solid var(--st,#d9d4e6)}
+.ivrow.st-up{--st:#8644f0}.ivrow.st-live{--st:#0f766e;background:#f2fbf9}
+.ivrow.st-ok{--st:#2fb501;background:#f6fcf2}.ivrow.st-pend{--st:#f29a1f;background:#fffaf1}
+.ivrow.st-late{--st:#c8102e;background:#fff5f7}.ivrow.st-none{--st:#b9b3c9;background:var(--panel)}
+.ivlegend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink2);margin:2px 2px 6px}
+.ivlegend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 @media (max-width:860px){.ivrow{grid-template-columns:70px 1fr}.ivrow .acts{grid-column:1/-1;justify-content:flex-start}}
 @media (max-width:860px){.shell{grid-template-columns:1fr;height:auto}.side{display:none}.jsel{display:block;margin-bottom:12px}.jsel select{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:10px;background:#fff;font-weight:700}
   .main{padding:14px 14px 30px}.col{flex-basis:80vw;max-height:none}.tblw{max-height:none}.me .nm{display:none}.top .t2{display:none}.signin{grid-template-columns:1fr;margin:10px}.jh .acts{margin-left:0}}
@@ -372,8 +377,8 @@ function viewInterviews(){
   var today = list.filter(function(v){ return dayKey(v.start) === dayKey(new Date().toISOString()); }).length;
   S.visible = list.map(function(v){ return v.candId; });
   var row = function(v, isPast){
-    var fb = v.fb ? (v.fb.done >= v.fb.total ? '<span class="chip ok">Feedback in</span>' : '<span class="chip pend">' + v.fb.done + ' of ' + v.fb.total + ' feedback</span>') : '';
-    return '<div class="ivrow' + (isPast ? ' past' : '') + '" tabindex="0" data-c="' + esc(v.candId) + '" data-j="' + esc(v.jobId) + '"><div class="tm">' + esc(timeOf(v.start)) + '<small>' + esc(dayLabel(v.start)) + '</small></div>' +
+    var st = ivState(v), fb = '<span class="chip ' + st.chip + '">' + esc(st.label) + '</span>';
+    return '<div class="ivrow st-' + st.k + (isPast ? ' past' : '') + '" tabindex="0" data-c="' + esc(v.candId) + '" data-j="' + esc(v.jobId) + '"><div class="tm">' + esc(timeOf(v.start)) + '<small>' + esc(dayLabel(v.start)) + '</small></div>' +
       '<div style="min-width:0"><div class="who">' + esc(v.cand) + ' <span class="chip br" style="margin-left:4px">' + esc(String(v.round).replace(/ Interview$/,'')) + '</span>' + (v.status ? ' <span class="chip">' + esc(v.status) + '</span>' : '') + '</div>' +
       '<div class="sub">' + esc(v.job) + (v.panel.length ? ' · Panel: ' + esc(v.panel.join(', ')) : ' · <span style="color:var(--warn)">no interviewer set</span>') + (v.owner ? ' · Owner: ' + esc(v.owner) : '') + '</div></div>' +
       '<div class="acts">' + fb + (v.url && !isPast ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener" data-stop="1">Join ↗</a>' : '') + (isPast && v.fb && v.fb.done < v.fb.total ? '<a class="btn sm" href="' + FB_TAB + '" target="_top" data-stop="1">Give feedback</a>' : '') + '<a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener" data-stop="1">Recruit ↗</a></div></div>';
@@ -383,12 +388,22 @@ function viewInterviews(){
     '<div class="jh"><div><h1>Interviews</h1><div class="meta"><span>' + (S.onlyMine ? 'Your jobs' : 'All jobs') + ' · last 2 days and next 7 days</span></div></div><div class="acts"><span class="hint">Updated ' + esc(ago(new Date(S.ivAt).toISOString()) || 'now') + '</span><button class="btn sm" id="ivrf">↻ Refresh</button></div></div>' +
     '<div class="tiles"><div class="tile" style="--c:#8644f0"><small>Today</small><b>' + today + '</b></div><div class="tile" style="--c:#0f766e"><small>Coming up</small><b>' + upcoming.length + '</b></div><div class="tile" style="--c:#f29a1f"><small>Feedback pending</small><b>' + pendingFb + '</b></div><div class="tile" style="--c:#8a849c"><small>Last 2 days</small><b>' + past.length + '</b></div></div>' +
     '<div class="toolbar"><label class="search">' + ICON_SEARCH + '<input id="ivq" type="search" placeholder="Search candidate, job, round or interviewer" aria-label="Search interviews" value="' + esc(S.ivq || '') + '"><span class="k kbd">/</span></label></div>' +
+    '<div class="ivlegend"><span><i style="background:#8644f0"></i>Upcoming</span><span><i style="background:#0f766e"></i>In progress</span><span><i style="background:#2fb501"></i>Done, all feedback in</span><span><i style="background:#f29a1f"></i>Done, feedback pending</span><span><i style="background:#c8102e"></i>Feedback overdue (24 h+)</span><span><i style="background:#b9b3c9"></i>Done, no panel feedback tracked</span></div>' +
     (upcoming.length ? '<h3 class="sec" style="margin-top:4px">Coming up</h3>' + groupBy(upcoming, false) : '<div class="empty">No interviews scheduled in the next 7 days' + (S.onlyMine ? ' on your jobs' : '') + '.</div>') +
     (past.length ? '<h3 class="sec" style="margin-top:22px">Recent · check feedback</h3>' + groupBy(past, true) : '');
   bindJobSelect();
   document.getElementById('ivrf').onclick = function(){ S.ivFresh = true; goInterviews(); };
   var iq = document.getElementById('ivq'); iq.oninput = function(){ S.ivq = this.value; var pos = this.selectionStart; viewInterviews(); var n = document.getElementById('ivq'); n.focus(); try{ n.setSelectionRange(pos, pos); }catch(e){} };
   main.querySelectorAll('.ivrow').forEach(function(r){ r.onclick = function(e){ if(e.target.closest('[data-stop]')) return; if(r.dataset.c){ S.focusJob = r.dataset.j; openCandidate(r.dataset.c); } }; r.onkeydown = function(e){ if(e.key === 'Enter' && r.dataset.c) openCandidate(r.dataset.c); }; });
+}
+// row colour + chip: upcoming / in progress / done with feedback in / pending / overdue (24 h after the end) / no feedback rows
+function ivState(v){
+  var now = Date.now(), st = new Date(v.start).getTime(), en = new Date(v.end || v.start).getTime();
+  if(en >= now) return st <= now ? { k:'live', chip:'ok', label:'In progress' } : { k:'up', chip:'br', label:'Upcoming' };
+  if(!v.fb || !v.fb.total) return { k:'none', chip:'', label:'Done' };
+  if(v.fb.done >= v.fb.total) return { k:'ok', chip:'ok', label:'Done · feedback in' };
+  var late = now - en > 86400000;
+  return { k: late ? 'late' : 'pend', chip: late ? 'bad' : 'pend', label: (late ? 'Overdue · ' : 'Done · ') + v.fb.done + ' of ' + v.fb.total + ' feedback' };
 }
 function dayKey(iso){ var d = new Date(iso); return isNaN(d) ? '' : d.toDateString(); }
 function dayLabel(iso){ var d = new Date(iso); if(isNaN(d)) return ''; var t = new Date(); t.setHours(0,0,0,0); var x = new Date(d); x.setHours(0,0,0,0); var diff = Math.round((x - t) / 86400000); if(diff === 0) return 'Today'; if(diff === 1) return 'Tomorrow'; if(diff === -1) return 'Yesterday'; return d.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short' }); }
