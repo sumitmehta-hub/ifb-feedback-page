@@ -162,6 +162,7 @@ section.dsec{border-top:4px solid var(--c)}.dsh h3{display:flex;align-items:cent
 @media (max-width:560px){.frow{grid-template-columns:96px 1fr 40px}.fdrop{padding-left:106px}.dn{width:140px;height:140px}}
 .pvbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#fff4e5;border:1px solid #f3c98b;color:#5a3500;border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:13.5px}.pvbar b{color:#1b1530}.pvbar .btn{margin-left:auto}
 .vas{display:grid;gap:4px;margin:2px 2px 10px;padding:10px;background:#fff;border:1px dashed var(--brand-line);border-radius:12px}.vas label{font-size:12px;font-weight:800;color:var(--brand-d)}.vas select{border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;font-weight:700;background:#fff}
+body.viewer [data-qremind],body.viewer [data-qfile],body.viewer [data-qskip],body.viewer [data-step],body.viewer [data-fileeval],body.viewer [data-remind],body.viewer #nxgo,body.viewer [data-ivact]{display:none!important}
 body.previewing [data-qremind],body.previewing [data-qfile],body.previewing [data-qskip],body.previewing [data-step],body.previewing [data-fileeval],body.previewing [data-remind],body.previewing #nxgo,body.previewing [data-ivact]{pointer-events:none;opacity:.4}
 @keyframes fanIn{from{opacity:0;transform:perspective(900px) translateY(18px) rotateX(-14deg) translateZ(-40px)}to{opacity:1;transform:none}}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -223,6 +224,11 @@ body.previewing [data-qremind],body.previewing [data-qfile],body.previewing [dat
 .wplen{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.wplen span{font-size:12.5px;font-weight:700;color:var(--ink2);margin-right:4px}
 .durp{font:inherit;font-size:12.5px;font-weight:700;border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:99px;padding:5px 12px;cursor:pointer}.durp.on{background:var(--brand);border-color:var(--brand);color:#fff}
 @media (max-width:560px){.wprow{grid-template-columns:1fr}}
+.mi-kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:12px 0}.mi-k{background:#fff;border:1px solid var(--line);border-left:4px solid var(--brand);border-radius:12px;padding:10px 14px;display:grid}.mi-k b{font-size:24px;color:var(--ink)}.mi-k span{font-size:12.5px;color:var(--ink2)}.mi-k.warn{border-left-color:var(--warn)}.mi-k.ok{border-left-color:var(--ok)}
+.mi-sec{margin-top:12px}.mi-sec h3{display:flex;gap:8px;align-items:center;margin:0 0 10px;font-size:15px}.mi-row{display:grid;grid-template-columns:120px minmax(0,1fr) auto;gap:12px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:12px;margin-top:8px;background:#fff}
+.mi-row.due{border-left:4px solid var(--warn)}.mi-when{display:grid}.mi-when b{font-size:13.5px;color:var(--ink)}.mi-when span{font-size:12px;color:var(--ink2)}.mi-main{display:grid;min-width:0}.mi-main b{color:var(--ink);font-size:14px}.mi-main span{font-size:12.5px;color:var(--ink2);overflow:hidden;text-overflow:ellipsis}
+.mi-acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}.empty-ok{padding:10px;color:var(--ok);font-weight:700}
+@media (max-width:640px){.mi-row{grid-template-columns:1fr}.mi-acts{justify-content:flex-start}.mi-kpis{grid-template-columns:1fr}}
 .whenrd{display:block;margin-top:4px;font-size:12.5px;font-weight:700;color:var(--brand-d)}.whenrd.bad{color:var(--bad)}
 .ivask{position:absolute;inset:0;background:rgba(30,16,60,.35);display:flex;align-items:center;justify-content:center;z-index:5;border-radius:inherit;animation:rise .15s ease both}.ivaskb{background:#fff;border-radius:16px;padding:18px 20px;max-width:380px;box-shadow:0 18px 50px rgba(43,17,96,.3)}.ivaskb b{font-size:15.5px;color:var(--ink)}.ivaskb p{margin:6px 0 14px;color:var(--ink2);font-size:13.5px;line-height:1.5}.ivaskr{display:flex;justify-content:flex-end;gap:8px}
 .joinb{background:#16a34a;border-color:#16a34a;color:#fff}.joinb:hover{background:#15803d}.ivc-link{font-size:12.5px;color:var(--brand-d);font-weight:600;text-decoration:none;margin-top:2px}.ivc-link:hover{text-decoration:underline}
@@ -491,13 +497,14 @@ function drawSide(){
   sgs.querySelectorAll('button').forEach(function(b){ b.onclick = function(){ S.jstat = b.dataset.g; drawSide(); if(S.page === 'home') viewHome(); }; });
   var item = function(x){ return '<button class="ji" data-j="' + esc(x.id) + '" aria-current="' + (x.id === S.jobId) + '" title="' + esc(x.title) + '"><span class="dot" aria-hidden="true" style="--jc:' + hueOf(x.title) + '">' + esc(jobInitials(x.title)) + '</span><span class="tx"><span class="tt">' + esc(x.title) + '</span><span class="ss">' + esc(x.group === 'open' ? (x.dept || '') : (x.status || '') + (x.dept ? ' · ' + x.dept : '')) + '</span></span><span class="n">' + (x.candidates || 0).toLocaleString('en-IN') + '</span></button>'; };
   var mine = list.filter(function(x){ return x.mine; }), rest = list.filter(function(x){ return !x.mine; });
-  el.innerHTML = '<button class="home-link" id="wk" aria-current="' + (S.page === 'work') + '">✅ My work</button><button class="home-link" id="dsb" aria-current="' + (S.page === 'dash') + '">📊 Hiring overview</button><button class="home-link" id="hm" aria-current="' + (S.page === 'home') + '">⌂ All jobs</button><button class="home-link" id="ivl" aria-current="' + (S.page === 'iv') + '">🗓 Interviews</button>' + (list.length ? (!S.onlyMine && mine.length && rest.length ? '<div class="grp">My jobs</div>' + mine.map(item).join('') + '<div class="grp">Other jobs</div>' + rest.map(item).join('') : list.map(item).join(''))
+  el.innerHTML = '<button class="home-link" id="wk" aria-current="' + (S.page === 'work') + '">✅ My work</button><button class="home-link" id="dsb" aria-current="' + (S.page === 'dash') + '">📊 Hiring overview</button><button class="home-link" id="hm" aria-current="' + (S.page === 'home') + '">⌂ All jobs</button><button class="home-link" id="ivl" aria-current="' + (S.page === 'iv') + '">🗓 Interviews</button><button class="home-link" id="myi" aria-current="' + (S.page === 'mine') + '">🎤 My interviews</button>' + (list.length ? (!S.onlyMine && mine.length && rest.length ? '<div class="grp">My jobs</div>' + mine.map(item).join('') + '<div class="grp">Other jobs</div>' + rest.map(item).join('') : list.map(item).join(''))
     : '<div class="hint" style="padding:12px">' + (S.jq ? 'No jobs match.' : S.onlyMine ? 'No ' + (S.jstat === 'open' ? 'open' : S.jstat === 'hold' ? 'on-hold' : 'closed') + ' jobs where you are the recruiter or hiring manager. Try “All jobs”.' : 'No jobs here.') + '</div>');
   el.querySelectorAll('[data-j]').forEach(function(b){ b.onclick = function(){ openJob(b.dataset.j); }; });
   if(realAdmin()){ var ppl = viewAsPeople(); if(ppl.length){ var va = document.createElement('div'); va.className = 'vas'; va.innerHTML = '<label for="vasel">👁 View as</label><select id="vasel"><option value="">Me (' + esc(String((S.me && S.me.name) || 'you').split(' ')[0]) + ')</option>' + ppl.map(function(n){ return '<option' + (n === S.viewAs ? ' selected' : '') + '>' + esc(n) + '</option>'; }).join('') + '</select>';
     el.insertBefore(va, el.firstChild); document.getElementById('vasel').onchange = function(){ setViewAs(this.value); }; } }
   document.getElementById('hm').onclick = goHome;
   document.getElementById('wk').onclick = function(){ goWork(); };
+  var myb = document.getElementById('myi'); if(myb) myb.onclick = function(){ goMine(); };
   var dsb = document.getElementById('dsb'); if(dsb) dsb.onclick = function(){ goDash(); };
   document.getElementById('ivl').onclick = goInterviews;
 }
@@ -516,18 +523,19 @@ function setViewAs(name){
 }
 function previewBanner(){ return S.viewAs ? '<div class="pvbar" role="status">👁 You are viewing the page as <b>' + esc(S.viewAs) + '</b>' + (S.admin ? ' (head view)' : '') + ': their roles and their work. Read-only preview, buttons are off. <button class="btn sm" id="pvx">Exit preview</button></div>' : ''; }
 function jobSelect(){
-  return previewBanner() + '<div class="jsel"><select id="jsel" aria-label="Choose a job"><option value="__work"' + (S.page === 'work' ? ' selected' : '') + '>✅ My work</option><option value="__dash"' + (S.page === 'dash' ? ' selected' : '') + '>📊 Hiring overview</option><option value=""' + (S.page === 'home' ? ' selected' : '') + '>⌂ All jobs</option><option value="__iv"' + (S.page === 'iv' ? ' selected' : '') + '>🗓 Interviews</option>' + visibleJobs().map(function(x){ return '<option value="' + esc(x.id) + '"' + (x.id === S.jobId ? ' selected' : '') + '>' + esc(x.title) + ' (' + (x.candidates || 0) + ')</option>'; }).join('') + '</select></div>';
+  return previewBanner() + '<div class="jsel"><select id="jsel" aria-label="Choose a job"><option value="__work"' + (S.page === 'work' ? ' selected' : '') + '>✅ My work</option><option value="__dash"' + (S.page === 'dash' ? ' selected' : '') + '>📊 Hiring overview</option><option value=""' + (S.page === 'home' ? ' selected' : '') + '>⌂ All jobs</option><option value="__iv"' + (S.page === 'iv' ? ' selected' : '') + '>🗓 Interviews</option><option value="__mine"' + (S.page === 'mine' ? ' selected' : '') + '>🎤 My interviews</option>' + visibleJobs().map(function(x){ return '<option value="' + esc(x.id) + '"' + (x.id === S.jobId ? ' selected' : '') + '>' + esc(x.title) + ' (' + (x.candidates || 0) + ')</option>'; }).join('') + '</select></div>';
 }
-function bindJobSelect(){ var px = document.getElementById('pvx'); if(px) px.onclick = function(){ setViewAs(''); }; var s = document.getElementById('jsel'); if(s) s.onchange = function(){ if(this.value === '__iv') goInterviews(); else if(this.value === '__work') goWork(); else if(this.value === '__dash') goDash(); else if(this.value) openJob(this.value); else goHome(); }; }
+function bindJobSelect(){ var px = document.getElementById('pvx'); if(px) px.onclick = function(){ setViewAs(''); }; var s = document.getElementById('jsel'); if(s) s.onchange = function(){ if(this.value === '__iv') goInterviews(); else if(this.value === '__mine') goMine(); else if(this.value === '__work') goWork(); else if(this.value === '__dash') goDash(); else if(this.value) openJob(this.value); else goHome(); }; }
 
 function loadJobs(){
   root.innerHTML = loading('Loading open jobs…');
-  post('jobs').then(function(j){ if(j.ok){ var nOpen = (j.jobs || []).filter(function(x){ return x.group === 'open'; }).length; SPL.step(32, 'Signed in · ' + nOpen + ' open roles', 'auth'); SPL.step(34, null, 'roles', String(nOpen)); } else SPL.done(); if(!j.ok){ root.innerHTML = '<div style="padding:20px"><div class="card err">' + esc(j.error) + '</div></div>'; return; } S.jobs = j.jobs; S.admin = !!j.admin; S.scope = S.admin ? 'all' : 'mine'; var sm = store('hire_mine'); S.onlyMine = sm === '1' ? true : sm === '0' ? false : !S.admin; shell(); route(true); })
+  post('jobs').then(function(j){ if(j.ok){ var nOpen = (j.jobs || []).filter(function(x){ return x.group === 'open'; }).length; SPL.step(32, 'Signed in · ' + nOpen + ' open roles', 'auth'); SPL.step(34, null, 'roles', String(nOpen)); } else SPL.done(); if(!j.ok){ root.innerHTML = '<div style="padding:20px"><div class="card err">' + esc(j.error) + '</div></div>'; return; } S.jobs = j.jobs; S.admin = !!j.admin; S.ta = j.ta !== false; document.body.classList.toggle('viewer', !S.ta); S.scope = S.admin ? 'all' : 'mine'; var sm = store('hire_mine'); S.onlyMine = sm === '1' ? true : sm === '0' ? false : !S.admin; shell(); route(true); })
     .catch(function(e){ root.innerHTML = '<div style="padding:20px"><div class="card err">' + esc(e.message) + '</div></div>'; });
 }
 function route(first){
   if(!S.jobs) return;
   var h = readHash(), job = h.job;
+  if(location.hash.indexOf('view=mine') >= 0 || (first && !job && !S.ta && !S.admin && !S.jobs.some(function(x){ return x.mine; }))){ S.jobId = ''; goMine(true); return; }
   var vw = (location.hash.match(/view=(work|dash)/) || [])[1];
   if(vw || (first && !job)){ S.jobId = ''; if(S.page !== vw || first){ if(vw === 'dash' || (!vw && S.admin)) goDash(true); else goWork(true); } if(h.c && h.c !== S.candId) openCandidate(h.c, true); else if(!h.c) closeDrawer(true); return; }
   if(location.hash.indexOf('view=iv') >= 0){ S.jobId = ''; if(S.page !== 'iv' || !S.ivs) goInterviews(true); if(h.c && h.c !== S.candId) openCandidate(h.c, true); else if(!h.c) closeDrawer(true); return; }
@@ -555,6 +563,26 @@ function viewHome(){
 }
 
 // interviews: 2 days back to 7 days ahead, across jobs (My jobs filter applies)
+// ---------- My interviews (Tabir, 25 Nov): for interviewers. Their upcoming interviews and the evaluations they still owe,
+// read with their own Recruit access. The evaluation is filled in Recruit (Tabir: no shortcut in Cliq).
+function goMine(fromRoute){ SPL.done();
+  S.page = 'mine'; S.jobId = ''; if(fromRoute !== true) history.replaceState(null, '', location.pathname + location.search + '#view=mine'); closeDrawer(true); drawSide();
+  var main = document.getElementById('main'); main.innerHTML = jobSelect() + loading('Loading your interviews…'); bindJobSelect();
+  post('myiv').then(function(j){ if(S.page !== 'mine') return; if(!j.ok){ main.innerHTML = jobSelect() + '<div class="card err">' + esc(j.error || 'Could not load your interviews.') + '</div>'; bindJobSelect(); return; }
+    var first = String((S.me && S.me.name) || '').split(' ')[0];
+    var when = function(v){ var d = new Date(v.start); return '<div class="mi-when"><b>' + esc(d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })) + '</b><span>' + esc(timeOf(v.start)) + (v.end ? ' → ' + esc(timeOf(v.end)) : '') + '</span></div>'; };
+    var row = function(v, kind){ var r = String(v.round).replace(/ Interview$/, ''), soon = kind === 'up' && new Date(v.start).getTime() - Date.now() < 15 * 60000;
+      return '<div class="mi-row' + (kind === 'due' ? ' due' : '') + '">' + when(v) + '<div class="mi-main"><b>' + esc(v.cand) + '</b><span>' + esc(r) + ' · ' + esc(v.job) + (v.owner ? ' · TA: ' + esc(v.owner) : '') + '</span></div><div class="mi-acts">' +
+        (kind === 'up' && v.url ? '<a class="btn sm' + (soon ? ' joinb' : '') + '" href="' + esc(v.url) + '" target="_blank" rel="noopener">🎥 Join</a>' : '') +
+        (kind === 'due' ? '<a class="btn sm primary" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener">✍️ Fill evaluation in Recruit</a>' : '<a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener">Questions & details ↗</a>') +
+        '<a class="btn sm" href="' + RC + 'Candidates&id=' + esc(v.candId) + '" target="_blank" rel="noopener">Candidate ↗</a></div></div>'; };
+    var h = jobSelect() + '<div class="hero"><h1>' + (first ? 'Hi ' + esc(first) + ' 🎤' : 'My interviews') + '</h1><div class="hint" style="margin-top:4px">Interviews where you are on the panel · last 30 days and next 3 weeks</div></div>' +
+      '<div class="mi-kpis"><div class="mi-k' + (j.pending.length ? ' warn' : ' ok') + '"><b>' + j.pending.length + '</b><span>evaluations to fill</span></div><div class="mi-k"><b>' + j.upcoming.length + '</b><span>coming up</span></div><div class="mi-k ok"><b>' + j.done + '</b><span>evaluations filed</span></div></div>';
+    h += '<section class="card mi-sec"><h3>✍️ Evaluations to fill <span class="qn">' + j.pending.length + '</span></h3>' + (j.pending.length ? '<div class="hint" style="margin:-4px 0 8px">Open the interview in Recruit and submit the evaluation: scores, comments and your recommendation. The TA team picks the outcome.</div>' + j.pending.map(function(v){ return row(v, 'due'); }).join('') : '<div class="empty-ok">All clear 🎉 No evaluations pending.</div>') + '</section>';
+    h += '<section class="card mi-sec"><h3>🗓 Coming up <span class="qn">' + j.upcoming.length + '</span></h3>' + (j.upcoming.length ? j.upcoming.map(function(v){ return row(v, 'up'); }).join('') : '<div class="hint">No interviews booked for you in the next 3 weeks.</div>') + '</section>';
+    main.innerHTML = h; bindJobSelect();
+  }).catch(function(e){ main.innerHTML = jobSelect() + '<div class="card err">' + esc(e.message) + '</div>'; bindJobSelect(); });
+}
 function goInterviews(fromRoute){ SPL.done();
   S.page = 'iv'; S.jobId = ''; if(fromRoute !== true) writeHash('', ''); closeDrawer(true); drawSide();
   var main = document.getElementById('main');
