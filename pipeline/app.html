@@ -225,6 +225,9 @@ body.previewing [data-qremind],body.previewing [data-qfile],body.previewing [dat
 .wplen{display:flex;gap:6px;flex-wrap:wrap;align-items:center}.wplen span{font-size:12.5px;font-weight:700;color:var(--ink2);margin-right:4px}
 .durp{font:inherit;font-size:12.5px;font-weight:700;border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:99px;padding:5px 12px;cursor:pointer}.durp.on{background:var(--brand);border-color:var(--brand);color:#fff}
 @media (max-width:560px){.wprow{grid-template-columns:1fr}}
+.bl{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}.bl summary{cursor:pointer;font-weight:700;color:var(--brand)}.bl-b{display:grid;gap:8px;margin-top:8px}.bl-b>label{display:grid;gap:4px;font-size:12.5px;font-weight:600;color:var(--ink2)}
+.bl-b input[type=email],.bl-b textarea,.bl-b input[type=text]{font:inherit;font-size:13.5px;padding:7px 10px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink)}.bl-b input[readonly]{background:var(--panel)}
+.bl-who{display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--ink2)}.bl-who>span{width:100%;font-weight:600}.bl-ck{display:flex;gap:6px;align-items:center;color:var(--ink);font-size:13.5px}.bl-ck input{accent-color:var(--brand)}
 .nx-slots{margin:10px 0;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fbfaff}.sl-head{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:6px}
 .sl-p{padding:6px 0;border-top:1px solid var(--line)}.sl-p:first-of-type{border-top:0}.sl-ph{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:4px}.sl-warn{color:var(--warn);font-size:12.5px;font-weight:600}
 .sl-day{display:grid;grid-template-columns:96px minmax(0,1fr);gap:8px;align-items:center;padding:3px 0}.sl-dl{font-size:12.5px;font-weight:700;color:var(--ink)}.sl-ch{display:flex;gap:6px;flex-wrap:wrap}
@@ -1098,7 +1101,30 @@ function drawSlots(){ var box = document.getElementById('nxSlots'), j = SL.data;
   h += '<div class="sl-add"><label for="slQ">Add an interviewer to compare</label><div class="sl-srch"><input id="slQ" type="search" autocomplete="off" placeholder="Search by name or email"><div class="sl-sug" id="slSug" role="listbox"></div></div>' +
     (SL.extra.length ? '<div class="sl-ex">' + SL.extra.map(function(e){ var u = (AV.people || []).filter(function(x){ return x.email === e; })[0]; return '<span class="chip">' + esc(u ? u.name : e) + ' <button type="button" data-slrm="' + esc(e) + '" aria-label="Remove">✕</button></span>'; }).join('') + '</div>' : '') + '</div>';
   h += '<div class="sl-check" id="slCheck" role="status"></div>';
+  // Phase 3: let the candidate pick (sealed 72-hour link, emailed from the TA's Gmail)
+  var cEmail = (S.cj && S.cj.candidate && S.cj.candidate.Email) || '', withHours = j.people.filter(function(p){ return p.hasHours; });
+  h += '<details class="bl"' + (SL.blOpen ? ' open' : '') + '><summary>📩 Or let the candidate pick a time</summary><div class="bl-b">' +
+    (withHours.length ? '<div class="hint">They get an email from your Gmail with a link to the free times below (no names or calendars shown). The link works once, for 72 hours. Booking creates the interview, sends the Meet invite with auto-recording, and pings you on Cliq.</div>' +
+      '<label>Candidate email<input id="blTo" type="email" value="' + esc(cEmail) + '" placeholder="name@example.com"></label>' +
+      '<div class="bl-who"><span>Offer times when these people are all free</span>' + withHours.map(function(p, i){ return '<label class="bl-ck"><input type="checkbox" data-blw="' + esc(p.email) + '"' + (i === 0 || SL.extra.indexOf(p.email) < 0 ? ' checked' : '') + '> ' + esc(p.name) + '</label>'; }).join('') + '</div>' +
+      '<div class="av-set"><label>Show the next<select id="blDays"><option value="5">5 days</option><option value="7" selected>7 days</option><option value="10">10 days</option><option value="14">14 days</option></select></label><label>Length<input id="blLen" type="text" readonly value=""></label></div>' +
+      '<label>Message (optional)<textarea id="blMsg" rows="2" placeholder="e.g. This round is with our engineering lead and covers system design."></textarea></label>' +
+      '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn primary" type="button" id="blGo">📩 Send booking link</button><span class="hint" id="blOut" role="status"></span></div>'
+    : '<div class="hint">Nobody on this round has set their availability yet, so there are no times to offer. Ask them to fill My interviews → availability, or add someone above.</div>') + '</div></details>';
   box.innerHTML = h;
+  var blD = box.querySelector('.bl'); if(blD) blD.ontoggle = function(){ SL.blOpen = blD.open; };
+  var syncLen = function(){ var l = document.getElementById('blLen'); if(l) l.value = ((document.getElementById('nxmin') || {}).value || 45) + ' min (set above)'; }; syncLen();
+  var wpL = document.querySelector('.wp[data-w="nxwhen"]'); if(wpL) wpL.addEventListener('click', function(){ setTimeout(syncLen, 0); });
+  var bg = document.getElementById('blGo'); if(bg) bg.onclick = function(){ var out = document.getElementById('blOut'), parts = (box.dataset.c || '').split('|');
+    var who = [].map.call(box.querySelectorAll('[data-blw]:checked'), function(x){ return x.dataset.blw; }), to = document.getElementById('blTo').value.trim();
+    if(!who.length){ out.textContent = 'Tick at least one person.'; return; } if(!to){ out.textContent = 'Enter the candidate’s email.'; return; }
+    bg.disabled = true; bg.textContent = 'Sending…'; out.textContent = '';
+    post('blink', { candId: S.nx.candId, jobId: S.nx.jobId, step: parts[1], expect: S.nx.status, to: to, emails: who, minutes: (document.getElementById('nxmin') || {}).value || 45, days: document.getElementById('blDays').value, message: document.getElementById('blMsg').value }).then(function(r){
+      bg.disabled = false; bg.textContent = '📩 Send booking link';
+      if(!r.ok){ out.style.color = 'var(--bad)'; out.textContent = r.code === 'gconnect' ? r.error + ' Open My interviews to connect Google.' : (r.error || 'Could not send'); return; }
+      out.style.color = 'var(--ok)'; out.innerHTML = '✅ Sent to ' + esc(to) + '. Works until ' + esc(r.until) + '. <button type="button" class="btn sm" id="blCopy">⧉ Copy link</button>'; toastMsg('📩 Booking link sent'); confetti();
+      var cp = document.getElementById('blCopy'); if(cp) cp.onclick = function(){ try{ navigator.clipboard.writeText(r.url).then(function(){ cp.textContent = '✓ Copied'; }); }catch(e){ prompt('Copy the link', r.url); } }; })
+      .catch(function(e){ bg.disabled = false; bg.textContent = '📩 Send booking link'; out.textContent = e.message; }); };
   box.querySelectorAll('[data-ws]').forEach(function(b){ b.onclick = function(){ var d = new Date(b.dataset.ws), wp = document.querySelector('.wp[data-w="nxwhen"]'); if(!wp) return;
     wp.querySelector('.wpd').value = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
     var t = ('0' + d.getHours()).slice(-2) + ':' + ('0' + (Math.round(d.getMinutes() / 15) * 15 % 60)).slice(-2), sel = wp.querySelector('.wpt'); if([].some.call(sel.options, function(o){ return o.value === t; })) sel.value = t;
