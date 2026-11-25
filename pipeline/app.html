@@ -230,7 +230,7 @@ body.previewing [data-qremind],body.previewing [data-qfile],body.previewing [dat
 .sl-day{display:grid;grid-template-columns:96px minmax(0,1fr);gap:8px;align-items:center;padding:3px 0}.sl-dl{font-size:12.5px;font-weight:700;color:var(--ink)}.sl-ch{display:flex;gap:6px;flex-wrap:wrap}
 .sl-w{font:inherit;font-size:12.5px;padding:4px 10px;border-radius:999px;border:1px solid #c9b5f7;background:#fff;color:var(--brand);font-weight:700;cursor:pointer}.sl-w:hover,.sl-w.on{background:var(--brand);color:#fff;border-color:var(--brand)}
 .sl-w.clash{border-color:#fdba74;color:#9a3412}.sl-w.clash.on{background:#c2410c;color:#fff}.sl-b,.sl-x{font-size:12px;padding:4px 8px;border-radius:999px;background:#eee9f5;color:var(--ink2)}
-.sl-add{margin-top:6px}.sl-add label{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--ink2)}.sl-add select{font:inherit;font-size:13px;padding:5px 8px;border-radius:9px;border:1px solid var(--line)}
+.sl-add{margin-top:8px;display:grid;gap:4px}.sl-add>label{font-size:12.5px;color:var(--ink2);font-weight:600}.sl-srch{position:relative;max-width:420px}.sl-srch input{width:100%;font:inherit;font-size:13.5px;padding:7px 10px;border-radius:10px;border:1px solid var(--line);background:#fff}.sl-sug{position:absolute;left:0;right:0;top:100%;z-index:20;background:#fff;border-radius:10px;box-shadow:0 8px 24px rgba(30,10,60,.15);max-height:260px;overflow:auto}.sl-sug:empty{display:none}.sl-s{display:grid;width:100%;text-align:left;border:0;background:none;padding:7px 10px;cursor:pointer;font:inherit}.sl-s:hover{background:var(--brand-ll)}.sl-s b{font-size:13.5px;color:var(--ink)}.sl-s span{font-size:12px;color:var(--ink2)}.sl-ex{display:flex;gap:6px;flex-wrap:wrap}.sl-ex button{border:0;background:none;cursor:pointer;color:var(--ink2)}.sl-add label{display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--ink2)}.sl-add select{font:inherit;font-size:13px;padding:5px 8px;border-radius:9px;border:1px solid var(--line)}
 .sl-check{margin-top:8px;display:grid;gap:3px;font-size:13px}.sl-check .ok{color:var(--ok)}.sl-check .warn{color:#9a3412}
 .av-h4{margin:14px 0 6px;font-size:13px;color:var(--ink);text-transform:uppercase;letter-spacing:.04em}.av-days{display:grid;gap:2px;border:1px solid var(--line);border-radius:12px;padding:4px 12px;background:#fff}
 .av-day{display:grid;grid-template-columns:90px minmax(0,1fr) auto;gap:10px;align-items:start;padding:8px 0;border-bottom:1px solid var(--line)}.av-day:last-child{border-bottom:0}
@@ -1046,7 +1046,7 @@ function drawNext(form){
 // interviews already booked, within notice and daily max). Google Calendar only warns. The TA picks the time and length.
 var SL = { extra: [] };
 function slTime(iso){ var d = new Date(iso); return hm12(d.getHours(), d.getMinutes()).replace(':00 ', ' '); }
-function loadSlots(){ var box = document.getElementById('nxSlots'); if(!box) return; var ids = box.dataset.ids ? [box.dataset.ids] : [];
+function loadSlots(){ var box = document.getElementById('nxSlots'); if(!box) return; var ids = box.dataset.ids ? [box.dataset.ids] : []; if(SL.c !== box.dataset.c){ SL.c = box.dataset.c; SL.extra = []; }
   box.innerHTML = '<div class="hint">Checking the panel’s availability…</div>';
   var calls = [post('slots', { ids: ids, emails: SL.extra })]; if(!AV.team) calls.push(post('availlist', {}));
   Promise.all(calls).then(function(r){ if(r[1] && r[1].ok){ AV.team = r[1].list; AV.people = r[1].people; } var j = r[0]; if(!document.getElementById('nxSlots')) return;
@@ -1066,15 +1066,25 @@ function drawSlots(){ var box = document.getElementById('nxSlots'), j = SL.data;
         d.wins.map(function(w){ return '<button type="button" class="sl-w' + (w.clash ? ' clash' : '') + '" data-ws="' + esc(w.s) + '" title="' + (w.clash ? 'Free by their hours, but Google Calendar shows something in this window' : 'Free') + '">' + (w.clash ? '⚠ ' : '') + esc(slTime(w.s)) + '–' + esc(slTime(w.e)) + '</button>'; }).join('') +
         d.booked.map(function(x){ return '<span class="sl-b" title="Already booked">' + esc(slTime(x.s)) + ' ' + esc(x.what) + '</span>'; }).join('') + '</div></div>'; });
     h += '</div>'; });
-  var others = (AV.team || []).filter(function(t){ return !j.people.some(function(p){ return p.email === t.email; }); });
-  if(others.length) h += '<div class="sl-add"><label>Compare with<select id="slAdd"><option value="">Someone else with availability…</option>' + others.map(function(t){ return '<option value="' + esc(t.email) + '">' + esc(t.name) + '</option>'; }).join('') + '</select></label></div>';
+  // search any employee (Recruit users); people who set availability are marked 🗓
+  var hasAv = {}; (AV.team || []).forEach(function(t){ hasAv[t.email] = 1; });
+  var pool = (AV.people || []).filter(function(u){ return !j.people.some(function(p){ return p.email === u.email; }); });
+  h += '<div class="sl-add"><label for="slQ">Add an interviewer to compare</label><div class="sl-srch"><input id="slQ" type="search" autocomplete="off" placeholder="Search by name or email"><div class="sl-sug" id="slSug" role="listbox"></div></div>' +
+    (SL.extra.length ? '<div class="sl-ex">' + SL.extra.map(function(e){ var u = (AV.people || []).filter(function(x){ return x.email === e; })[0]; return '<span class="chip">' + esc(u ? u.name : e) + ' <button type="button" data-slrm="' + esc(e) + '" aria-label="Remove">✕</button></span>'; }).join('') + '</div>' : '') + '</div>';
   h += '<div class="sl-check" id="slCheck" role="status"></div>';
   box.innerHTML = h;
   box.querySelectorAll('[data-ws]').forEach(function(b){ b.onclick = function(){ var d = new Date(b.dataset.ws), wp = document.querySelector('.wp[data-w="nxwhen"]'); if(!wp) return;
     wp.querySelector('.wpd').value = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
     var t = ('0' + d.getHours()).slice(-2) + ':' + ('0' + (Math.round(d.getMinutes() / 15) * 15 % 60)).slice(-2), sel = wp.querySelector('.wpt'); if([].some.call(sel.options, function(o){ return o.value === t; })) sel.value = t;
     wpSync(wp); box.querySelectorAll('.sl-w.on').forEach(function(x){ x.classList.remove('on'); }); b.classList.add('on'); slCheck(); }; });
-  var ad = document.getElementById('slAdd'); if(ad) ad.onchange = function(){ if(ad.value){ SL.extra.push(ad.value); loadSlots(); } };
+  var q = document.getElementById('slQ'), sg = document.getElementById('slSug');
+  var showSug = function(){ var t = q.value.trim().toLowerCase(); if(!t){ sg.innerHTML = ''; return; }
+    var list = pool.filter(function(u){ return (u.name + ' ' + u.email).toLowerCase().indexOf(t) >= 0; }).sort(function(a, b){ return (hasAv[b.email] || 0) - (hasAv[a.email] || 0); }).slice(0, 8);
+    if(!list.length && /^[^@\s]+@leegality\.com$/i.test(t)) list = [{ name: t, email: t }];
+    sg.innerHTML = list.length ? list.map(function(u){ return '<button type="button" class="sl-s" data-sladd="' + esc(u.email) + '" role="option"><b>' + esc(u.name) + '</b><span>' + esc(u.email) + (hasAv[u.email] ? ' · 🗓 has set availability' : '') + '</span></button>'; }).join('') : '<div class="hint" style="padding:6px 8px">No one matches</div>';
+    sg.querySelectorAll('[data-sladd]').forEach(function(b){ b.onmousedown = function(e){ e.preventDefault(); if(SL.extra.indexOf(b.dataset.sladd) < 0) SL.extra.push(b.dataset.sladd); loadSlots(); }; }); };
+  if(q){ q.oninput = showSug; q.onkeydown = function(e){ if(e.key === 'Enter'){ e.preventDefault(); var f = sg.querySelector('[data-sladd]'); if(f) f.onmousedown(e); } if(e.key === 'Escape'){ q.value = ''; sg.innerHTML = ''; } }; q.onblur = function(){ setTimeout(function(){ sg.innerHTML = ''; }, 150); }; }
+  box.querySelectorAll('[data-slrm]').forEach(function(b){ b.onclick = function(){ SL.extra = SL.extra.filter(function(x){ return x !== b.dataset.slrm; }); loadSlots(); }; });
   var wp = document.querySelector('.wp[data-w="nxwhen"]'); if(wp && !wp.dataset.slb){ wp.dataset.slb = '1'; wp.addEventListener('change', function(){ setTimeout(slCheck, 0); }); wp.addEventListener('click', function(){ setTimeout(slCheck, 0); }); }
   slCheck(); }
 // live check of the chosen time against each person's free windows, booked interviews and calendar
@@ -1092,7 +1102,7 @@ function nxForm(st, f){
   if(st.kind === 'schedule'){
     var d = new Date(Date.now() + 86400000);
     var v = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2) + 'T11:00';
-    h += '' + whenPick('nxwhen', v, 'nxmin', 45) + '<div class="nx-slots" id="nxSlots" data-ids="' + esc(st.panelId || '') + '"></div>' +
+    h += '' + whenPick('nxwhen', v, 'nxmin', 45) + '<div class="nx-slots" id="nxSlots" data-ids="' + esc(st.panelId || '') + '" data-c="' + esc(f.candId + '|' + st.k) + '"></div>' +
       '<div class="nxnote">Interviewer: ' + (st.panel ? '<b>' + esc(st.panel) + '</b> (from the job’s interview panel)' : '<b style="color:var(--warn)">none set on the job</b>, so add one on the interview in Recruit') + '. Recruit’s usual scheduling automations run, and the interviewer gets the heads-up card on Cliq. Once it is booked, the interview card opens so you can add people and send the Google Meet invite.</div>';
   }
   if(st.reason) h += '<label>' + (st.reason === 'withdrawal' ? 'Withdrawal reason' : 'Rejection reason') + ' (required)<textarea id="nxreason" placeholder="Why? Saved on the candidate and as a note with the stage, e.g. Rejected after R2."></textarea></label>';
