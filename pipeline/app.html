@@ -224,7 +224,7 @@ var RC = 'https://recruit.zoho.in/recruit/leegality/EntityInfo.do?module=';
 var FB_TAB = 'https://recruit.zoho.in/recruit/leegality/ShowTab.do?webTab=true&module=Interview%20Feedback';
 var root = document.getElementById('root');
 function store(k, v){ try{ if(v === undefined) return localStorage.getItem(k); if(v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); }catch(e){ return null; } }
-var S = { token: store('hire_t') || '', me: null, jobs: null, scope: 'mine', jobId: '', job: null, rows: null, q: '', jq: '', showAll: false, onlyMine: false, jstat: 'open', admin: false, page: 'home', ivs: null, view: store('hire_view') || 'board', stage: '', sort: { k: 'Updated_On', d: -1 }, visible: [], candId: '', cache: {} };
+var S = { token: store('hire_t') || '', me: null, jobs: null, scope: 'mine', jobId: '', job: null, rows: null, q: '', jq: '', showAll: false, older: false, onlyMine: false, jstat: 'open', admin: false, page: 'home', ivs: null, view: store('hire_view') || 'board', stage: '', sort: { k: 'Updated_On', d: -1 }, visible: [], candId: '', cache: {} };
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function initials(n){ var p = String(n || '').trim().split(/\s+/).filter(Boolean); return ((p[0] || '?')[0] + (p.length > 1 ? p[p.length-1][0] : '')).toUpperCase(); }
 function dt(iso, t){ if(!iso) return ''; var d = new Date(iso); if(isNaN(d)) return String(iso); return d.toLocaleString('en-IN', t ? { day:'numeric', month:'short', year:'numeric', hour:'numeric', minute:'2-digit' } : { day:'numeric', month:'short', year:'numeric' }); }
@@ -398,7 +398,7 @@ function openJob(id, fresh, fromRoute, candToOpen){
   S.page = 'job'; S.jobId = id; S.job = S.jobs.filter(function(x){ return x.id === id; })[0] || { id: id, title: 'Job' };
   if(S.job.group && S.job.group !== S.jstat){ S.jstat = S.job.group; }
   store('hire_job', id); if(!fromRoute) writeHash(id, ''); drawSide();
-  if(changed){ S.q = ''; S.stage = ''; S.showAll = false; }
+  if(changed){ S.q = ''; S.stage = ''; S.showAll = false; S.older = false; }
   closeDrawer(true);
   var main = document.getElementById('main');
   var scope = S.showAll ? 'all' : 'active', ck = id + '|' + scope;
@@ -413,8 +413,12 @@ function openJob(id, fresh, fromRoute, candToOpen){
     S.filterNote = j.filterNote || ''; S.rows = j.candidates; S.cachedAt = j.cachedAt; S.scopeLoaded = j.scope || scope; S.cache[id + '|' + S.scopeLoaded] = { rows: j.candidates, at: j.cachedAt, scope: S.scopeLoaded }; viewJob(); if(candToOpen) openCandidate(candToOpen, true);
   }).catch(function(e){ main.innerHTML = '<div class="card err">' + esc(e.message) + '</div>'; });
 }
+var RECENT_DAYS = 180;
+function isRecent(r){ var t = new Date(r.Updated_On || r.Created_Time || 0).getTime(); return t >= Date.now() - RECENT_DAYS * 86400000; }
+function baseRows(){ return S.older ? S.rows : S.rows.filter(isRecent); }
 function viewJob(){
-  var main = document.getElementById('main'), job = S.job, rows = S.rows;
+  var main = document.getElementById('main'), job = S.job, rows = baseRows();
+  var nOlder = S.rows.length - S.rows.filter(isRecent).length;
   var counts = {}; rows.forEach(function(r){ counts[r._st] = (counts[r._st] || 0) + 1; });
   var sum = function(ks){ return ks.reduce(function(s,k){ return s + (counts[k] || 0); }, 0); };
   var tiles = [['In process', sum(['screen','assess','blitz','r1','r2','r3','vibe','offer','hold']), '#8644f0'], ['Interviewing', sum(['blitz','r1','r2','r3','vibe']), '#0f766e'], ['Offer', sum(['offer']), '#2f7d00'], ['Hired', sum(['hired']), '#15803d'], ['Closed', S.scopeLoaded === 'all' ? sum(['closed']) : '—', '#c8102e'], ['All associated', S.scopeLoaded === 'all' ? rows.length : (job.candidates || rows.length), '#8a849c']];
@@ -424,12 +428,15 @@ function viewJob(){
     '<div class="acts"><span class="hint">Updated ' + esc(ago(S.cachedAt) || 'now') + '</span><button class="btn sm" id="rf">↻ Refresh</button><a class="btn sm" href="' + RC + 'JobOpenings&id=' + esc(job.id) + '" target="_blank" rel="noopener">Open in Recruit ↗</a></div></div>' +
     '<div class="tiles">' + tiles.map(function(t){ return '<div class="tile" style="--c:' + t[2] + '"><small>' + esc(t[0]) + '</small><b>' + (typeof t[1] === 'number' ? t[1].toLocaleString('en-IN') : t[1]) + '</b></div>'; }).join('') + '</div>' +
     '<div class="toolbar"><label class="search">' + ICON_SEARCH + '<input id="cq" type="search" placeholder="Search name, status, company or title" aria-label="Search candidates" value="' + esc(S.q) + '"><span class="k kbd">/</span></label>' +
+    (nOlder || S.older ? '<button class="btn sm" id="older">' + (S.older ? 'Hide older than 6 months' : 'Show older (' + nOlder.toLocaleString('en-IN') + ')') + '</button>' : '') +
     '<label class="chk"><input type="checkbox" id="all"' + (S.showAll ? ' checked' : '') + '> Show closed &amp; not in process' + (S.scopeLoaded !== 'all' && job.candidates > 300 ? ' <span class="hint">(loads all ' + job.candidates.toLocaleString('en-IN') + ')</span>' : '') + '</label>' +
     '<div class="seg" role="group" aria-label="View"><button data-v="board" aria-pressed="' + (S.view === 'board') + '">Board</button><button data-v="list" aria-pressed="' + (S.view === 'list') + '">List</button></div></div>' +
+    '<div class="hint" style="font-size:12.5px;margin:-4px 0 8px">' + (S.older ? 'Showing everyone loaded.' : 'Showing candidates updated in the last 6 months' + (nOlder ? ' · ' + nOlder.toLocaleString('en-IN') + ' older hidden' : '') + '.') + (S.scopeLoaded !== 'all' ? ' Closed and not-in-process candidates are not loaded.' : '') + '</div>' +
     (S.filterNote ? '<div class="hint" style="font-size:11.5px;margin:-4px 0 8px">Admin note: Recruit refused the status filter, loaded everything instead: ' + esc(S.filterNote) + '</div>' : '') +
     '<div class="chips" id="chips"></div><div id="bd"></div>';
   bindJobSelect();
   document.getElementById('rf').onclick = function(){ openJob(job.id, true); };
+  var ob = document.getElementById('older'); if(ob) ob.onclick = function(){ S.older = !S.older; viewJob(); };
   document.getElementById('cq').oninput = function(){ S.q = this.value; drawJob(); };
   document.getElementById('all').onchange = function(){ S.showAll = this.checked; if(!S.showAll && HIDDEN[S.stage]) S.stage = ''; if(S.showAll && S.scopeLoaded !== 'all'){ openJob(S.jobId, false, true); return; } drawJob(); };
   main.querySelectorAll('.seg button').forEach(function(b){ b.onclick = function(){ S.view = b.dataset.v; store('hire_view', S.view); main.querySelectorAll('.seg button').forEach(function(x){ x.setAttribute('aria-pressed', x === b); }); drawJob(); }; });
@@ -437,10 +444,10 @@ function viewJob(){
 }
 function filtered(){
   var q = S.q.trim().toLowerCase();
-  return S.rows.filter(function(r){ return (S.showAll || !HIDDEN[r._st] || S.stage === r._st) && (!S.stage || r._st === S.stage) && (!q || [r.Full_Name, r.Candidate_Status, r.Current_Employer, r.Current_Job_Title, r.City, r.Source].join(' ').toLowerCase().indexOf(q) >= 0); });
+  return S.rows.filter(function(r){ return (S.older || q || isRecent(r)) && (S.showAll || !HIDDEN[r._st] || S.stage === r._st) && (!S.stage || r._st === S.stage) && (!q || [r.Full_Name, r.Candidate_Status, r.Current_Employer, r.Current_Job_Title, r.City, r.Source].join(' ').toLowerCase().indexOf(q) >= 0); });
 }
 function drawJob(){
-  var counts = {}; S.rows.forEach(function(r){ counts[r._st] = (counts[r._st] || 0) + 1; });
+  var counts = {}; baseRows().forEach(function(r){ counts[r._st] = (counts[r._st] || 0) + 1; });
   var chipStages = STAGES.filter(function(s){ return counts[s[0]] && (S.showAll || !HIDDEN[s[0]]); });
   document.getElementById('chips').innerHTML = chipStages.map(function(s){ return '<button class="fc" style="--c:' + s[2] + '" data-s="' + s[0] + '" aria-pressed="' + (S.stage === s[0]) + '"><i></i>' + esc(s[1]) + ' <b>' + counts[s[0]] + '</b></button>'; }).join('') + (S.stage ? '<button class="fc clear" data-s="">Clear filter ✕</button>' : '');
   document.querySelectorAll('#chips .fc').forEach(function(b){ b.onclick = function(){ S.stage = S.stage === b.dataset.s ? '' : b.dataset.s; drawJob(); }; });
