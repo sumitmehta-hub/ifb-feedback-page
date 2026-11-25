@@ -535,11 +535,15 @@ body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden
 .mi-sec h3{font-size:15.5px;margin:0 0 12px}.mi-sec h3 .ci{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:14px;background:color-mix(in srgb,var(--c,var(--brand)) 14%,#fff)}
 .mi-sec .yay,.mi-sec>.hint{padding:6px 2px}.mi-kpis{margin:14px 0 16px}.mi-k{box-shadow:var(--shadow)}
 .mi-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:14px;align-items:stretch;margin-bottom:14px}.mi-two>.mi-sec{margin:0}
+.helpb{background:#fff4d6;border:1.5px solid #e0a800;color:#6b4a00;font-weight:800;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:13px}.helpb span{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#7a5300;color:#fff;font-size:12px}.helpb:hover{background:#ffe8a8;border-color:#b98a00}
+.hp{padding:4px 18px 18px}.hp-sec{margin-bottom:16px}.hp-sec h4{font-size:13px;font-weight:800;color:var(--ink);margin:0 0 6px;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.hp-sec dl{margin:0}.hp-i{display:grid;grid-template-columns:minmax(150px,240px) 1fr;gap:6px 14px;padding:7px 0;border-bottom:1px dashed #ece9f5;align-items:start}.hp-i dt{margin:0;font-weight:700;font-size:13px}.hp-i dd{margin:0;font-size:13px;line-height:1.45;color:var(--ink2)}
+@media (max-width:600px){.helpb{padding:5px 6px;font-size:0;gap:0}.helpb span{width:18px;height:18px;font-size:12px}.hp-i{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <header class="top"><button class="sidet" id="sideT" type="button" aria-label="Hide sidebar" aria-pressed="false" title="Hide sidebar (Ctrl+B)" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg></button><button class="sidet" id="navBack" type="button" aria-label="Back" title="Back (Alt+←)" hidden><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg></button><a class="lgl" href="#" id="homeLogo" title="Hiring Pipeline home"><svg class="lglogo" role="img" aria-label="Leegality" width="110" height="22" viewBox="0 0 200 40" fill="none" xmlns="http://www.w3.org/2000/svg"> <mask id="mask0_5021_7737" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="1" width="200" height="38"> <path d="M200 1.19678H0V38.8036H200V1.19678Z" fill="white"/> </mask> <g mask="url(#mask0_5021_7737)"> <path d="M59.1373 9.99365C65.2567 9.99365 69.42 14.4959 69.42 21.0832V22.2513H54.1662C54.5067 24.7948 56.5873 26.9215 60.072 26.9215C61.9835 26.9215 64.2355 26.1705 65.5528 24.9193L67.9317 28.3385C65.8488 30.2142 62.6623 31.1312 59.4758 31.1312C53.2297 31.1312 48.5123 27.0045 48.5123 20.5417C48.5123 14.7054 52.8893 9.99365 59.1355 9.99365H59.1373ZM54.0817 18.666H64.195C64.0682 16.749 62.7085 14.2053 59.1393 14.2053C55.7817 14.2053 54.3373 16.6659 54.0835 18.666H54.0817Z" fill="#06003B"/> <path d="M82.6367 9.99365C88.756 9.99365 92.9193 14.4959 92.9193 21.0832V22.2513H77.6655C78.006 24.7948 80.0867 26.9215 83.5713 26.9215C85.4828 26.9215 87.7348 26.1705 89.0522 24.9193L91.431 28.3385C89.3483 30.2142 86.1617 31.1312 82.9752 31.1312C76.729 31.1312 72.0117 27.0045 72.0117 20.5417C72.0117 14.7054 76.3887 9.99365 82.6348 9.99365H82.6367ZM77.581 18.666H87.6943C87.5675 16.749 86.2078 14.2053 82.6387 14.2053C79.281 14.2053 77.8367 16.6659 77.5828 18.666H77.581Z" fill="#06003B"/> <path d="M98.8245 31.9653C100.482 33.7578 102.649 34.4673 105.24 34.4673C107.83 34.4673 110.892 33.3408 110.892 29.3802V27.3365C109.276 29.3387 107.067 30.5048 104.561 30.5048C99.4188 30.5048 95.511 26.961 95.511 20.2492C95.511 13.5373 99.3783 9.99365 104.561 9.99365C107.026 9.99365 109.234 11.0353 110.892 13.0788V10.4937H116.33V29.2557C116.33 36.926 110.296 38.8035 105.24 38.8035C101.713 38.8035 98.9515 38.011 96.4015 35.8013L98.8227 31.9653H98.8245ZM110.892 16.998C109.999 15.6639 108.046 14.7054 106.261 14.7054C103.201 14.7054 101.076 16.7905 101.076 20.2512C101.076 23.7118 103.201 25.7968 106.261 25.7968C108.046 25.7968 109.999 24.7967 110.892 23.5042V16.9998V16.998Z" fill="#06003B"/> <path d="M134.008 30.6312V28.5462C132.606 30.1727 130.183 31.1312 127.506 31.1312C124.235 31.1312 120.368 28.9632 120.368 24.4608C120.368 19.9587 124.235 18.0397 127.506 18.0397C130.225 18.0397 132.649 18.8737 134.008 20.5002V17.7075C134.008 15.6639 132.224 14.3299 129.504 14.3299C127.295 14.3299 125.254 15.1224 123.514 16.7055L121.474 13.1618C123.981 10.9937 127.21 9.99365 130.439 9.99365C135.112 9.99365 139.404 11.8278 139.404 17.6225V30.6312H134.008ZM134.008 23.2928C133.116 22.1248 131.416 21.5418 129.674 21.5418C127.549 21.5418 125.806 22.6683 125.806 24.5853C125.806 26.5025 127.549 27.546 129.674 27.546C131.416 27.546 133.116 26.963 134.008 25.795V23.2928Z" fill="#06003B"/> <path d="M144.759 30.6315V1.64038H150.155V30.6333H144.759V30.6315Z" fill="#06003B"/> <path d="M154.958 4.36496C154.958 2.61388 156.444 1.19678 158.186 1.19678C159.929 1.19678 161.415 2.61388 161.415 4.36496C161.415 6.11605 159.971 7.53315 158.186 7.53315C156.402 7.53315 154.958 6.11605 154.958 4.36496ZM155.51 30.6313V10.4938H160.906V30.6313H155.51Z" fill="#06003B"/> <path d="M167.323 25.6289V15.1224H163.922V10.4937H167.323V4.9895H172.762V10.4937H176.925V15.1224H172.762V24.2118C172.762 25.4629 173.442 26.4214 174.63 26.4214C175.438 26.4214 176.203 26.1289 176.5 25.8384L177.648 29.8406C176.84 30.5501 175.395 31.1331 173.143 31.1331C169.363 31.1331 167.323 29.2161 167.323 25.6289Z" fill="#06003B"/> <path d="M180.71 33.7598C181.177 33.9673 181.9 34.0938 182.41 34.0938C183.812 34.0938 184.747 33.7182 185.255 32.6352L186.022 30.9255L177.692 10.4956H183.472L188.825 24.5043L194.178 10.4956H200L190.353 33.9277C188.825 37.7223 186.103 38.7225 182.578 38.8055C181.942 38.8055 180.58 38.6808 179.902 38.513L180.71 33.7598Z" fill="#06003B"/> <path d="M36.0512 25.8024L36.1665 1.60417L30.3953 1.57397L30.28 26.4666H30.2877L30.28 26.4684L32.6433 28.9177L34.6818 30.8971L47.0877 30.9612L47.1145 25.8609L36.0512 25.8024Z" fill="#06003B"/> <path d="M0 1.36646L0.251923 31.0877L6.83462 14.0052L0 1.36646Z" fill="#EF991B"/> <path d="M29.9847 31.1689L0 1.36646L16.0115 30.9594L29.9847 31.1689Z" fill="#F26966"/> <path d="M0.214844 31.1688H29.9957L3.6283 22.3267L0.214844 31.1688Z" fill="#7530E2"/> <path d="M0 1.36646L24.1827 29.2216L29.9942 31.1689L0 1.36646Z" fill="#FF837C"/> <path d="M0.213462 31.1689L2.825 6.51782L0 1.36646L0.213462 31.1689Z" fill="#FFAD26"/> <path d="M0.214844 31.1688H29.9957L1.46869 27.9741L0.214844 31.1688Z" fill="#903FF9"/> <path d="M0 1.36646L13.05 25.4872L18.3077 27.2498L0 1.36646Z" fill="#DD4E4E"/> <path d="M3.62604 22.3267L2.56836 25.0627L29.9933 31.1688L3.62604 22.3267Z" fill="#5A1FCC"/> <path d="M6.836 14.0053L4.97447 10.5579L0.214844 31.169L6.836 14.0053Z" fill="#D88212"/> </g> </svg></a><span class="tsep" aria-hidden="true"></span><div><div class="t1">Hiring Pipeline</div><div class="t2">Talent Acquisition</div></div><div class="gs" id="gs" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="gq" type="search" autocomplete="off" placeholder="Search candidates: name, email or phone" aria-label="Search candidates"><kbd>/</kbd><div class="gsr" id="gsr" role="listbox"></div></div><span class="sp"></span>
-  <div class="me" id="meBox" hidden><div class="nm"><div id="meName"></div><div id="mePr" style="opacity:.8"></div></div><span class="av" id="meAv" aria-hidden="true"></span></div>
+  <button class="btn helpb" id="helpBtn" type="button" title="What every page, label and number means" hidden><span aria-hidden="true">?</span> Help</button><div class="me" id="meBox" hidden><div class="nm"><div id="meName"></div><div id="mePr" style="opacity:.8"></div></div><span class="av" id="meAv" aria-hidden="true"></span></div>
   <button class="btn ghost" id="signout" hidden>Sign out</button></header>
 <div id="root"></div>
 <div id="dr" hidden><div class="scrim" id="scrim"></div><aside class="drawer" role="dialog" aria-modal="true" aria-labelledby="dTitle" id="drawer"></aside></div>
@@ -604,7 +608,7 @@ function post(action, body){
 }
 function signOut(){ S.token = ''; S.me = null; S.jobs = null; store('hire_t', null); store('hire_me', null); closeDrawer(true); render(); }
 document.getElementById('signout').onclick = signOut;
-function setTop(){ var m = S.me || {}; document.getElementById('meBox').hidden = !S.token; document.getElementById('signout').hidden = !S.token;
+function setTop(){ var m = S.me || {}; document.getElementById('meBox').hidden = !S.token; document.getElementById('signout').hidden = !S.token; var hbt = document.getElementById('helpBtn'); if(hbt) hbt.hidden = !S.token;
   document.getElementById('meName').textContent = m.name || ''; document.getElementById('mePr').textContent = m.profile ? m.profile + ' profile' : ''; document.getElementById('meAv').textContent = initials(m.name || m.email); }
 
 // routing: #job=<id>&c=<id> keeps your place on refresh and back/forward
@@ -1506,10 +1510,10 @@ function rowHtml(it, parts){
   var what = '', btn = '';
   if(it.k === 'evalmiss'){
     // one tidy line of facts (round · date | who is pending | age) and a fixed pair of actions (Sumit 25 Nov: "organize it")
-    what = '<span class="mt">' + esc(rl) + ' · ' + esc(dt(v.start)) + '</span>' + (it.pend.length ? '<span class="mt pend">⏳ <b>' + esc(it.pend.map(function(f){ return f.who; }).join(', ')) + '</b> to give feedback' + (it.pend[0].nudged ? ' · reminded ' + esc(ago(it.pend[0].nudged)) : '') + '</span>' : it.sub.length ? '<span class="mt okc">✓ Panel feedback is in</span>' : '<span class="mt">Not filed in Recruit yet</span>');
+    what = '<span class="mt">' + esc(rl) + ' · ' + esc(new Date(v.start).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })) + '</span>' + (it.pend.length ? '<span class="mt pend">⏳ <b>' + esc(it.pend.map(function(f){ return f.who; }).join(', ')) + '</b> to give feedback' + (it.pend[0].nudged ? ' · reminded ' + esc(ago(it.pend[0].nudged)) : '') + '</span>' : it.sub.length ? '<span class="mt okc">✓ Panel feedback is in</span>' : '<span class="mt">Not filed yet</span>');
     btn = (it.pend.length === 1 ? '<button class="btn sm" data-qremind="' + esc(it.pend[0].id) + '" data-stop="1" title="Remind ' + esc(it.pend[0].who) + ' on Cliq">🔔 Remind</button>'
         : it.pend.map(function(f){ return '<button class="btn sm" data-qremind="' + esc(f.id) + '" data-stop="1" title="Remind ' + esc(f.who) + ' on Cliq">🔔 ' + esc(String(f.who).split(' ')[0]) + '</button>'; }).join('')) +
-      (it.sub.length ? '<button class="btn sm primary" data-qfile="' + esc(v.id) + '" data-stop="1">File evaluation</button>' : !it.pend.length ? '<button class="btn sm" data-remeval="' + esc(v.id) + '" data-stop="1" title="Send the panel a Cliq reminder to fill the evaluation">🔔 Remind panel</button><a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener" data-stop="1">Open in Recruit ↗</a>' : '') +
+      (it.sub.length ? '<button class="btn sm primary" data-qfile="' + esc(v.id) + '" data-stop="1">File evaluation</button>' : !it.pend.length ? '<button class="btn sm" data-remeval="' + esc(v.id) + '" data-stop="1" title="Send the panel a Cliq reminder to fill the evaluation">🔔 Remind</button><a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener" data-stop="1" title="Open the interview in Recruit">Recruit ↗</a>' : '') +
       '<button class="btn sm ghostb" data-qskip="' + esc(v.id) + '" data-stop="1" title="Skip this evaluation (a reason is required)">⏭ Skip</button>'; }
   if(it.k === 'passed'){ what = rl + ': <b class="tok">' + esc(v.status) + '</b> · nothing booked · still at ' + esc(it.r.status); btn = '<span class="btn sm primary" data-qgo="schedule" role="button">Schedule ' + esc(it.next) + ' →</span>'; }
   if(it.k === 'rejected'){ what = rl + ': <b class="tbad">' + esc(v.status) + '</b> · status still ' + esc(it.r.status); btn = '<span class="btn sm bad" data-qgo="reject" role="button">Close as rejected →</span>'; }
@@ -1812,7 +1816,7 @@ function viewDash(){
     card('TA workload by week', 'interviews booked per person, last 8 weeks · darker = more', (heatPeople.length ? heat : '<div class="hint">No bookings found.</div>') + '<p class="why"><b>What it tells you:</b> who carries the scheduling load and how steady it is. One very dark row means the work sits with one person; an empty week can mean leave or a stalled pipeline.</p>') +
     card('Role health', 'click a role to open it',
       '<div class="rhleg"><span><i class="flag red"></i>No activity for 14 days, or no active candidates</span><span><i class="flag amber"></i>No interviews in 14 days and none booked, or under 3 active</span><span><i class="flag green"></i>Moving</span></div>' +
-      '<div class="tblw"><table class="tbl dtbl rh"><thead><tr><th><span class="sr">Health</span></th><th>Role</th><th>Recruiters</th><th class="n" title="Active candidates">Active</th><th class="n" title="Candidates at R2, R3, vibe check or offer">R2+</th><th class="n" title="Interviews held in the last 14 days">Held 14d</th><th class="n" title="Interviews booked ahead">Booked</th><th class="n" title="Candidates waiting on the TA team (next step, evaluation, close)">Waiting</th><th class="n" title="Days since the last candidate change or interview">Last activity</th><th class="n" title="Days since the role opened">Open for</th></tr></thead><tbody>' +
+      '<div class="tblw"><table class="tbl dtbl rh"><thead><tr><th><span class="sr">Health</span></th><th>Role</th><th>Recruiters</th><th class="n" title="Active candidates">Active</th><th class="n" title="Candidates at R2, R3, vibe check or offer">R2+</th><th class="n" title="Interviews held in the last 14 days">Interviews, 14 days</th><th class="n" title="Interviews booked ahead">Booked</th><th class="n" title="Candidates waiting on the TA team (next step, evaluation, close)">Waiting</th><th class="n" title="Days since the last candidate change or interview">Last activity</th><th class="n" title="Days since the role opened">Open for</th></tr></thead><tbody>' +
       health.map(function(h){ return '<tr data-dj="' + esc(h.x.id) + '" tabindex="0"><td><span class="flag ' + h.flag + '" title="' + h.flag + '"></span></td><td><b>' + esc(h.x.title) + '</b></td><td class="rhr" title="' + esc(h.x.recruiters.join(', ') || h.x.manager || '') + '"><b class="pn">' + esc((h.x.recruiters.length ? h.x.recruiters.slice(0, 2).join(', ') : (h.x.manager || '—'))) + '</b>' + (h.x.recruiters.length > 2 ? ' <span class="hint">+' + (h.x.recruiters.length - 2) + '</span>' : '') + '</td><td class="n">' + h.act + '</td><td class="n">' + h.late + '</td><td class="n">' + h.iv14 + '</td><td class="n">' + h.up + '</td><td class="n">' + (h.waiting ? '<b class="tbad">' + h.waiting + '</b>' : 0) + '</td><td class="n">' + (h.last == null ? '—' : h.last + 'd') + '</td><td class="n">' + (h.open == null ? '—' : h.open + 'd') + '</td></tr>'; }).join('') + '</tbody></table></div>', 'health') +
     '<div>' + card('TA team', 'last 30 days · who books interviews and files evaluations (mostly Blitz), and what is waiting on their roles', tbl('dt', ['Person','Roles','Active candidates','Waiting on them','Interviews booked','Evaluations filed','Median time to evaluate'], teamRows, 1), 'team') +
       card('Interviewer feedback pace', 'last 30 days · on time = feedback within 24 h of the interview · sorted by most overdue', tbl('dp', ['Interviewer','Asked','Given','Overdue','Median time','On time'], piRows.slice(0, S.piAll ? 999 : 12), 1) + (piRows.length > 12 && !S.piAll ? '<button class="btn sm" id="piall" style="margin-top:8px">Show all ' + piRows.length + '</button>' : ''), 'pi') + '</div>';
@@ -2062,6 +2066,8 @@ function render(){
   loadJobs();
 }
 render();
+// the few helpers the add-ons below this scope use (remind button, logo home)
+window.HP = { post: post, toast: toastMsg, home: function(){ if(!S.token) return; if(S.ta === false) goMine(); else if(S.admin) goDash(); else goWork(); } };
 })();
 
 /* ---- custom dropdowns (26 Nov) ---- */
@@ -2221,13 +2227,78 @@ document.addEventListener('click', function(e){ var b = e.target.closest && e.ta
   show();
 })();
 
-document.addEventListener('click', function(e){ var a = e.target.closest && e.target.closest('#homeLogo'); if(!a) return; e.preventDefault(); try{ if(typeof goDash === 'function' && S && S.token){ if(S.ta === false) goMine(); else if(S.admin) goDash(); else goWork(); } }catch(er){} });
+document.addEventListener('click', function(e){ var a = e.target.closest && e.target.closest('#homeLogo'); if(!a) return; e.preventDefault(); try{ window.HP && HP.home(); }catch(er){} });
 
 // remind the panel to fill the evaluation (any held interview without one)
 document.addEventListener('click', function(e){ var b = e.target.closest && e.target.closest('[data-remeval]'); if(!b) return; e.preventDefault(); e.stopPropagation(); if(b.disabled) return;
   var lbl = b.innerHTML; b.disabled = true; b.textContent = 'Sending…';
-  post('remindeval', { ivId: b.dataset.remeval }).then(function(j){ if(j && j.ok){ b.textContent = '✓ Reminded'; toastMsg('🔔 Reminder sent on Cliq to ' + (j.to || 'the panel')); } else { b.disabled = false; b.innerHTML = lbl; toastMsg((j && j.error) || 'Could not send'); } })
-    .catch(function(er){ b.disabled = false; b.innerHTML = lbl; toastMsg(er.message); }); }, true);
+  HP.post('remindeval', { ivId: b.dataset.remeval }).then(function(j){ if(j && j.ok){ b.textContent = '✓ Reminded'; HP.toast('🔔 Reminder sent on Cliq to ' + (j.to || 'the panel')); } else { b.disabled = false; b.innerHTML = lbl; HP.toast((j && j.error) || 'Could not send'); } })
+    .catch(function(er){ b.disabled = false; b.innerHTML = lbl; HP.toast(er.message); }); }, true);
+
+// ---------- Help (26 Nov, like the Renewals Sheet): what every page, label and number means, searchable ----------
+(function(){
+var EVAL_DAYS = 21, PASS_DAYS = 30, COLD_DAYS = 10, ACTIVE_DAYS = 60;   // same as the page's own thresholds
+var esc = function(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); };
+var ICON_SEARCH = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>';
+var closeDrill = function(now){ var o = document.getElementById('mdl'); if(!o) return; if(now){ o.remove(); return; } o.classList.add('out'); document.body.style.overflow = ''; setTimeout(function(){ o.remove(); }, 180); };
+var HELP = [
+ { h: 'Pages', items: [
+  ['My work', 'Your to-do across your roles: interviews today, evaluations missing, who passed and needs the next round, rejections still open, who to schedule, and candidates going cold. Click a chip at the top for the full list.'],
+  ['Hiring overview', 'How hiring is going: this week against the same point last week, the funnel, pass-through by round, screening quality, workload and role health. Every number opens the people behind it, with Excel download.'],
+  ['All jobs / a job', 'Every open role, and each role as a board by stage (or a list). Hover a role in the left bar and it starts loading.'],
+  ['Interviews', 'Yesterday, today and the next 7 days. Pick All, Yesterday, Today, Tomorrow, Next 7 days, or any day.'],
+  ['My interviews', 'Interviews where you are on the panel, the evaluations you still owe, and your weekly availability. Interviewers outside the TA team only see this page.']]},
+ { h: 'My work lists', items: [
+  ['Evaluation missing', 'Interviews held in the last ' + EVAL_DAYS + ' days with no evaluation in Recruit. 🔔 Remind sends the panel a Cliq card; File evaluation files it from the panel feedback already in; Skip needs a reason.'],
+  ['Passed, book next round', 'The evaluation says move on (last ' + PASS_DAYS + ' days) but nothing is booked yet. Schedule opens the candidate with the booking form ready.'],
+  ['Rejected, still open', 'The evaluation says reject but the candidate status is still open. Close as rejected opens the rejection form.'],
+  ['To schedule', 'Selected or no-show, and nothing booked.'],
+  ['Going cold', 'No change and nothing booked for ' + COLD_DAYS + '+ days.']]},
+ { h: 'Candidate panel', items: [
+  ['Next step', 'Only the moves the hiring process allows from the current status. Every move updates Recruit the same way as Change Status, with an optional comment saved as a note.'],
+  ['Evaluation gate', 'Moving on after a round needs its evaluation filed in Recruit, or a written reason (10+ characters) to skip it.'],
+  ['Blitz checklist', 'Three knockout questions for the role type. Ask at least two; a pass needs real answers, not a summary of the CV.'],
+  ['Interview checks (R1, R2, R3)', 'Camera on, no second screen, first 10 minutes on their own project or assignment, and ask why when answers sound read out.'],
+  ['Rating meaning', '5 clearly above the bar · 4 meets the bar, likely to clear the next round · 3 borderline, write the doubt · 2 below the bar · 1 clear no or integrity issue.'],
+  ['Rounds / History', 'Rounds shows each interview with the Recruit evaluation and each panel member\'s feedback. History is Recruit\'s timeline for the candidate.']]},
+ { h: 'Booking and the interview card', items: [
+  ['Panel availability', 'Free slots from each interviewer\'s weekly hours, minus days off and interviews already booked. Google Calendar is only a warning, and only for people who connected Google.'],
+  ['Let the candidate pick', 'Emails the candidate a link (works once, 72 hours) with the free times; booking creates the interview and the Meet invite.'],
+  ['Manage interview (upcoming)', 'Create the Google Meet invite, add an interviewer, reschedule or cancel. The calendar invite and Cliq cards follow.'],
+  ['Manage interview (held)', 'Remind the panel to fill the evaluation, open it in Recruit, or Reschedule (for a no-show or a round that must happen again).']]},
+ { h: 'Overview numbers', items: [
+  ['Held / Decided / Pass rate', 'Held: interviews that took place (60 days). Decided: those with an evaluation. Pass rate: passed ÷ (passed + rejected). Under 10 decisions is greyed.'],
+  ['Screening quality', 'Of the candidates passed at Blitz, how many cleared R1, by role or by person. It shows where the questions or the meaning of a pass need lining up.'],
+  ['Role health colours', '🔴 no activity for 14 days or no active candidates · 🟠 no interviews in 14 days and none booked, or under 3 active · 🟢 moving.'],
+  ['Role health columns', 'Active: in process, touched in ' + ACTIVE_DAYS + ' days · R2+: at R2, R3, vibe check or offer · Interviews, 14 days: held in the last 14 days · Booked: interviews ahead · Waiting: next steps on the TA team · Last activity · Open for: days since the role opened.'],
+  ['Feedback pace', 'Asked: feedback requests · Given · Overdue: pending more than 24 h after the interview · On time: within 24 h · during the call: filed before the interview\'s end time.']]},
+ { h: 'Interview colours', items: [
+  ['Upcoming / In progress', 'Not started yet / happening now.'],
+  ['Done, all feedback in', 'Every panel member has given feedback.'],
+  ['Done, feedback pending', 'Held, some panel feedback still to come.'],
+  ['Feedback overdue (24 h+)', 'Held more than 24 hours ago and feedback is still pending.']]},
+ { h: 'Getting around', items: [
+  ['Back', 'The ← button next to the logo steps back through pages you opened here. Alt+← does the same.'],
+  ['Sidebar', 'Drag its edge to resize, « Hide (or Ctrl+B) to hide it, and the » Jobs tab on the left to bring it back.'],
+  ['Search', 'The top search finds any candidate by name, email or phone. Press / to jump to it.']]}
+];
+function openHelp(){
+  closeDrill(true);
+  var ov = document.createElement('div'); ov.className = 'mdl'; ov.id = 'mdl';
+  var body = HELP.map(function(sec, k){ return '<section class="hp-sec"><h4>' + esc(sec.h) + '</h4><dl>' + sec.items.map(function(it){ return '<div class="hp-i"><dt>' + esc(it[0]) + '</dt><dd>' + esc(it[1]) + '</dd></div>'; }).join('') + '</dl></section>'; }).join('');
+  ov.innerHTML = '<div class="mbk"></div><section class="mpn" role="dialog" aria-modal="true" aria-labelledby="hpT" style="--c:#e0a800"><header><div><h3 id="hpT">Help · what things mean</h3><p>Every page, label and number in the Hiring Pipeline</p></div><button class="btn sm" id="mdlX" aria-label="Close">✕</button></header>' +
+    '<div class="mtools"><label class="search">' + ICON_SEARCH + '<input id="hpQ" type="search" placeholder="Search, e.g. pass rate, remind, rating" aria-label="Search help"></label></div><div class="mlist hp">' + body + '<p class="hint hp-none" hidden>Nothing matches. Ask the Business Systems team.</p></div></section>';
+  document.body.appendChild(ov); document.body.style.overflow = 'hidden';
+  ov.querySelector('.mbk').onclick = function(){ closeDrill(); }; document.getElementById('mdlX').onclick = function(){ closeDrill(); };
+  var q = document.getElementById('hpQ'); setTimeout(function(){ q.focus(); }, 60);
+  q.oninput = function(){ var v = q.value.trim().toLowerCase(), any = false;
+    ov.querySelectorAll('.hp-sec').forEach(function(sec){ var n = 0, hs = sec.querySelector('h4').textContent.toLowerCase(); sec.querySelectorAll('.hp-i').forEach(function(i){ var on = !v || i.textContent.toLowerCase().indexOf(v) >= 0 || hs.indexOf(v) >= 0; i.hidden = !on; if(on) n++; }); sec.hidden = !n; if(n) any = true; });
+    ov.querySelector('.hp-none').hidden = any; };
+}
+document.addEventListener('click', function(e){ if(e.target.closest && e.target.closest('#helpBtn')){ e.preventDefault(); openHelp(); } });
+new MutationObserver(function(){ var hb = document.getElementById('helpBtn'), mb = document.getElementById('meBox'); if(hb && mb) hb.hidden = mb.hidden; }).observe(document.body, { attributes: true, subtree: true, attributeFilter: ['hidden'] });
+document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && document.querySelector('#mdl #hpQ')) closeDrill(); });
+})();
 </script>
 </body>
 </html>
