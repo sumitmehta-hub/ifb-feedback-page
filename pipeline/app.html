@@ -1867,7 +1867,11 @@ render();
   function opts(){ return Array.prototype.slice.call(pop.querySelectorAll('.dd-o:not(:disabled)')); }
   function fill(q){
     var list = pop.querySelector('.dd-list'), h = '', k = nrm(q);
-    Array.prototype.forEach.call(cur.options, function(o, i){ if(o.hidden) return; var t = o.textContent; if(k && nrm(t).indexOf(k) < 0) return; var on = i === cur.selectedIndex;
+    // matches that start with the typed text come first ("2:30 p" → 2:30 pm before 12:30 pm), then word starts, then anywhere
+    var m = []; Array.prototype.forEach.call(cur.options, function(o, i){ if(o.hidden) return; var t = nrm(o.textContent), at = k ? t.indexOf(k) : 0; if(at < 0) return;
+      m.push({ o: o, i: i, r: !k || at === 0 ? 0 : /[\s(·,-]/.test(t.charAt(at - 1)) ? 1 : 2 }); });
+    m.sort(function(x, y){ return (x.r - y.r) || (x.i - y.i); });
+    m.forEach(function(x){ var o = x.o, i = x.i, t = o.textContent, on = i === cur.selectedIndex;
       h += '<button type="button" role="option" class="dd-o' + (on ? ' on' : '') + '" data-i="' + i + '" aria-selected="' + on + '" title="' + esc(t) + '"' + (o.disabled ? ' disabled' : '') + '>' + esc(t) + '</button>'; });
     list.innerHTML = h || '<div class="dd-none">No match</div>';
   }
