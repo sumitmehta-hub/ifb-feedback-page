@@ -500,7 +500,7 @@ function drawSide(){
   el.innerHTML = '<button class="home-link" id="wk" aria-current="' + (S.page === 'work') + '">✅ My work</button><button class="home-link" id="dsb" aria-current="' + (S.page === 'dash') + '">📊 Hiring overview</button><button class="home-link" id="hm" aria-current="' + (S.page === 'home') + '">⌂ All jobs</button><button class="home-link" id="ivl" aria-current="' + (S.page === 'iv') + '">🗓 Interviews</button><button class="home-link" id="myi" aria-current="' + (S.page === 'mine') + '">🎤 My interviews</button>' + (list.length ? (!S.onlyMine && mine.length && rest.length ? '<div class="grp">My jobs</div>' + mine.map(item).join('') + '<div class="grp">Other jobs</div>' + rest.map(item).join('') : list.map(item).join(''))
     : '<div class="hint" style="padding:12px">' + (S.jq ? 'No jobs match.' : S.onlyMine ? 'No ' + (S.jstat === 'open' ? 'open' : S.jstat === 'hold' ? 'on-hold' : 'closed') + ' jobs where you are the recruiter or hiring manager. Try “All jobs”.' : 'No jobs here.') + '</div>');
   el.querySelectorAll('[data-j]').forEach(function(b){ b.onclick = function(){ openJob(b.dataset.j); }; });
-  if(realAdmin()){ var ppl = viewAsPeople(); if(ppl.length){ var va = document.createElement('div'); va.className = 'vas'; va.innerHTML = '<label for="vasel">👁 View as</label><select id="vasel"><option value="">Me (' + esc(String((S.me && S.me.name) || 'you').split(' ')[0]) + ')</option>' + ppl.map(function(n){ return '<option' + (n === S.viewAs ? ' selected' : '') + '>' + esc(n) + '</option>'; }).join('') + '</select>';
+  if(realAdmin()){ var ppl = viewAsPeople(); if(ppl.length){ var va = document.createElement('div'); va.className = 'vas'; va.innerHTML = '<label for="vasel">🔎 Recruiter</label><select id="vasel" aria-label="Filter by recruiter"><option value="">Everyone</option>' + ppl.map(function(n){ return '<option' + (n === S.viewAs ? ' selected' : '') + '>' + esc(n) + '</option>'; }).join('') + '</select>';
     el.insertBefore(va, el.firstChild); document.getElementById('vasel').onchange = function(){ setViewAs(this.value); }; } }
   document.getElementById('hm').onclick = goHome;
   document.getElementById('wk').onclick = function(){ goWork(); };
@@ -508,20 +508,20 @@ function drawSide(){
   var dsb = document.getElementById('dsb'); if(dsb) dsb.onclick = function(){ goDash(); };
   document.getElementById('ivl').onclick = goInterviews;
 }
-// ---------- View as (25 Nov): Sumit / Tabir can preview exactly what a TA member sees (their roles, their My work,
-// no head overview). Read-only: action buttons are switched off while previewing. Nothing is sent to the server.
+// ---------- Recruiter filter (25 Nov, Tabir: "filter, not View as"): admins narrow jobs, My work, Interviews and the
+// overview to one recruiter's roles. Nothing changes on the server and the admin's own buttons keep working.
 var TA_NAME_RX = /^(archita|rashika|sonal sethi|tanushi|tabir|shambhavi)/i;
 function realAdmin(){ return S._real ? S._real.admin : S.admin; }
 function viewAsPeople(){ var set = {}; (S.jobs || []).forEach(function(x){ (x.recruiters || []).concat([x.manager || '']).forEach(function(n){ if(n && TA_NAME_RX.test(n)) set[n] = 1; }); });
   ((S.act && S.act.interviews) || []).forEach(function(v){ if(v.by && TA_NAME_RX.test(v.by)) set[v.by] = 1; }); return Object.keys(set).sort(); }
 function setViewAs(name){
   if(name && !S._real){ S._real = { admin: S.admin, onlyMine: S.onlyMine, mine: {} }; S.jobs.forEach(function(x){ S._real.mine[x.id] = x.mine; }); }
-  if(name){ S.viewAs = name; S.jobs.forEach(function(x){ x.mine = (x.recruiters || []).indexOf(name) >= 0 || x.manager === name; }); S.admin = /^tabir/i.test(name); S.onlyMine = !S.admin; }
+  if(name){ S.viewAs = name; S.jobs.forEach(function(x){ x.mine = (x.recruiters || []).indexOf(name) >= 0 || x.manager === name; }); S.onlyMine = true; }
   else if(S._real){ S.jobs.forEach(function(x){ x.mine = S._real.mine[x.id]; }); S.admin = S._real.admin; S.onlyMine = S._real.onlyMine; S._real = null; S.viewAs = ''; }
-  document.body.classList.toggle('previewing', !!S.viewAs); S.qOpen = {}; S.jobId = ''; closeDrawer(true);
-  if(S.admin) goDash(); else goWork();
+  S.qOpen = {}; S.jobId = ''; closeDrawer(true);
+  if(S.page === 'work') goWork(); else if(S.page === 'iv') goInterviews(); else if(S.page === 'home') goHome(); else goDash();
 }
-function previewBanner(){ return S.viewAs ? '<div class="pvbar" role="status">👁 You are viewing the page as <b>' + esc(S.viewAs) + '</b>' + (S.admin ? ' (head view)' : '') + ': their roles and their work. Read-only preview, buttons are off. <button class="btn sm" id="pvx">Exit preview</button></div>' : ''; }
+function previewBanner(){ return S.viewAs ? '<div class="pvbar" role="status">🔎 Showing <b>' + esc(S.viewAs) + '</b>’s roles only. <button class="btn sm" id="pvx">Show everyone</button></div>' : ''; }
 function jobSelect(){
   return previewBanner() + '<div class="jsel"><select id="jsel" aria-label="Choose a job"><option value="__work"' + (S.page === 'work' ? ' selected' : '') + '>✅ My work</option><option value="__dash"' + (S.page === 'dash' ? ' selected' : '') + '>📊 Hiring overview</option><option value=""' + (S.page === 'home' ? ' selected' : '') + '>⌂ All jobs</option><option value="__iv"' + (S.page === 'iv' ? ' selected' : '') + '>🗓 Interviews</option><option value="__mine"' + (S.page === 'mine' ? ' selected' : '') + '>🎤 My interviews</option>' + visibleJobs().map(function(x){ return '<option value="' + esc(x.id) + '"' + (x.id === S.jobId ? ' selected' : '') + '>' + esc(x.title) + ' (' + (x.candidates || 0) + ')</option>'; }).join('') + '</select></div>';
 }
@@ -554,7 +554,7 @@ function viewHome(){
   var total = list.reduce(function(s,x){ return s + (x.candidates || 0); }, 0);
   var first = String((S.me && S.me.name) || '').split(' ')[0];
   var gl = { open: 'open', hold: 'on-hold', closed: 'closed (last 12 months)' }[S.jstat];
-  main.innerHTML = jobSelect() + '<div class="hero"><h1>' + (first ? 'Hi ' + esc(first) + ' 👋' : 'Welcome') + '</h1><div class="hint" style="margin-top:4px">' + (S.onlyMine ? 'Your ' : 'All ') + list.length + ' ' + gl + ' job' + (list.length === 1 ? '' : 's') + ' · ' + total.toLocaleString('en-IN') + ' candidates associated. Pick a job to see its pipeline, or open <a href="#view=iv" id="hiv">Interviews</a> for this week’s schedule. Press <span class="kbd">/</span> to search.</div></div>' +
+  main.innerHTML = jobSelect() + '<div class="hero"><h1>' + (first ? 'Hi ' + esc(first) + ' 👋' : 'Welcome') + '</h1><div class="hint" style="margin-top:4px">' + (S.onlyMine ? '' + (S.viewAs ? esc(S.viewAs.split(' ')[0]) + '’s' : 'Your') + ' ' : 'All ') + list.length + ' ' + gl + ' job' + (list.length === 1 ? '' : 's') + ' · ' + total.toLocaleString('en-IN') + ' candidates associated. Pick a job to see its pipeline, or open <a href="#view=iv" id="hiv">Interviews</a> for this week’s schedule. Press <span class="kbd">/</span> to search.</div></div>' +
     (list.length ? '<div class="jobs">' + list.map(function(x){ return '<button class="job" data-j="' + esc(x.id) + '"><div class="t">' + esc(x.title) + '</div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' + (x.dept ? '<span class="tag">' + esc(x.dept) + '</span>' : '') + statusBadge(x) + (x.mine && !S.onlyMine ? '<span class="tag" style="background:#e7f6df;color:#1f7a00">Mine</span>' : '') + '<span class="hint">Opened ' + esc(dt(x.opened)) + '</span></div><div class="n"><b>' + (x.candidates || 0).toLocaleString('en-IN') + '</b><span>candidates · ' + esc(x.positions || '?') + ' position' + (x.positions == 1 ? '' : 's') + '</span></div><div class="rec">' + esc(x.recruiters.join(', ')) + '</div></button>'; }).join('') + '</div>'
       : '<div class="empty">' + (S.jq ? 'No jobs match.' : S.onlyMine ? 'No ' + gl + ' jobs where you are the recruiter or hiring manager. Switch to “All jobs” in the sidebar.' : 'No ' + gl + ' jobs.') + '</div>');
   main.querySelectorAll('[data-j]').forEach(function(b){ b.onclick = function(){ openJob(b.dataset.j); }; });
@@ -610,11 +610,11 @@ function viewInterviews(){
   };
   var groupBy = function(arr, isPast){ var out = '', last = null; arr.forEach(function(v){ var k = dayKey(v.start); if(k !== last){ out += '<div class="ivday">' + esc(dayLabel(v.start)) + '</div>'; last = k; } out += row(v, isPast); }); return out; };
   main.innerHTML = jobSelect() +
-    '<div class="jh"><div><h1>Interviews</h1><div class="meta"><span>' + (S.onlyMine ? 'Your jobs' : 'All jobs') + ' · last 2 days and next 7 days</span></div></div><div class="acts"><span class="hint">Updated ' + esc(ago(new Date(S.ivAt).toISOString()) || 'now') + '</span><button class="btn sm" id="ivrf">↻ Refresh</button></div></div>' +
+    '<div class="jh"><div><h1>Interviews</h1><div class="meta"><span>' + (S.onlyMine ? '' + (S.viewAs ? esc(S.viewAs.split(' ')[0]) + '’s' : 'Your') + ' jobs' : 'All jobs') + ' · last 2 days and next 7 days</span></div></div><div class="acts"><span class="hint">Updated ' + esc(ago(new Date(S.ivAt).toISOString()) || 'now') + '</span><button class="btn sm" id="ivrf">↻ Refresh</button></div></div>' +
     '<div class="tiles"><div class="tile" style="--c:#8644f0"><small>Today</small><b>' + today + '</b></div><div class="tile" style="--c:#0f766e"><small>Coming up</small><b>' + upcoming.length + '</b></div><div class="tile" style="--c:#f29a1f"><small>Feedback pending</small><b>' + pendingFb + '</b></div><div class="tile" style="--c:#8a849c"><small>Last 2 days</small><b>' + past.length + '</b></div></div>' +
     '<div class="toolbar"><label class="search">' + ICON_SEARCH + '<input id="ivq" type="search" placeholder="Search candidate, job, round or interviewer" aria-label="Search interviews" value="' + esc(S.ivq || '') + '"><span class="k kbd">/</span></label></div>' +
     '<div class="ivlegend"><span><i style="background:#8644f0"></i>Upcoming</span><span><i style="background:#0f766e"></i>In progress</span><span><i style="background:#2fb501"></i>Done, all feedback in</span><span><i style="background:#f29a1f"></i>Done, feedback pending</span><span><i style="background:#c8102e"></i>Feedback overdue (24 h+)</span><span><i style="background:#b9b3c9"></i>Done, no panel feedback tracked</span></div>' +
-    (upcoming.length ? '<h3 class="sec" style="margin-top:4px">Coming up</h3>' + groupBy(upcoming, false) : '<div class="empty">No interviews scheduled in the next 7 days' + (S.onlyMine ? ' on your jobs' : '') + '.</div>') +
+    (upcoming.length ? '<h3 class="sec" style="margin-top:4px">Coming up</h3>' + groupBy(upcoming, false) : '<div class="empty">No interviews scheduled in the next 7 days' + (S.onlyMine ? ' on ' + (S.viewAs ? esc(S.viewAs.split(' ')[0]) + '’s' : 'your') + ' jobs' : '') + '.</div>') +
     (past.length ? '<h3 class="sec" style="margin-top:22px">Recent · check feedback</h3>' + groupBy(past, true) : '');
   bindJobSelect();
   document.getElementById('ivrf').onclick = function(){ S.ivFresh = true; goInterviews(); };
@@ -915,7 +915,6 @@ function drawNext(form){
   h += '<div class="nxsteps">' + f.steps.map(function(st){ var locked = st.gate && !st.gateOk;
     return '<button class="btn sm ' + (st.tone === 'primary' ? 'primary' : st.tone) + '" data-step="' + esc(st.k) + '"' + (f.canWrite ? '' : ' disabled') + ' title="' + esc('Status → ' + st.to + (locked ? ' (evaluation not filed: needs a reason to skip it)' : '')) + '">' + (locked ? '🔒 ' : '') + esc(st.label) + '</button>'; }).join('') + '</div>';
   if(!f.canWrite) h += '<div class="hint" style="margin-top:8px">Only the TA team can change candidates here.</div>';
-  if(S.viewAs) h += '<div class="pvnote">👁 Preview as <b>' + esc(S.viewAs) + '</b>: buttons are switched off. Choose “Me” under View as in the sidebar to act.</div>';
   if(form){ var cur = f.steps.filter(function(x){ return x.k === form; })[0]; if(cur) h += nxForm(cur, f); }
   box.innerHTML = h + '</div>';
   bindNxJob();
@@ -1092,7 +1091,7 @@ function qCard(id, icon, title, why, items, tone){
 }
 function viewWork(){
   var main = document.getElementById('main'); if(!main || S.page !== 'work') return;
-  var D = buildSum(), first = String(S.viewAs || (S.me && S.me.name) || '').split(' ')[0];
+  var D = buildSum(), first = String((S.me && S.me.name) || '').split(' ')[0];
   var nm2 = function(name, job){ return esc(name) + ' <span class="hint" style="font-weight:600">· ' + esc(job) + '</span>'; };
   var item = function(it){ var p = rowHtml(it, true); return qRow(it.candId, it.jobId, nm2(it.name, it.job), p.what + ' · <span class="age' + (it.age >= (it.k === 'evalmiss' ? 3 : 7) ? ' hot' : '') + '">' + esc(p.age) + '</span>', p.btn); };
   var by = function(k){ return D.todo.filter(function(t){ return t.k === k; }).map(item); };
@@ -1107,7 +1106,7 @@ function viewWork(){
     ['cold','🧊','Going cold','No change for 10+ days, nothing booked',by('cold'),'#6b6385']];
   var needs = cards.slice(1, 5).reduce(function(a, k){ return a + k[4].length; }, 0);
   main.innerHTML = jobSelect() + '<div class="hero"><div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap"><div style="flex:1;min-width:240px"><h1>' + (first ? 'Hi ' + esc(first) + ' 👋' : 'My work') + '</h1><div class="hint" style="margin-top:4px">' +
-    (needs ? '<b>' + needs + ' thing' + (needs === 1 ? '' : 's') + '</b> need you' : 'Nothing is waiting on you') + ' across ' + (S.onlyMine ? 'your ' : 'all ') + D.jobs.length + ' open role' + (D.jobs.length === 1 ? '' : 's') + '. Interviews today: ' + D.today.length + '.</div></div>' +
+    (needs ? '<b>' + needs + ' thing' + (needs === 1 ? '' : 's') + '</b> need you' : 'Nothing is waiting on you') + ' across ' + (S.onlyMine ? '' + (S.viewAs ? esc(S.viewAs.split(' ')[0]) + '’s' : 'your') + ' ' : 'all ') + D.jobs.length + ' open role' + (D.jobs.length === 1 ? '' : 's') + '. Interviews today: ' + D.today.length + '.</div></div>' +
     '<div style="display:flex;gap:6px;align-items:center">' + sumHint() + '<button class="btn sm" id="wrf">↻ Refresh</button>' + '<button class="btn sm" id="wdash">📊 Hiring overview</button>' + '</div></div>' +
     '<div class="qjump">' + cards.map(function(k){ return '<a href="#q-' + k[0] + '" data-jump="' + k[0] + '" class="chip' + (k[4].length ? '' : ' dim') + '">' + k[1] + ' ' + esc(k[2]) + ' <b>' + k[4].length + '</b></a>'; }).join('') + '</div>' +
     (S.sumErr ? '<div class="hint" style="color:var(--warn);margin-top:6px">' + esc(S.sumErr) + '</div>' : '') + '</div>' +
@@ -1294,7 +1293,7 @@ function viewDash(){
   var card = function(title, sub, body, csv){ var cc = CARDC[title] || ['#8644f0','']; return '<section class="dsec" style="--c:' + cc[0] + '"><div class="dsh"><h3><span class="ci">' + cc[1] + '</span>' + esc(title) + '</h3>' + (sub ? '<span class="hint">' + esc(sub) + '</span>' : '') + (csv ? '<button class="btn sm" data-csv="' + csv + '">⬇ Excel</button>' : '') + '</div>' + body + '</section>'; };
   var hRows = health.map(function(h){ return [h.x.title, h.x.recruiters.join(', ') || h.x.manager || '—', h.act, h.late, h.iv14, h.up, h.waiting, h.last == null ? '—' : h.last + 'd', h.open == null ? '—' : h.open + 'd', h.flag]; });
   main.innerHTML = jobSelect() +
-    '<div class="whead"><div><h1>Hiring overview</h1><div class="hint">' + (S.onlyMine ? 'Your' : 'All') + ' ' + D.jobs.length + ' open roles · this week so far vs the same point last week · candidates count as active if touched in the last ' + ACTIVE_DAYS + ' days</div></div>' +
+    '<div class="whead"><div><h1>Hiring overview</h1><div class="hint">' + (S.onlyMine ? '' + (S.viewAs ? esc(S.viewAs.split(' ')[0]) + '’s' : 'Your') + '' : 'All') + ' ' + D.jobs.length + ' open roles · this week so far vs the same point last week · candidates count as active if touched in the last ' + ACTIVE_DAYS + ' days</div></div>' +
     '<div class="acts">' + sumHint() + '<button class="btn sm" id="drf">↻ Refresh</button><button class="btn sm" id="dwork">✅ Team to-do</button></div></div>' +
     (S.sumErr ? '<div class="hint" style="color:var(--warn)">' + esc(S.sumErr) + '</div>' : '') +
     '<div class="kpis">' +
@@ -1514,7 +1513,6 @@ function openIvCard(ivId, opts){
         '<label>Note (optional)<input id="ivcCNote" type="text" placeholder="Anything the team should know"></label><div class="nxnote">The interview is marked Cancelled in Recruit' + (iv.event ? ', the calendar invite is cancelled for everyone' : '') + ', and pending feedback reminders stop. The candidate\'s status does not change.</div>' +
         '<div style="display:flex;gap:8px"><button class="btn bad" id="ivcGoCx" data-ivact="1">Cancel interview</button><button class="btn" data-ivform="">Keep it</button></div></div>';
     }
-    if(S.viewAs) h += '<div class="pvnote">👁 Preview as <b>' + esc(S.viewAs) + '</b>: buttons are switched off.</div>';
     var p = ov.querySelector('.ivcb'); p.innerHTML = h;
     document.getElementById('ivcX').onclick = close;
     p.querySelectorAll('[data-ivform]').forEach(function(b){ b.onclick = function(){ C.form = C.form === b.dataset.ivform ? '' : b.dataset.ivform; draw(); }; });
