@@ -503,6 +503,7 @@ body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden
   .ph,.ptr{grid-template-columns:56px 30px 44px minmax(0,1fr) 78px!important;gap:6px!important;font-size:12px}.ph{font-size:10px;letter-spacing:0}.ptr .chip,.ptr small{font-size:10.5px}
   .card,.dsec,.qcard2,.chart{min-width:0;max-width:100%}
   .ivseg{max-width:100%;overflow-x:auto;scrollbar-width:none}.ivseg::-webkit-scrollbar{display:none}.ivseg button{flex:0 0 auto}.ivpick{flex:1 1 100%}.toolbar .search{min-width:0;flex:1 1 100%}}
+.tile[data-drill],.mi-k[data-drill]{cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s}.tile[data-drill]:hover,.mi-k[data-drill]:hover{transform:translateY(-2px);box-shadow:var(--shadow-h)}.tile[data-drill]:focus-visible,.mi-k[data-drill]:focus-visible{outline:2px solid var(--brand);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -713,6 +714,7 @@ function goMine(fromRoute){ SPL.done();
   var main = document.getElementById('main'); main.innerHTML = jobSelect() + loading('Loading your interviews…'); bindJobSelect();
   post('myiv').then(function(j){ if(S.page !== 'mine') return; if(!j.ok){ main.innerHTML = jobSelect() + '<div class="card err">' + esc(j.error || 'Could not load your interviews.') + '</div>'; bindJobSelect(); return; }
     var first = String((S.me && S.me.name) || '').split(' ')[0];
+    var miItem = function(v){ return { href: RC + 'Interviews&id=' + v.id, candId: v.candId, jobId: v.jobId, name: v.cand, job: v.job, detail: esc(String(v.round || '').replace(/ Interview$/, '')) + ' · ' + esc(dayLabel(v.start)) + ' ' + esc(timeOf(v.start)) + (v.reviewed ? ' · <b class="tok">filed</b>' : '') }; };
     var when = function(v){ var d = new Date(v.start); return '<div class="mi-when"><b>' + esc(d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })) + '</b><span>' + esc(timeOf(v.start)) + (v.end ? ' → ' + esc(timeOf(v.end)) : '') + '</span></div>'; };
     var row = function(v, kind){ var r = String(v.round).replace(/ Interview$/, ''), soon = kind === 'up' && new Date(v.start).getTime() - Date.now() < 15 * 60000;
       return '<div class="mi-row' + (kind === 'due' ? ' due' : '') + '">' + when(v) + '<div class="mi-main"><b>' + esc(v.cand) + '</b><span>' + esc(r) + ' · ' + esc(v.job) + (v.owner ? ' · TA: ' + esc(v.owner) : '') + '</span></div><div class="mi-acts">' +
@@ -720,12 +722,12 @@ function goMine(fromRoute){ SPL.done();
         (kind === 'due' ? '<a class="btn sm primary" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener">✍️ Fill evaluation in Recruit</a>' : '<a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener">Questions & details ↗</a>') +
         '<a class="btn sm" href="' + RC + 'Candidates&id=' + esc(v.candId) + '" target="_blank" rel="noopener">Candidate ↗</a></div></div>'; };
     var h = jobSelect() + '<div class="hero"><h1>' + (first ? 'Hi ' + esc(first) + ' 🎤' : 'My interviews') + '</h1><div class="hint" style="margin-top:4px">Interviews where you are on the panel · last 30 days and next 3 weeks</div></div>' +
-      '<div class="mi-kpis"><div class="mi-k' + (j.pending.length ? ' warn' : ' ok') + '"><b>' + j.pending.length + '</b><span>evaluations to fill</span></div><div class="mi-k"><b>' + j.upcoming.length + '</b><span>coming up</span></div><div class="mi-k ok"><b>' + j.done + '</b><span>evaluations filed</span></div></div>';
+      '<div class="mi-kpis"><div class="mi-k' + (j.pending.length ? ' warn' : ' ok') + '" data-drill="' + regDrill('mi_due', 'Evaluations to fill', 'opens the interview in Recruit to fill it', j.pending.map(miItem), '#b45309') + '"><b>' + j.pending.length + '</b><span>evaluations to fill</span></div><div class="mi-k" data-drill="' + regDrill('mi_up', 'Coming up', 'next 3 weeks · opens the interview in Recruit', j.upcoming.map(miItem), '#8644f0') + '"><b>' + j.upcoming.length + '</b><span>coming up</span></div><div class="mi-k ok" data-drill="' + regDrill('mi_done', 'Evaluations filed', 'last 30 days · newest first', (j.filed || []).map(miItem), '#15803d') + '"><b>' + j.done + '</b><span>evaluations filed</span></div></div>';
     h += '<section class="card mi-sec"><h3>✍️ Evaluations to fill <span class="qn">' + j.pending.length + '</span></h3>' + (j.pending.length ? '<div class="hint" style="margin:-4px 0 8px">Open the interview in Recruit and submit the evaluation: scores, comments and your recommendation. The TA team picks the outcome.</div>' + j.pending.map(function(v){ return row(v, 'due'); }).join('') : '<div class="empty-ok">All clear 🎉 No evaluations pending.</div>') + '</section>';
     h += '<section class="card mi-sec"><h3>🗓 Coming up <span class="qn">' + j.upcoming.length + '</span></h3>' + (j.upcoming.length ? j.upcoming.map(function(v){ return row(v, 'up'); }).join('') : '<div class="hint">No interviews booked for you in the next 3 weeks.</div>') + '</section>';
     h += '<section class="card mi-sec" id="avbox"><div class="hint">Loading your availability…</div></section>';
     if(S.ta) h += '<section class="card mi-sec" id="recbox"><h3>⏺ Google Meet recording</h3><div id="recBody" class="hint">Checking your Google connection…</div></section>';
-    main.innerHTML = h; bindJobSelect();
+    main.innerHTML = h; bindJobSelect(); bindDrills(main);
     if(S.ta) drawRecBox();
     AV.who = (S.me && S.me.email) || ''; loadAvail();
   }).catch(function(e){ main.innerHTML = jobSelect() + '<div class="card err">' + esc(e.message) + '</div>'; bindJobSelect(); });
@@ -846,7 +848,7 @@ function viewInterviews(){
   var now = Date.now(), upcoming = list.filter(function(v){ return new Date(v.end || v.start) >= now; }), past = list.filter(function(v){ return new Date(v.end || v.start) < now; }).reverse();
   var pendingFb = past.filter(function(v){ return v.fb && v.fb.done < v.fb.total; }).length;
   var today = list.filter(function(v){ return dayKey(v.start) === dayKey(new Date().toISOString()); }).length;
-  var nUp = upcoming.length, nPast = past.length;
+  var nUp = upcoming.length, nPast = past.length, allUp = upcoming, allPast = past, allToday = list.filter(function(v){ return dayKey(v.start) === dayKey(new Date().toISOString()); }).sort(function(a, b){ return new Date(a.start) - new Date(b.start); });
   // day filter (Google Calendar / Calendly style, 26 Nov): a segmented bar for the common views with counts, and a
   // "Pick a day" dropdown for any other day in range. The tiles above keep the whole range.
   var t0 = new Date(), cnt = {}; t0.setHours(0, 0, 0, 0); list.forEach(function(v){ var k = dayKey(v.start); cnt[k] = (cnt[k] || 0) + 1; });
@@ -870,7 +872,7 @@ function viewInterviews(){
   var groupBy = function(arr, isPast){ var out = '', last = null; arr.forEach(function(v){ var k = dayKey(v.start); if(k !== last){ out += '<div class="ivday">' + esc(dayLabel(v.start)) + '</div>'; last = k; } out += row(v, isPast); }); return out; };
   main.innerHTML = jobSelect() +
     '<div class="jh"><div><h1>Interviews</h1><div class="meta"><span>' + (S.onlyMine ? '' + (S.viewAs ? esc(S.viewAs.split(' ')[0]) + '’s' : 'Your') + ' jobs' : 'All jobs') + ' · last 2 days and next 7 days</span></div></div><div class="acts"><span class="hint">Updated ' + esc(ago(new Date(S.ivAt).toISOString()) || 'now') + '</span><button class="btn sm" id="ivrf">↻ Refresh</button></div></div>' +
-    '<div class="tiles"><div class="tile" style="--c:#8644f0"><small>Today</small><b>' + today + '</b></div><div class="tile" style="--c:#0f766e"><small>Coming up</small><b>' + nUp + '</b></div><div class="tile" style="--c:#f29a1f"><small>Feedback pending</small><b>' + pendingFb + '</b></div><div class="tile" style="--c:#8a849c"><small>Last 2 days</small><b>' + nPast + '</b></div></div>' +
+    '<div class="tiles"><div class="tile" data-drill="' + regDrill('iv_today', 'Interviews today', 'earliest first · click a name to open the candidate', allToday.map(ivDrillItem), '#8644f0') + '" style="--c:#8644f0"><small>Today</small><b>' + today + '</b></div><div class="tile" data-drill="' + regDrill('iv_up', 'Coming up', 'next 7 days · earliest first', allUp.map(ivDrillItem), '#0f766e') + '" style="--c:#0f766e"><small>Coming up</small><b>' + nUp + '</b></div><div class="tile" data-drill="' + regDrill('iv_fb', 'Feedback pending', 'held, panel feedback still to come · newest first', allPast.filter(function(v){ return v.fb && v.fb.done < v.fb.total; }).map(ivDrillItem), '#f29a1f') + '" style="--c:#f29a1f"><small>Feedback pending</small><b>' + pendingFb + '</b></div><div class="tile" data-drill="' + regDrill('iv_past', 'Last 2 days', 'held · newest first', allPast.map(ivDrillItem), '#8a849c') + '" style="--c:#8a849c"><small>Last 2 days</small><b>' + nPast + '</b></div></div>' +
     '<div class="toolbar"><label class="search">' + ICON_SEARCH + '<input id="ivq" type="search" placeholder="Search candidate, job, round or interviewer" aria-label="Search interviews" value="' + esc(S.ivq || '') + '"><span class="k kbd">/</span></label>' + dstrip + '</div>' +
     '<div class="ivlegend"><span><i style="background:#8644f0"></i>Upcoming</span><span><i style="background:#0f766e"></i>In progress</span><span><i style="background:#2fb501"></i>Done, all feedback in</span><span><i style="background:#f29a1f"></i>Done, feedback pending</span><span><i style="background:#c8102e"></i>Feedback overdue (24 h+)</span><span><i style="background:#b9b3c9"></i>Done, no panel feedback tracked</span></div>' +
     (S.ivDay && !list.length ? '<div class="empty">No interviews ' + (S.ivDay === 'next' ? 'in the next 7 days' : 'on ' + esc(dayLabel(new Date(S.ivDay).toISOString()))) + (S.onlyMine ? ' on ' + (S.viewAs ? esc(S.viewAs.split(' ')[0]) + '’s' : 'your') + ' jobs' : '') + '.</div>' :
@@ -880,10 +882,12 @@ function viewInterviews(){
   document.getElementById('ivrf').onclick = function(){ S.ivFresh = true; goInterviews(); };
   main.querySelectorAll('[data-ivd]').forEach(function(b){ b.onclick = function(){ S.ivDay = b.dataset.ivd; viewInterviews(); }; });
   var ivp = document.getElementById('ivpick'); if(ivp) ivp.onchange = function(){ S.ivDay = ivp.value; viewInterviews(); };
+  bindDrills(main);
   var iq = document.getElementById('ivq'); iq.oninput = function(){ S.ivq = this.value; var pos = this.selectionStart; viewInterviews(); var n = document.getElementById('ivq'); n.focus(); try{ n.setSelectionRange(pos, pos); }catch(e){} };
   main.querySelectorAll('.ivrow').forEach(function(r){ r.onclick = function(e){ if(e.target.closest('[data-stop]')) return; if(r.dataset.c){ S.focusJob = r.dataset.j; openCandidate(r.dataset.c); } }; r.onkeydown = function(e){ if(e.key === 'Enter' && r.dataset.c) openCandidate(r.dataset.c); }; });
 }
 // row colour + chip: upcoming / in progress / done with feedback in / pending / overdue (24 h after the end) / no feedback rows
+function ivDrillItem(v){ var st = ivState(v); return { candId: v.candId, jobId: v.jobId, name: v.cand, job: v.job, detail: esc(String(v.round || '').replace(/ Interview$/, '')) + ' · ' + esc(dayLabel(v.start)) + ' ' + esc(timeOf(v.start)) + ' · <b>' + esc(st.label) + '</b>' + (v.panel && v.panel.length ? ' · ' + esc(v.panel.join(', ')) : '') }; }
 function ivState(v){
   var now = Date.now(), st = new Date(v.start).getTime(), en = new Date(v.end || v.start).getTime();
   if(en >= now) return st <= now ? { k:'live', chip:'ok', label:'In progress' } : { k:'up', chip:'br', label:'Upcoming' };
@@ -930,14 +934,17 @@ function viewJob(){
     '<div class="jh"><div style="min-width:0"><h1>' + esc(job.title) + '</h1><div class="meta">' + (job.group ? statusBadge(job) : '') + (job.dept ? '<span class="tag">' + esc(job.dept) + '</span>' : '') + (job.manager ? '<span>Hiring manager: ' + esc(job.manager) + '</span>' : '') + (job.recruiters && job.recruiters.length ? '<span>Recruiters: ' + esc(job.recruiters.join(', ')) + '</span>' : '') + (job.opened ? '<span>Opened ' + esc(dt(job.opened)) + '</span>' : '') + '</div>' +
       '<div class="panel"><span class="hint">Interview panel:</span>' + ((job.panel || []).length ? job.panel.map(function(p){ return '<span class="pr"><b>' + esc(p.round) + '</b> ' + esc(p.who) + '</span>'; }).join('') : '<span class="hint">not set on this job in Recruit</span>') + '</div></div>' +
     '<div class="acts"><span class="hint">Updated ' + esc(ago(S.cachedAt) || 'now') + '</span><button class="btn sm" id="rf">↻ Refresh</button><a class="btn sm" href="' + RC + 'JobOpenings&id=' + esc(job.id) + '" target="_blank" rel="noopener">Open in Recruit ↗</a></div></div>' +
-    '<div class="tiles">' + tiles.map(function(t){ return '<div class="tile" style="--c:' + t[2] + '"><small>' + esc(t[0]) + '</small><b>' + (typeof t[1] === 'number' ? t[1].toLocaleString('en-IN') : t[1]) + '</b></div>'; }).join('') + '</div>' +
+    '<div class="tiles">' + tiles.map(function(t, ti){ var ks = [['screen','assess','blitz','r1','r2','r3','vibe','offer','hold'], ['blitz','r1','r2','r3','vibe'], ['offer'], ['hired'], ['closed'], null][ti];
+      var its = (ks ? rows.filter(function(r){ return ks.indexOf(r._st) >= 0; }) : rows).map(function(r){ return { candId: r.id, jobId: job.id, name: r.Full_Name, job: [r.Current_Job_Title, r.Current_Employer].filter(Boolean).join(' · '), detail: esc(r.Candidate_Status || '') + (r.Updated_On ? ' · ' + esc(ago(r.Updated_On)) : '') }; });
+      var dk = t[1] === '—' ? '' : regDrill('job_' + ti, job.title + ': ' + t[0], ti === 5 && S.scopeLoaded !== 'all' ? 'candidates loaded on this page (tick “Show closed” to load everyone)' : 'click a name to open the candidate', its, t[2]);
+      return '<div class="tile"' + (dk ? ' data-drill="' + dk + '"' : '') + ' style="--c:' + t[2] + '"><small>' + esc(t[0]) + '</small><b>' + (typeof t[1] === 'number' ? t[1].toLocaleString('en-IN') : t[1]) + '</b></div>'; }).join('') + '</div>' +
     '<div class="toolbar"><label class="search">' + ICON_SEARCH + '<input id="cq" type="search" placeholder="Search name, status, company or title" aria-label="Search candidates" value="' + esc(S.q) + '"><span class="k kbd">/</span></label>' +
     '<label class="chk"><input type="checkbox" id="all"' + (S.showAll ? ' checked' : '') + '> Show closed &amp; not in process' + (S.scopeLoaded !== 'all' && job.candidates > 300 ? ' <span class="hint">(loads all ' + job.candidates.toLocaleString('en-IN') + ')</span>' : '') + '</label>' +
     '<div class="seg" role="group" aria-label="View"><button data-v="board" aria-pressed="' + (S.view === 'board') + '">Board</button><button data-v="list" aria-pressed="' + (S.view === 'list') + '">List</button></div></div>' +
     '<div class="hint" style="font-size:12.5px;margin:-4px 0 8px">Newest first · updated in the last 3 months' + (nOlder && !S.older ? ' (' + nOlder.toLocaleString('en-IN') + ' older hidden, <a href="#" id="olderAll">show them</a>)' : S.older ? ' and older (<a href="#" id="olderAll">hide older</a>)' : '') + '.' + (S.scopeLoaded !== 'all' ? ' Only candidates in process are loaded; tick the box for closed and not-in-process.' : '') + '</div>' +
     (S.filterNote ? '<div class="hint" style="font-size:11.5px;margin:-4px 0 8px">Admin note: Recruit refused the status filter, loaded everything instead: ' + esc(S.filterNote) + '</div>' : '') +
     '<div class="chips" id="chips"></div><div id="bd"></div>';
-  bindJobSelect();
+  bindJobSelect(); bindDrills(main);
   document.getElementById('rf').onclick = function(){ openJob(job.id, true); };
   var oa = document.getElementById('olderAll'); if(oa) oa.onclick = function(e){ e.preventDefault(); S.older = !S.older; S.olderCols = {}; viewJob(); };
 
@@ -1540,12 +1547,13 @@ function delta(a, b, good){ if(b == null) return ''; var d = a - b; if(!d) retur
 // ---------- charts (25 Nov): same family as the Renewals Sheet / Email Intelligence dashboards ----------
 // ---------- drill-down pop-ups (25 Nov): every chart part, KPI and table cell opens the candidates behind it ----------
 var DRILL = {};
+function regDrill(key, title, sub, items, c){ DRILL[key] = { title: title, sub: sub, items: items, c: c }; return key; }
 function openDrill(key){
   var d = DRILL[key]; if(!d) return; closeDrill(true);
   var ov = document.createElement('div'); ov.className = 'mdl'; ov.id = 'mdl';
   var q = '';
   var rowsHtml = function(){ var list = d.items.filter(function(it){ return !q || (it.name + ' ' + it.job + ' ' + it.detail).toLowerCase().indexOf(q) >= 0; });
-    return list.length ? list.slice(0, 400).map(function(it, i){ return '<button class="mrow" style="animation-delay:' + Math.min(i, 14) * 22 + 'ms" data-mc="' + esc(it.candId) + '" data-mj="' + esc(it.jobId) + '"><span class="mav" style="--c:' + hueOf(it.name) + '">' + esc(initials(it.name)) + '</span><span class="mtx"><b>' + esc(it.name) + '</b><span>' + esc(it.job) + '</span></span><span class="mdt">' + it.detail + '</span><span class="mgo" aria-hidden="true">›</span></button>'; }).join('') + (list.length > 400 ? '<div class="hint" style="padding:8px">Showing the first 400.</div>' : '') : '<div class="empty" style="margin:10px">No candidates here.</div>'; };
+    return list.length ? list.slice(0, 400).map(function(it, i){ return (it.href ? '<a class="mrow" href="' + esc(it.href) + '" target="_blank" rel="noopener" style="animation-delay:' + Math.min(i, 14) * 22 + 'ms">' : '<button class="mrow" style="animation-delay:' + Math.min(i, 14) * 22 + 'ms" data-mc="' + esc(it.candId) + '" data-mj="' + esc(it.jobId) + '">') + '<span class="mav" style="--c:' + hueOf(it.name) + '">' + esc(initials(it.name)) + '</span><span class="mtx"><b>' + esc(it.name) + '</b><span>' + esc(it.job) + '</span></span><span class="mdt">' + it.detail + '</span><span class="mgo" aria-hidden="true">' + (it.href ? '↗' : '›') + '</span>' + (it.href ? '</a>' : '</button>'); }).join('') + (list.length > 400 ? '<div class="hint" style="padding:8px">Showing the first 400.</div>' : '') : '<div class="empty" style="margin:10px">No candidates here.</div>'; };
   ov.innerHTML = '<div class="mbk"></div><section class="mpn" role="dialog" aria-modal="true" aria-labelledby="mdlT" style="--c:' + (d.c || '#8644f0') + '"><header><div><h3 id="mdlT">' + esc(d.title) + ' <span class="qn">' + d.items.length + '</span></h3>' + (d.sub ? '<p>' + esc(d.sub) + '</p>' : '') + '</div><button class="btn sm" id="mdlX" aria-label="Close">✕</button></header>' +
     '<div class="mtools"><label class="search">' + ICON_SEARCH + '<input id="mdlQ" type="search" placeholder="Filter by name, role or detail" aria-label="Filter"></label>' + (d.items.length ? '<button class="btn sm" id="mdlCsv">⬇ Excel</button>' : '') + '</div><div class="mlist" id="mdlL">' + rowsHtml() + '</div></section>';
   document.body.appendChild(ov); document.body.style.overflow = 'hidden';
