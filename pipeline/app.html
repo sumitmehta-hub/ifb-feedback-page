@@ -530,6 +530,16 @@ body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden
 .me{color:var(--ink)}.me .av{background:var(--brand-l);border:1px solid var(--brand-line);color:var(--brand-d)}#mePr{color:var(--muted);opacity:1!important}
 .sidet{border:1px solid var(--line);background:#fff;color:var(--ink2)}.sidet:hover{background:var(--brand-l);color:var(--brand-d);border-color:var(--brand-line)}.sidet:focus-visible{outline:2px solid var(--brand)}
 @media (max-width:600px){.tsep{display:none}.lglogo{height:18px}}
+/* My interviews tidy (26 Nov): tiles like the overview's, one line per weekday, limits on one row, Team availability as a button */
+.mi-k{display:flex;flex-direction:column;gap:2px;border-left:1px solid var(--line);border-top:4px solid var(--brand);padding:12px 16px}
+.mi-k span{order:-1;font-size:11.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink2)}.mi-k b{font-size:28px;line-height:1.15}
+.mi-k.warn{border-top-color:var(--warn)}.mi-k.ok{border-top-color:var(--ok)}.mi-k.warn b{color:var(--warn)}.mi-k.ok b{color:var(--ok)}
+.av-day{align-items:center;padding:7px 0}.av-dl{padding-top:0}.av-ranges{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
+.av-un{padding-top:0;min-width:86px;color:var(--muted)}.av-day.off .av-dl b{color:var(--muted)}.av-day:not(.off){background:linear-gradient(90deg,var(--brand-ll),transparent 60%);margin:0 -12px;padding:7px 12px}
+@media (min-width:900px){.av-set{grid-template-columns:200px 200px minmax(0,1fr)}.av-set .av-note{grid-column:auto}}
+.av-team{margin-top:16px}.av-team summary{list-style:none;display:inline-flex;gap:8px;align-items:center;padding:7px 14px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink);font-size:13.5px}
+.av-team summary::-webkit-details-marker{display:none}.av-team summary:after{content:"▾";color:var(--ink2);transition:transform .15s}.av-team[open] summary:after{transform:rotate(180deg)}
+.av-team summary:hover{border-color:var(--brand-line);background:var(--brand-ll)}.av-team[open] summary{margin-bottom:6px}
 /* sign-in (26 Nov): centred, same Leegality gradient as the top bar, logo-colour edge */
 .signin{margin:clamp(24px,10vh,110px) auto 40px;width:min(900px,calc(100% - 32px));box-shadow:0 18px 50px rgba(6,0,59,.16)}
 .signin .art{position:relative;background:radial-gradient(120% 120% at 100% 100%,rgba(144,63,249,.6) 0%,rgba(144,63,249,0) 60%),linear-gradient(150deg,#06003B 0%,#1c0758 40%,#3d14a3 75%,#5A1FCC 100%);padding:38px 34px}
