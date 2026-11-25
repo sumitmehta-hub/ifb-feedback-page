@@ -550,6 +550,10 @@ body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden
 .ht .who{display:inline-block;margin-left:6px;font-size:11px;font-weight:700;color:var(--brand-d,#5b2bb5);background:var(--brand-l);border-radius:999px;padding:1px 8px;vertical-align:1px}
 .hp-tabs{display:flex;gap:6px;padding:0 18px 10px}.hp-tabs button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 14px;font:600 13px inherit;color:var(--ink2);cursor:pointer}.hp-tabs button[aria-selected=true]{background:var(--brand-dd);border-color:var(--brand-dd);color:#fff}
 body.ivonly .ht[data-ta]{display:none}
+.ht .fs{position:absolute;right:8px;bottom:8px;width:34px;height:34px;border-radius:9px;border:0;background:rgba(22,1,54,.82);color:#fff;font-size:16px;line-height:1;cursor:pointer;display:none;align-items:center;justify-content:center}
+.ht.on .fs{display:flex}
+@media (max-width:600px){.mdl.hpm{padding:0;align-items:stretch}.mdl.hpm .mpn{width:100vw;max-height:none;height:100dvh;border-radius:0}.hp-how{grid-template-columns:1fr}.ht .fs{display:flex}.hp-tabs{padding:0 14px 8px}.hp{padding:4px 14px 18px}}
+
 .ht.on{grid-column:1/-1;flex-direction:row}.ht.on .vw{flex:0 0 68%;border-bottom:0;border-right:1px solid var(--line)}.ht.on .tx{padding:16px 18px}
 @media (max-width:760px){.ht.on{flex-direction:column}.ht.on .vw{flex:none;border-right:0;border-bottom:1px solid var(--line)}}
 @media (max-width:600px){.helpb{padding:5px 6px;font-size:0;gap:0}.helpb span{width:18px;height:18px;font-size:12px}.hp-i{grid-template-columns:1fr}}
@@ -2311,10 +2315,13 @@ var HOWTO = [
 ];
 function howHtml(){
   return '<div class="hp-how">' + HOWTO.map(function(t){
-    return '<article class="ht hp-i2"' + (t.ta ? ' data-ta' : '') + '><div class="vw" data-hv="' + t.v + '" role="button" tabindex="0" aria-label="Play: ' + esc(t.h) + '"><video muted loop playsinline preload="metadata" src="help/' + t.v + '.mp4#t=0.6"></video><div class="pl"><span>▶</span></div></div>' +
+    return '<article class="ht hp-i2"' + (t.ta ? ' data-ta' : '') + '><div class="vw" data-hv="' + t.v + '" role="button" tabindex="0" aria-label="Play: ' + esc(t.h) + '"><video muted loop playsinline preload="metadata" src="help/' + t.v + '.mp4#t=0.6"></video><div class="pl"><span>▶</span></div><button class="fs" type="button" data-hfs title="Full screen" aria-label="Play full screen">⛶</button></div>' +
       '<div class="tx"><h5>' + esc(t.h) + (t.ta ? '' : '<span class="who">Interviewers</span>') + '</h5><ol>' + t.steps.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') + '</ol></div></article>';
   }).join('') + '</div>';
 }
+function fullClip(vw){ var v = vw.querySelector('video'); if(!v) return; if(v.paused) toggleClip(vw);
+  try{ if(v.requestFullscreen) v.requestFullscreen().catch(function(){ if(v.webkitEnterFullscreen) v.webkitEnterFullscreen(); }); else if(v.webkitEnterFullscreen) v.webkitEnterFullscreen(); else if(v.webkitRequestFullscreen) v.webkitRequestFullscreen(); }catch(e){}
+  try{ screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape').catch(function(){}); }catch(e){} }
 function toggleClip(vw){ var v = vw.querySelector('video'), card = vw.closest('.ht'); if(!v) return;
   if(v.paused){ document.querySelectorAll('.ht.on video').forEach(function(o){ if(o !== v){ o.pause(); o.closest('.ht').classList.remove('on'); o.closest('.ht').querySelector('.pl span').textContent = '▶'; } });
     v.play().catch(function(){}); card.classList.add('on'); vw.querySelector('.pl span').textContent = '❚❚'; setTimeout(function(){ card.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, 50); }
@@ -2323,22 +2330,28 @@ function openHelp(){
   closeDrill(true);
   var ov = document.createElement('div'); ov.className = 'mdl'; ov.id = 'mdl';
   var body = HELP.map(function(sec, k){ return '<section class="hp-sec"><h4>' + esc(sec.h) + '</h4><dl>' + sec.items.map(function(it){ return '<div class="hp-i"><dt>' + esc(it[0]) + '</dt><dd>' + esc(it[1]) + '</dd></div>'; }).join('') + '</dl></section>'; }).join('');
-  ov.innerHTML = '<div class="mbk"></div><section class="mpn" role="dialog" aria-modal="true" aria-labelledby="hpT" style="--c:#e0a800"><header><div><h3 id="hpT">Help</h3><p>Short how-to clips, and what every page, label and number means</p></div><button class="btn sm" id="mdlX" aria-label="Close">✕</button></header>' +
+  ov.classList.add('hpm'); ov.innerHTML = '<div class="mbk"></div><section class="mpn" role="dialog" aria-modal="true" aria-labelledby="hpT" style="--c:#e0a800"><header><div><h3 id="hpT">Help</h3><p>Short how-to clips, and what every page, label and number means</p></div><button class="btn sm" id="mdlX" aria-label="Close">✕</button></header>' +
     '<div class="mtools"><label class="search">' + ICON_SEARCH + '<input id="hpQ" type="search" placeholder="Search, e.g. book, pass rate, remind, rating" aria-label="Search help"></label></div>' +
     '<div class="hp-tabs" role="tablist"><button role="tab" data-hpt="how" aria-selected="true">How to</button><button role="tab" data-hpt="mean" aria-selected="false">What things mean</button></div>' +
     '<div class="mlist hp"><div data-hpp="how">' + howHtml() + '</div><div data-hpp="mean" hidden>' + body + '</div><p class="hint hp-none" hidden>Nothing matches. Ask the Business Systems team.</p></div></section>';
   document.body.appendChild(ov); document.body.style.overflow = 'hidden';
   ov.querySelector('.mbk').onclick = function(){ closeDrill(); }; document.getElementById('mdlX').onclick = function(){ closeDrill(); };
-  var q = document.getElementById('hpQ'); setTimeout(function(){ q.focus(); }, 60);
-  var tab = 'how', setTab = function(t){ tab = t; ov.querySelectorAll('[data-hpt]').forEach(function(b){ b.setAttribute('aria-selected', b.dataset.hpt === t ? 'true' : 'false'); });
-    ov.querySelectorAll('[data-hpp]').forEach(function(p){ p.hidden = p.dataset.hpp !== t; }); if(t !== 'how') ov.querySelectorAll('.ht.on .vw').forEach(toggleClip); q.oninput(); };
-  ov.querySelectorAll('[data-hpt]').forEach(function(b){ b.onclick = function(){ setTab(b.dataset.hpt); }; });
-  ov.querySelectorAll('[data-hv]').forEach(function(vw){ vw.onclick = function(){ toggleClip(vw); }; vw.onkeydown = function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggleClip(vw); } }; });
-  q.oninput = function(){ var v = q.value.trim().toLowerCase(), any = false;
-    if(tab === 'how'){ ov.querySelectorAll('.ht').forEach(function(c){ var on = !v || c.textContent.toLowerCase().indexOf(v) >= 0; c.hidden = !on; if(on && getComputedStyle(c).display !== 'none') any = true; });
-      if(v && !any){ var m = false; ov.querySelectorAll('.hp-i').forEach(function(i){ if(i.textContent.toLowerCase().indexOf(v) >= 0) m = true; }); if(m){ setTab('mean'); return; } } }
-    else ov.querySelectorAll('.hp-sec').forEach(function(sec){ var n = 0, hs = sec.querySelector('h4').textContent.toLowerCase(); sec.querySelectorAll('.hp-i').forEach(function(i){ var on = !v || i.textContent.toLowerCase().indexOf(v) >= 0 || hs.indexOf(v) >= 0; i.hidden = !on; if(on) n++; }); sec.hidden = !n; if(n) any = true; });
-    ov.querySelector('.hp-none').hidden = any; };
+  var q = document.getElementById('hpQ'), phone = matchMedia('(max-width:600px)').matches; if(phone) q.placeholder = 'Search help'; else setTimeout(function(){ q.focus(); }, 60);
+  var tab = 'how', none = ov.querySelector('.hp-none');
+  var setTab = function(t, byUser){ tab = t; ov.querySelectorAll('[data-hpt]').forEach(function(b){ b.setAttribute('aria-selected', b.dataset.hpt === t ? 'true' : 'false'); });
+    ov.querySelectorAll('[data-hpp]').forEach(function(p){ p.hidden = p.dataset.hpp !== t; }); if(t !== 'how') ov.querySelectorAll('.ht.on .vw').forEach(toggleClip); filter(!byUser); };
+  ov.querySelectorAll('[data-hpt]').forEach(function(b){ b.onclick = function(){ setTab(b.dataset.hpt, true); }; });
+  ov.querySelectorAll('[data-hv]').forEach(function(vw){ vw.onclick = function(e){ if(e.target.closest('[data-hfs]')){ e.stopPropagation(); fullClip(vw); return; } toggleClip(vw); }; vw.onkeydown = function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggleClip(vw); } }; });
+  // typing may jump to the tab that has the answer; a tab the user clicks stays put and says what is on the other one
+  var filter = function(canSwitch){ var v = q.value.trim().toLowerCase(), any = false, other = 0;
+    ov.querySelectorAll('.ht').forEach(function(c){ var on = !v || c.textContent.toLowerCase().indexOf(v) >= 0; c.hidden = !on; if(on && getComputedStyle(c).display !== 'none' && tab === 'how') any = true; else if(on && getComputedStyle(c).display !== 'none') other++; });
+    ov.querySelectorAll('.hp-sec').forEach(function(sec){ var n = 0, hs = sec.querySelector('h4').textContent.toLowerCase(); sec.querySelectorAll('.hp-i').forEach(function(i){ var on = !v || i.textContent.toLowerCase().indexOf(v) >= 0 || hs.indexOf(v) >= 0; i.hidden = !on; if(on) n++; }); sec.hidden = !n; if(n){ if(tab === 'mean') any = true; else other += n; } });
+    if(v && !any && other && canSwitch){ setTab(tab === 'how' ? 'mean' : 'how', false); return; }
+    none.hidden = any;
+    if(!any) none.innerHTML = v ? 'Nothing here matches “' + esc(q.value.trim()) + '”.' + (other ? ' <button class="btn sm" data-hpgo>See it in ' + (tab === 'how' ? 'What things mean' : 'How to') + '</button>' : '') + ' <button class="btn sm" data-hpclr>Clear search</button>' : '';
+  };
+  none.onclick = function(e){ if(e.target.closest('[data-hpclr]')){ q.value = ''; filter(false); q.focus(); } else if(e.target.closest('[data-hpgo]')) setTab(tab === 'how' ? 'mean' : 'how', true); };
+  q.oninput = function(){ filter(true); };
 }
 document.addEventListener('click', function(e){ if(e.target.closest && e.target.closest('#helpBtn')){ e.preventDefault(); openHelp(); } });
 document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && document.querySelector('#mdl #hpQ')) closeDrill(); });
