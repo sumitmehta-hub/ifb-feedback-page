@@ -509,6 +509,8 @@ body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden
 .sqt{display:grid;gap:6px}.sqh,.sqr{display:grid;grid-template-columns:minmax(0,1.4fr) 62px 62px 62px minmax(90px,1.2fr);gap:8px;align-items:center;font-size:13px}.sqh{font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase}.sqr b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sqr.small b{color:var(--muted)}
 .sqr .pbar{display:flex;align-items:center;gap:6px;height:auto;background:none;overflow:visible;border-radius:0}.sqr .pbar .trk{flex:1;height:16px;background:#f1edf8;border-radius:6px;overflow:hidden;position:relative}.sqr .pbar .trk i{position:absolute;left:0;top:0;bottom:0;border-radius:6px}.sqr .pbar em{position:static;font-style:normal;font-weight:800;font-size:12px;min-width:34px;text-align:right}.sqr .pbar:hover .trk{box-shadow:0 0 0 2px var(--brand-line)}
 @media (max-width:600px){.sqh,.sqr{grid-template-columns:minmax(0,1fr) 40px 40px 40px 64px;gap:5px;font-size:12px}.sqh{font-size:9.5px}}
+.gd{margin-top:10px;border:1px solid #f0dcc0;background:#fffaf2;border-radius:12px;padding:0}.gd summary{cursor:pointer;padding:9px 12px;font-weight:800;font-size:13.5px;color:#8a4b00;list-style:none}.gd summary::-webkit-details-marker{display:none}.gd summary::after{content:' ▾';color:#b07a3a}.gd:not([open]) summary::after{content:' ▸'}
+.gd-b{padding:0 12px 12px;font-size:13px}.gd-b ol,.gd-b ul{margin:6px 0 8px;padding-left:20px;display:grid;gap:4px}.gd-r{display:grid;gap:3px;font-size:12.5px;border-top:1px dashed #ecd4b4;padding-top:8px}.gd-r span{display:flex;gap:8px;align-items:baseline}.gd-r i{font-style:normal;font-weight:800;color:#b45309;min-width:12px}
 </style>
 </head>
 <body>
@@ -1174,6 +1176,29 @@ function loadNext(){
   post('flow', { candId: cid, jobId: S.nxJob }).then(function(f){ if(!S.cj || S.cj.candidate.id !== cid) return; S.nx = f; drawNext(); })
     .catch(function(e){ box.innerHTML = '<div class="nx"><span class="hint">' + esc(e.message) + '</span></div>'; });
 }
+// ---------- interview guide (Sumit 26 Nov, from the Blitz vs R1 research) ----------
+// Blitz passed ~85% but R1 rejected about half of those, mostly for weak fundamentals, a CV that does not hold up,
+// not being able to explain their own project or assignment, and AI help. So: a few knockout checks per role family at
+// Blitz, one meaning for the 1-5 rating in every round, and integrity checks in the technical rounds.
+var KNOCK = [
+  [/machine learning|\bml\b|\bai\b|data scien|computer vision|nlp/i, 'ML / AI', ['Name one model architecture you would use for image or text classification, and why that one.', 'Walk me through how you trained and evaluated your last model: the data, the loss, the metric, and what went wrong.', 'How did you notice overfitting, and what did you change?']],
+  [/tech lead|lead engineer|engineering manager|architect/i, 'Tech lead', ['Sketch one system you led: the main parts and how data flows between them.', 'Open your own code or assignment and explain the core part line by line (no notes, no AI).', 'What happens to a request in your framework from arrival to response? (e.g. WSGI vs ASGI for Python)']],
+  [/front ?end|react|angular|\bui\b|javascript/i, 'Front end', ['When does a React component re-render, and how did you fix a slow page?', 'Explain useEffect dependencies with a bug you fixed.', 'Why did you pick your state management, and what would you change?']],
+  [/devops|sre|platform|cloud|infra/i, 'DevOps', ['Deploying a service on Kubernetes: which objects do you create and why?', 'A pod is in CrashLoopBackOff: how do you debug it?', 'Walk me through the stages of a CI/CD pipeline you built.']],
+  [/python|django|fastapi|flask|backend|software engineer|sde|developer|java\b/i, 'Backend', ['What happens to a request in your framework from arrival to response? (Django / FastAPI: WSGI vs ASGI)', 'Describe one class you wrote: why a class and not a function? List vs tuple?', 'How did you use queues or caching (Celery, Redis, Kafka) in your project, and what broke?']],
+  [/test|qa\b|sdet|automation/i, 'QA / testing', ['How would you test a login API end to end? Which cases first?', 'Show how you structure an automation test (framework, data, assertions).', 'Tell me about a bug you found that others missed.']],
+  [/implementation|solutions? (engineer|consultant|architect)|integration|customer success|support engineer/i, 'Implementation', ['Explain one API integration you did: auth, request, error handling.', 'A client webhook keeps failing: how do you find out why?', 'How do you explain a technical limit to a bank or NBFC client?']],
+  [/.*/, 'General', ['Describe the biggest piece of work you owned end to end, with one number that shows the result.', 'What would your last manager say you need to improve?', 'Why this role, and why now?']]
+];
+var RATE_GUIDE = [['5', 'Clearly above the bar, would hire'], ['4', 'Meets the bar: confident they clear the next round'], ['3', 'Borderline: write the exact doubt so the next round checks it'], ['2', 'Below the bar'], ['1', 'Clear no, or an integrity issue']];
+var INTEGRITY = ['Camera on and face visible the whole time; coding on a shared screen, no second screen.', 'Spend the first 10 minutes on their own project or assignment: why, how, what they would change.', 'If answers sound read out, ask a follow-up "why" and note it in the evaluation.', 'Check one claim from the CV in depth instead of many on the surface.'];
+function knockFor(title){ var t = String(title || ''); for(var i = 0; i < KNOCK.length; i++) if(KNOCK[i][0].test(t)) return KNOCK[i]; return KNOCK[KNOCK.length - 1]; }
+function guideBox(status, jobTitle){ var st = String(status || '').toLowerCase(), k = knockFor(jobTitle);
+  var blitz = /^(qualified|blitz interview scheduled)$/.test(st), tech = /^(r1|r2|r3) interview-scheduled$|^interview-scheduled$/.test(st);
+  if(!blitz && !tech) return '';
+  var rate = '<div class="gd-r"><b>What the rating means (every round)</b>' + RATE_GUIDE.map(function(r){ return '<span><i>' + r[0] + '</i>' + esc(r[1]) + '</span>'; }).join('') + '</div>';
+  if(blitz) return '<details class="gd" open><summary>🧭 Blitz checklist · ' + esc(k[1]) + '</summary><div class="gd-b"><div class="hint">Ask at least two. A pass needs real answers, not a summary of the CV. Write what they answered in the evaluation.</div><ol>' + k[2].map(function(q){ return '<li>' + esc(q) + '</li>'; }).join('') + '</ol>' + rate + '</div></details>';
+  return '<details class="gd"><summary>🎯 Interview checks · ' + esc(k[1]) + '</summary><div class="gd-b"><ul>' + INTEGRITY.map(function(q){ return '<li>' + esc(q) + '</li>'; }).join('') + '</ul>' + rate + '</div></details>'; }
 function drawNext(form){
   var box = document.getElementById('nxs'), f = S.nx, jobs = (S.cj && S.cj.jobs) || []; if(!box || !f) return;
   if(!f.ok){ box.innerHTML = '<div class="nx"><span class="hint">' + esc(f.error) + '</span></div>'; return; }
@@ -1189,6 +1214,7 @@ function drawNext(form){
       (x.ivId ? '<a class="btn sm" href="' + RC + 'Interviews&id=' + esc(x.ivId) + '" target="_blank" rel="noopener">Open interview ↗</a>' : '') + '</div>'; });
   h += '<div class="nxsteps">' + f.steps.map(function(st){ var locked = st.gate && !st.gateOk;
     return '<button class="btn sm ' + (st.tone === 'primary' ? 'primary' : st.tone) + '" data-step="' + esc(st.k) + '"' + (f.canWrite ? '' : ' disabled') + ' title="' + esc('Status → ' + st.to + (locked ? ' (evaluation not filed: needs a reason to skip it)' : '')) + '">' + (locked ? '🔒 ' : '') + esc(st.label) + '</button>'; }).join('') + '</div>';
+  h += guideBox(f.status, f.jobTitle);
   if(!f.canWrite) h += '<div class="hint" style="margin-top:8px">Only the TA team can change candidates here.</div>';
   var auto = !form && S.autoStep && String(S.autoStep.c) === String(f.candId) ? S.autoStep : null; S.autoStep = null;
   if(auto){ var as = f.steps.filter(function(x){ return x.kind === auto.kind; })[0]; if(as && f.canWrite) form = as.k; }
