@@ -148,6 +148,35 @@ a{color:var(--brand-d);font-weight:600;text-decoration:none}a:hover{text-decorat
 .signin .frm h3{margin:0;font-size:22px;font-weight:800}
 .err{color:var(--bad);font-weight:600}
 .jsel{display:none}
+.segs{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.seg.full{display:flex;width:100%}.seg.full button{flex:1;padding:5px 6px;font-size:12.5px}
+.seg button b{font-weight:800;margin-left:4px;opacity:.85}
+.sbadge{display:inline-block;border-radius:999px;padding:1px 9px;font-size:11.5px;font-weight:800}
+.sbadge.open{background:var(--ok-l);color:var(--ok)}.sbadge.hold{background:var(--warn-l);color:var(--warn)}.sbadge.closed{background:#ecebf2;color:#4a4560}
+.panel{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px;font-size:12.5px}
+.panel .pr{background:#fff;border:1px solid var(--line);border-radius:999px;padding:2px 10px}
+.panel .pr b{color:var(--brand-d)}
+.journey{display:flex;gap:0;overflow-x:auto;padding:4px 2px 12px;margin-bottom:8px}
+.jstep{flex:1 0 74px;display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;font-size:11.5px;color:var(--muted)}
+.jstep:before{content:"";position:absolute;top:11px;left:-50%;right:50%;height:3px;background:var(--line);z-index:0}
+.jstep:first-child:before{display:none}
+.jstep.done:before,.jstep.cur:before,.jstep.stop:before,.jstep.hold:before{background:var(--brand)}
+.jstep i{width:22px;height:22px;border-radius:50%;background:#fff;border:2.5px solid var(--line);display:grid;place-items:center;font-style:normal;font-weight:800;font-size:11px;position:relative;z-index:1}
+.jstep.done i{background:var(--brand);border-color:var(--brand);color:#fff}
+.jstep.cur i{background:#fff;border-color:var(--brand);color:var(--brand);box-shadow:0 0 0 4px rgba(134,68,240,.18)}
+.jstep.stop i{background:var(--bad);border-color:var(--bad);color:#fff}
+.jstep.hold i{background:var(--warn-bar,#f29a1f);border-color:#f29a1f;color:#fff}
+.jstep.skip{opacity:.45}
+.jstep b{display:block;margin-top:5px;color:var(--ink);font-size:12px}
+.jstep.cur b{color:var(--brand-d)}.jstep.stop b{color:var(--bad)}
+.ivday{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--brand-d);margin:16px 2px 8px}
+.ivrow{display:grid;grid-template-columns:96px 1fr auto;gap:12px;align-items:center;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:8px;box-shadow:var(--shadow);cursor:pointer}
+.ivrow:hover{box-shadow:var(--shadow-h)}
+.ivrow .tm{font-weight:800;font-size:15px}.ivrow .tm small{display:block;font-weight:600;color:var(--muted);font-size:11.5px}
+.ivrow .who{font-weight:800}.ivrow .sub{font-size:12.5px;color:var(--ink2)}
+.ivrow .acts{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.ivrow.past{opacity:.85;background:var(--panel)}
+@media (max-width:860px){.ivrow{grid-template-columns:70px 1fr}.ivrow .acts{grid-column:1/-1;justify-content:flex-start}}
 @media (max-width:860px){.shell{grid-template-columns:1fr;height:auto}.side{display:none}.jsel{display:block;margin-bottom:12px}.jsel select{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:10px;background:#fff;font-weight:700}
   .main{padding:14px 14px 30px}.col{flex-basis:80vw;max-height:none}.tblw{max-height:none}.me .nm{display:none}.top .t2{display:none}.signin{grid-template-columns:1fr;margin:10px}.jh .acts{margin-left:0}}
 </style>
@@ -166,9 +195,10 @@ var BASE = /^localhost$|^127\.0\.0\.1$/.test(location.hostname) ? location.origi
 var PAGE_URL = location.href.split('#')[0];
 var API = BASE + '/server/hirepage/api/', AUTH = BASE + '/server/hirepage/auth/start?o=' + encodeURIComponent(location.origin) + '&r=' + encodeURIComponent(PAGE_URL);
 var RC = 'https://recruit.zoho.in/recruit/leegality/EntityInfo.do?module=';
+var FB_TAB = 'https://recruit.zoho.in/recruit/leegality/ShowTab.do?webTab=true&module=Interview%20Feedback';
 var root = document.getElementById('root');
 function store(k, v){ try{ if(v === undefined) return localStorage.getItem(k); if(v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); }catch(e){ return null; } }
-var S = { token: store('hire_t') || '', me: null, jobs: null, scope: 'mine', jobId: '', job: null, rows: null, q: '', jq: '', showAll: false, onlyMine: false, view: store('hire_view') || 'board', stage: '', sort: { k: 'Updated_On', d: -1 }, visible: [], candId: '', cache: {} };
+var S = { token: store('hire_t') || '', me: null, jobs: null, scope: 'mine', jobId: '', job: null, rows: null, q: '', jq: '', showAll: false, onlyMine: false, jstat: 'open', admin: false, page: 'home', ivs: null, view: store('hire_view') || 'board', stage: '', sort: { k: 'Updated_On', d: -1 }, visible: [], candId: '', cache: {} };
 function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function initials(n){ var p = String(n || '').trim().split(/\s+/).filter(Boolean); return ((p[0] || '?')[0] + (p.length > 1 ? p[p.length-1][0] : '')).toUpperCase(); }
 function dt(iso, t){ if(!iso) return ''; var d = new Date(iso); if(isNaN(d)) return String(iso); return d.toLocaleString('en-IN', t ? { day:'numeric', month:'short', year:'numeric', hour:'numeric', minute:'2-digit' } : { day:'numeric', month:'short', year:'numeric' }); }
@@ -209,7 +239,7 @@ function setTop(){ var m = S.me || {}; document.getElementById('meBox').hidden =
 
 // routing: #job=<id>&c=<id> keeps your place on refresh and back/forward
 function readHash(){ var h = new URLSearchParams(location.hash.replace(/^#/, '')); return { job: h.get('job') || '', c: h.get('c') || '' }; }
-function writeHash(job, c){ var h = (job ? 'job=' + job : '') + (c ? (job ? '&' : '') + 'c=' + c : ''); if((h ? '#' + h : '') === location.hash) return; history.pushState(null, '', location.pathname + location.search + (h ? '#' + h : '')); }
+function writeHash(job, c){ var h = (job ? 'job=' + job : S.page === 'iv' ? 'view=iv' : '') + (c ? (h0() ? '&' : '') + 'c=' + c : ''); function h0(){ return job || S.page === 'iv'; } if((h ? '#' + h : '') === location.hash) return; history.pushState(null, '', location.pathname + location.search + (h ? '#' + h : '')); }
 window.addEventListener('popstate', function(){ route(); });
 
 // sign in (Sign in with Zoho, popup; falls back to a redirect back here)
@@ -231,62 +261,116 @@ function viewSignin(){
 // shell: jobs sidebar + main area
 function shell(){
   root.innerHTML = '<div class="shell"><aside class="side" aria-label="Jobs"><div class="hd"><h2 id="sideTitle">Jobs</h2><label class="search">' + ICON_SEARCH + '<input id="jq" type="search" placeholder="Find a job" aria-label="Find a job" value="' + esc(S.jq) + '"></label>' +
-    (S.scope === 'all' ? '<label class="chk" style="margin-top:8px"><input type="checkbox" id="om"' + (S.onlyMine ? ' checked' : '') + '> Only my jobs</label>' : '') + '</div><nav class="list" id="jl"></nav></aside><main class="main" id="main"></main></div>';
-  document.getElementById('jq').oninput = function(){ S.jq = this.value; drawSide(); if(!S.jobId) viewHome(); };
-  var om = document.getElementById('om'); if(om) om.onchange = function(){ S.onlyMine = this.checked; drawSide(); if(!S.jobId) viewHome(); };
+    '<div class="segs"><div class="seg full" role="group" aria-label="Whose jobs" id="sgm"></div><div class="seg full" role="group" aria-label="Job status" id="sgs"></div></div></div><nav class="list" id="jl"></nav></aside><main class="main" id="main"></main></div>';
+  document.getElementById('jq').oninput = function(){ S.jq = this.value; drawSide(); if(S.page === 'home') viewHome(); };
   drawSide();
 }
-function visibleJobs(){ var q = S.jq.trim().toLowerCase(); return S.jobs.filter(function(x){ return (!S.onlyMine || x.mine) && (!q || [x.title, x.dept, x.recruiters.join(' '), x.manager].join(' ').toLowerCase().indexOf(q) >= 0); }); }
+function scoped(){ return S.jobs.filter(function(x){ return !S.onlyMine || x.mine; }); }
+function visibleJobs(){ var q = S.jq.trim().toLowerCase(); return scoped().filter(function(x){ return x.group === S.jstat && (!q || [x.title, x.dept, x.recruiters.join(' '), x.manager, x.status].join(' ').toLowerCase().indexOf(q) >= 0); }); }
+var GROUPS = [['open','Open'],['hold','On hold'],['closed','Closed']];
+function statusBadge(x){ return '<span class="sbadge ' + esc(x.group) + '">' + esc(x.group === 'open' ? 'Open' : x.status || (x.group === 'hold' ? 'On hold' : 'Closed')) + '</span>'; }
 function jobInitials(t){ return String(t || '').replace(/\(.*?\)/g, '').split(/[\s\-–\/]+/).filter(Boolean).slice(0, 2).map(function(w){ return w[0]; }).join('').toUpperCase(); }
 function drawSide(){
   var el = document.getElementById('jl'); if(!el) return;
   var list = visibleJobs();
-  document.getElementById('sideTitle').textContent = (S.scope === 'all' ? 'All open jobs' : 'Your open jobs') + ' · ' + S.jobs.length;
-  var item = function(x){ return '<button class="ji" data-j="' + esc(x.id) + '" aria-current="' + (x.id === S.jobId) + '" title="' + esc(x.title) + '"><span class="dot" aria-hidden="true">' + esc(jobInitials(x.title)) + '</span><span class="tx"><span class="tt">' + esc(x.title) + '</span><span class="ss">' + esc(x.dept || '') + '</span></span><span class="n">' + (x.candidates || 0).toLocaleString('en-IN') + '</span></button>'; };
+  var nMine = S.jobs.filter(function(x){ return x.mine; }).length;
+  document.getElementById('sideTitle').textContent = 'Jobs';
+  var sgm = document.getElementById('sgm'); sgm.innerHTML = '<button data-m="1" aria-pressed="' + S.onlyMine + '">My jobs<b>' + nMine + '</b></button><button data-m="0" aria-pressed="' + !S.onlyMine + '">All jobs<b>' + S.jobs.length + '</b></button>';
+  var sc = scoped(), sgs = document.getElementById('sgs'); sgs.innerHTML = GROUPS.map(function(g){ return '<button data-g="' + g[0] + '" aria-pressed="' + (S.jstat === g[0]) + '">' + g[1] + '<b>' + sc.filter(function(x){ return x.group === g[0]; }).length + '</b></button>'; }).join('');
+  sgm.querySelectorAll('button').forEach(function(b){ b.onclick = function(){ S.onlyMine = b.dataset.m === '1'; store('hire_mine', S.onlyMine ? '1' : '0'); drawSide(); if(S.page === 'home') viewHome(); if(S.page === 'iv') viewInterviews(); }; });
+  sgs.querySelectorAll('button').forEach(function(b){ b.onclick = function(){ S.jstat = b.dataset.g; drawSide(); if(S.page === 'home') viewHome(); }; });
+  var item = function(x){ return '<button class="ji" data-j="' + esc(x.id) + '" aria-current="' + (x.id === S.jobId) + '" title="' + esc(x.title) + '"><span class="dot" aria-hidden="true">' + esc(jobInitials(x.title)) + '</span><span class="tx"><span class="tt">' + esc(x.title) + '</span><span class="ss">' + esc(x.group === 'open' ? (x.dept || '') : (x.status || '') + (x.dept ? ' · ' + x.dept : '')) + '</span></span><span class="n">' + (x.candidates || 0).toLocaleString('en-IN') + '</span></button>'; };
   var mine = list.filter(function(x){ return x.mine; }), rest = list.filter(function(x){ return !x.mine; });
-  el.innerHTML = '<button class="home-link" id="hm" aria-current="' + (!S.jobId) + '">⌂ Overview</button>' + (list.length ? (S.scope === 'all' && mine.length && rest.length ? '<div class="grp">My jobs</div>' + mine.map(item).join('') + '<div class="grp">Other jobs</div>' + rest.map(item).join('') : list.map(item).join(''))
-    : '<div class="hint" style="padding:12px">' + (S.jobs.length ? 'No jobs match.' : 'No open jobs are assigned to you in Recruit.') + '</div>');
+  el.innerHTML = '<button class="home-link" id="hm" aria-current="' + (S.page === 'home') + '">⌂ Overview</button><button class="home-link" id="ivl" aria-current="' + (S.page === 'iv') + '">🗓 Interviews</button>' + (list.length ? (!S.onlyMine && mine.length && rest.length ? '<div class="grp">My jobs</div>' + mine.map(item).join('') + '<div class="grp">Other jobs</div>' + rest.map(item).join('') : list.map(item).join(''))
+    : '<div class="hint" style="padding:12px">' + (S.jq ? 'No jobs match.' : S.onlyMine ? 'No ' + (S.jstat === 'open' ? 'open' : S.jstat === 'hold' ? 'on-hold' : 'closed') + ' jobs where you are the recruiter or hiring manager. Try “All jobs”.' : 'No jobs here.') + '</div>');
   el.querySelectorAll('[data-j]').forEach(function(b){ b.onclick = function(){ openJob(b.dataset.j); }; });
   document.getElementById('hm').onclick = goHome;
+  document.getElementById('ivl').onclick = goInterviews;
 }
 function jobSelect(){
-  return '<div class="jsel"><select id="jsel" aria-label="Choose a job"><option value="">Overview (all jobs)</option>' + visibleJobs().map(function(x){ return '<option value="' + esc(x.id) + '"' + (x.id === S.jobId ? ' selected' : '') + '>' + esc(x.title) + ' (' + (x.candidates || 0) + ')</option>'; }).join('') + '</select></div>';
+  return '<div class="jsel"><select id="jsel" aria-label="Choose a job"><option value="">Overview</option><option value="__iv"' + (S.page === 'iv' ? ' selected' : '') + '>🗓 Interviews</option>' + visibleJobs().map(function(x){ return '<option value="' + esc(x.id) + '"' + (x.id === S.jobId ? ' selected' : '') + '>' + esc(x.title) + ' (' + (x.candidates || 0) + ')</option>'; }).join('') + '</select></div>';
 }
-function bindJobSelect(){ var s = document.getElementById('jsel'); if(s) s.onchange = function(){ if(this.value) openJob(this.value); else goHome(); }; }
+function bindJobSelect(){ var s = document.getElementById('jsel'); if(s) s.onchange = function(){ if(this.value === '__iv') goInterviews(); else if(this.value) openJob(this.value); else goHome(); }; }
 
 function loadJobs(){
   root.innerHTML = loading('Loading open jobs…');
-  post('jobs').then(function(j){ if(!j.ok){ root.innerHTML = '<div style="padding:20px"><div class="card err">' + esc(j.error) + '</div></div>'; return; } S.jobs = j.jobs; S.scope = j.scope || 'mine'; shell(); route(true); })
+  post('jobs').then(function(j){ if(!j.ok){ root.innerHTML = '<div style="padding:20px"><div class="card err">' + esc(j.error) + '</div></div>'; return; } S.jobs = j.jobs; S.admin = !!j.admin; S.scope = S.admin ? 'all' : 'mine'; var sm = store('hire_mine'); S.onlyMine = sm === '1' ? true : sm === '0' ? false : !S.admin; shell(); route(true); })
     .catch(function(e){ root.innerHTML = '<div style="padding:20px"><div class="card err">' + esc(e.message) + '</div></div>'; });
 }
 function route(first){
   if(!S.jobs) return;
   var h = readHash(), job = h.job;
+  if(location.hash.indexOf('view=iv') >= 0){ S.jobId = ''; if(S.page !== 'iv' || !S.ivs) goInterviews(true); if(h.c && h.c !== S.candId) openCandidate(h.c, true); else if(!h.c) closeDrawer(true); return; }
   if(first && !job){ var last = store('hire_job'); if(last && S.jobs.some(function(x){ return x.id === last; })){ job = last; history.replaceState(null, '', location.pathname + location.search + '#job=' + last); } }
   if(job && S.jobs.some(function(x){ return x.id === job; })){
     if(job !== S.jobId || !S.rows) openJob(job, false, true, h.c);
     else if(h.c && h.c !== S.candId) openCandidate(h.c, true);
     else if(!h.c) closeDrawer(true);
-  } else { S.jobId = ''; drawSide(); viewHome(); closeDrawer(true); }
+  } else { S.jobId = ''; S.page = 'home'; drawSide(); viewHome(); closeDrawer(true); }
 }
-function goHome(){ S.jobId = ''; store('hire_job', null); writeHash('', ''); closeDrawer(true); drawSide(); viewHome(); }
+function goHome(){ S.jobId = ''; S.page = 'home'; store('hire_job', null); writeHash('', ''); closeDrawer(true); drawSide(); viewHome(); }
 
 function viewHome(){
   var main = document.getElementById('main'); if(!main) return;
   var list = visibleJobs().slice().sort(function(a,b){ return (b.mine - a.mine) || String(b.opened).localeCompare(String(a.opened)); });
   var total = list.reduce(function(s,x){ return s + (x.candidates || 0); }, 0);
   var first = String((S.me && S.me.name) || '').split(' ')[0];
-  main.innerHTML = jobSelect() + '<div class="hero"><h1>' + (first ? 'Hi ' + esc(first) + ' 👋' : 'Welcome') + '</h1><div class="hint" style="margin-top:4px">' + list.length + ' open job' + (list.length === 1 ? '' : 's') + ' · ' + total.toLocaleString('en-IN') + ' candidates associated. Pick a job to see its pipeline. Press <span class="kbd">/</span> to search.</div></div>' +
-    (list.length ? '<div class="jobs">' + list.map(function(x){ return '<button class="job" data-j="' + esc(x.id) + '"><div class="t">' + esc(x.title) + '</div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' + (x.dept ? '<span class="tag">' + esc(x.dept) + '</span>' : '') + (x.mine && S.scope === 'all' ? '<span class="tag" style="background:#e7f6df;color:#1f7a00">Mine</span>' : '') + '<span class="hint">Opened ' + esc(dt(x.opened)) + '</span></div><div class="n"><b>' + (x.candidates || 0).toLocaleString('en-IN') + '</b><span>candidates · ' + esc(x.positions || '?') + ' position' + (x.positions == 1 ? '' : 's') + '</span></div><div class="rec">' + esc(x.recruiters.join(', ')) + '</div></button>'; }).join('') + '</div>'
-      : '<div class="empty">' + (S.jobs.length ? 'No jobs match.' : 'No open jobs are assigned to you in Recruit.') + '</div>');
+  var gl = { open: 'open', hold: 'on-hold', closed: 'closed (last 12 months)' }[S.jstat];
+  main.innerHTML = jobSelect() + '<div class="hero"><h1>' + (first ? 'Hi ' + esc(first) + ' 👋' : 'Welcome') + '</h1><div class="hint" style="margin-top:4px">' + (S.onlyMine ? 'Your ' : 'All ') + list.length + ' ' + gl + ' job' + (list.length === 1 ? '' : 's') + ' · ' + total.toLocaleString('en-IN') + ' candidates associated. Pick a job to see its pipeline, or open <a href="#view=iv" id="hiv">Interviews</a> for this week’s schedule. Press <span class="kbd">/</span> to search.</div></div>' +
+    (list.length ? '<div class="jobs">' + list.map(function(x){ return '<button class="job" data-j="' + esc(x.id) + '"><div class="t">' + esc(x.title) + '</div><div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' + (x.dept ? '<span class="tag">' + esc(x.dept) + '</span>' : '') + statusBadge(x) + (x.mine && !S.onlyMine ? '<span class="tag" style="background:#e7f6df;color:#1f7a00">Mine</span>' : '') + '<span class="hint">Opened ' + esc(dt(x.opened)) + '</span></div><div class="n"><b>' + (x.candidates || 0).toLocaleString('en-IN') + '</b><span>candidates · ' + esc(x.positions || '?') + ' position' + (x.positions == 1 ? '' : 's') + '</span></div><div class="rec">' + esc(x.recruiters.join(', ')) + '</div></button>'; }).join('') + '</div>'
+      : '<div class="empty">' + (S.jq ? 'No jobs match.' : S.onlyMine ? 'No ' + gl + ' jobs where you are the recruiter or hiring manager. Switch to “All jobs” in the sidebar.' : 'No ' + gl + ' jobs.') + '</div>');
   main.querySelectorAll('[data-j]').forEach(function(b){ b.onclick = function(){ openJob(b.dataset.j); }; });
+  var hiv = document.getElementById('hiv'); if(hiv) hiv.onclick = function(e){ e.preventDefault(); goInterviews(); };
   bindJobSelect();
 }
+
+// interviews: 2 days back to 7 days ahead, across jobs (My jobs filter applies)
+function goInterviews(fromRoute){
+  S.page = 'iv'; S.jobId = ''; if(fromRoute !== true) writeHash('', ''); closeDrawer(true); drawSide();
+  var main = document.getElementById('main');
+  if(S.ivs && !S.ivFresh){ viewInterviews(); return; }
+  main.innerHTML = jobSelect() + loading('Loading interviews…'); bindJobSelect();
+  post('interviews', { fresh: !!S.ivFresh }).then(function(j){ S.ivFresh = false; if(S.page !== 'iv') return; if(!j.ok){ main.innerHTML = jobSelect() + '<div class="card err">' + esc(j.error) + '</div>'; bindJobSelect(); return; } S.ivs = j.interviews; S.ivAt = Date.now(); viewInterviews(); })
+    .catch(function(e){ main.innerHTML = '<div class="card err">' + esc(e.message) + '</div>'; });
+}
+function viewInterviews(){
+  var main = document.getElementById('main'); if(!main || !S.ivs) return;
+  var mineIds = {}; S.jobs.forEach(function(x){ if(x.mine) mineIds[x.id] = 1; });
+  var list = S.ivs.filter(function(v){ return !S.onlyMine || mineIds[v.jobId]; });
+  var q = (S.ivq || '').trim().toLowerCase();
+  if(q) list = list.filter(function(v){ return [v.cand, v.job, v.round, v.panel.join(' '), v.owner].join(' ').toLowerCase().indexOf(q) >= 0; });
+  var now = Date.now(), upcoming = list.filter(function(v){ return new Date(v.end || v.start) >= now; }), past = list.filter(function(v){ return new Date(v.end || v.start) < now; }).reverse();
+  var pendingFb = past.filter(function(v){ return v.fb && v.fb.done < v.fb.total; }).length;
+  var today = list.filter(function(v){ return dayKey(v.start) === dayKey(new Date().toISOString()); }).length;
+  S.visible = list.map(function(v){ return v.candId; });
+  var row = function(v, isPast){
+    var fb = v.fb ? (v.fb.done >= v.fb.total ? '<span class="chip ok">Feedback in</span>' : '<span class="chip pend">' + v.fb.done + ' of ' + v.fb.total + ' feedback</span>') : '';
+    return '<div class="ivrow' + (isPast ? ' past' : '') + '" tabindex="0" data-c="' + esc(v.candId) + '" data-j="' + esc(v.jobId) + '"><div class="tm">' + esc(timeOf(v.start)) + '<small>' + esc(dayLabel(v.start)) + '</small></div>' +
+      '<div style="min-width:0"><div class="who">' + esc(v.cand) + ' <span class="chip br" style="margin-left:4px">' + esc(String(v.round).replace(/ Interview$/,'')) + '</span>' + (v.status ? ' <span class="chip">' + esc(v.status) + '</span>' : '') + '</div>' +
+      '<div class="sub">' + esc(v.job) + (v.panel.length ? ' · Panel: ' + esc(v.panel.join(', ')) : ' · <span style="color:var(--warn)">no interviewer set</span>') + (v.owner ? ' · Owner: ' + esc(v.owner) : '') + '</div></div>' +
+      '<div class="acts">' + fb + (v.url && !isPast ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener" data-stop="1">Join ↗</a>' : '') + (isPast && v.fb && v.fb.done < v.fb.total ? '<a class="btn sm" href="' + FB_TAB + '" target="_top" data-stop="1">Give feedback</a>' : '') + '<a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener" data-stop="1">Recruit ↗</a></div></div>';
+  };
+  var groupBy = function(arr, isPast){ var out = '', last = null; arr.forEach(function(v){ var k = dayKey(v.start); if(k !== last){ out += '<div class="ivday">' + esc(dayLabel(v.start)) + '</div>'; last = k; } out += row(v, isPast); }); return out; };
+  main.innerHTML = jobSelect() +
+    '<div class="jh"><div><h1>Interviews</h1><div class="meta"><span>' + (S.onlyMine ? 'Your jobs' : 'All jobs') + ' · last 2 days and next 7 days</span></div></div><div class="acts"><span class="hint">Updated ' + esc(ago(new Date(S.ivAt).toISOString()) || 'now') + '</span><button class="btn sm" id="ivrf">↻ Refresh</button></div></div>' +
+    '<div class="tiles"><div class="tile" style="--c:#8644f0"><small>Today</small><b>' + today + '</b></div><div class="tile" style="--c:#0f766e"><small>Coming up</small><b>' + upcoming.length + '</b></div><div class="tile" style="--c:#f29a1f"><small>Feedback pending</small><b>' + pendingFb + '</b></div><div class="tile" style="--c:#8a849c"><small>Last 2 days</small><b>' + past.length + '</b></div></div>' +
+    '<div class="toolbar"><label class="search">' + ICON_SEARCH + '<input id="ivq" type="search" placeholder="Search candidate, job, round or interviewer" aria-label="Search interviews" value="' + esc(S.ivq || '') + '"><span class="k kbd">/</span></label></div>' +
+    (upcoming.length ? '<h3 class="sec" style="margin-top:4px">Coming up</h3>' + groupBy(upcoming, false) : '<div class="empty">No interviews scheduled in the next 7 days' + (S.onlyMine ? ' on your jobs' : '') + '.</div>') +
+    (past.length ? '<h3 class="sec" style="margin-top:22px">Recent · check feedback</h3>' + groupBy(past, true) : '');
+  bindJobSelect();
+  document.getElementById('ivrf').onclick = function(){ S.ivFresh = true; goInterviews(); };
+  var iq = document.getElementById('ivq'); iq.oninput = function(){ S.ivq = this.value; var pos = this.selectionStart; viewInterviews(); var n = document.getElementById('ivq'); n.focus(); try{ n.setSelectionRange(pos, pos); }catch(e){} };
+  main.querySelectorAll('.ivrow').forEach(function(r){ r.onclick = function(e){ if(e.target.closest('[data-stop]')) return; if(r.dataset.c){ S.focusJob = r.dataset.j; openCandidate(r.dataset.c); } }; r.onkeydown = function(e){ if(e.key === 'Enter' && r.dataset.c) openCandidate(r.dataset.c); }; });
+}
+function dayKey(iso){ var d = new Date(iso); return isNaN(d) ? '' : d.toDateString(); }
+function dayLabel(iso){ var d = new Date(iso); if(isNaN(d)) return ''; var t = new Date(); t.setHours(0,0,0,0); var x = new Date(d); x.setHours(0,0,0,0); var diff = Math.round((x - t) / 86400000); if(diff === 0) return 'Today'; if(diff === 1) return 'Tomorrow'; if(diff === -1) return 'Yesterday'; return d.toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short' }); }
+function timeOf(iso){ var d = new Date(iso); return isNaN(d) ? '' : d.toLocaleTimeString('en-IN', { hour:'numeric', minute:'2-digit' }); }
 
 // job view
 function openJob(id, fresh, fromRoute, candToOpen){
   var changed = id !== S.jobId;
-  S.jobId = id; S.job = S.jobs.filter(function(x){ return x.id === id; })[0] || { id: id, title: 'Job' };
+  S.page = 'job'; S.jobId = id; S.job = S.jobs.filter(function(x){ return x.id === id; })[0] || { id: id, title: 'Job' };
+  if(S.job.group && S.job.group !== S.jstat){ S.jstat = S.job.group; }
   store('hire_job', id); if(!fromRoute) writeHash(id, ''); drawSide();
   if(changed){ S.q = ''; S.stage = ''; }
   closeDrawer(true);
@@ -308,7 +392,8 @@ function viewJob(){
   var sum = function(ks){ return ks.reduce(function(s,k){ return s + (counts[k] || 0); }, 0); };
   var tiles = [['In process', sum(['screen','assess','blitz','r1','r2','r3','vibe','offer','hold']), '#8644f0'], ['Interviewing', sum(['blitz','r1','r2','r3','vibe']), '#0f766e'], ['Offer', sum(['offer']), '#2f7d00'], ['Hired', sum(['hired']), '#15803d'], ['Closed', sum(['closed']), '#c8102e'], ['All associated', rows.length, '#8a849c']];
   main.innerHTML = jobSelect() +
-    '<div class="jh"><div style="min-width:0"><h1>' + esc(job.title) + '</h1><div class="meta">' + (job.dept ? '<span class="tag">' + esc(job.dept) + '</span>' : '') + (job.recruiters && job.recruiters.length ? '<span>Recruiters: ' + esc(job.recruiters.join(', ')) + '</span>' : '') + (job.opened ? '<span>Opened ' + esc(dt(job.opened)) + '</span>' : '') + '</div></div>' +
+    '<div class="jh"><div style="min-width:0"><h1>' + esc(job.title) + '</h1><div class="meta">' + (job.group ? statusBadge(job) : '') + (job.dept ? '<span class="tag">' + esc(job.dept) + '</span>' : '') + (job.manager ? '<span>Hiring manager: ' + esc(job.manager) + '</span>' : '') + (job.recruiters && job.recruiters.length ? '<span>Recruiters: ' + esc(job.recruiters.join(', ')) + '</span>' : '') + (job.opened ? '<span>Opened ' + esc(dt(job.opened)) + '</span>' : '') + '</div>' +
+      '<div class="panel"><span class="hint">Interview panel:</span>' + ((job.panel || []).length ? job.panel.map(function(p){ return '<span class="pr"><b>' + esc(p.round) + '</b> ' + esc(p.who) + '</span>'; }).join('') : '<span class="hint">not set on this job in Recruit</span>') + '</div></div>' +
     '<div class="acts"><span class="hint">Updated ' + esc(ago(S.cachedAt) || 'now') + '</span><button class="btn sm" id="rf">↻ Refresh</button><a class="btn sm" href="' + RC + 'JobOpenings&id=' + esc(job.id) + '" target="_blank" rel="noopener">Open in Recruit ↗</a></div></div>' +
     '<div class="tiles">' + tiles.map(function(t){ return '<div class="tile" style="--c:' + t[2] + '"><small>' + esc(t[0]) + '</small><b>' + t[1].toLocaleString('en-IN') + '</b></div>'; }).join('') + '</div>' +
     '<div class="toolbar"><label class="search">' + ICON_SEARCH + '<input id="cq" type="search" placeholder="Search name, status, company or title" aria-label="Search candidates" value="' + esc(S.q) + '"><span class="k kbd">/</span></label>' +
@@ -370,7 +455,7 @@ document.addEventListener('keydown', function(e){
   var typing = /^(INPUT|SELECT|TEXTAREA)$/.test((e.target || {}).tagName || '');
   if(e.key === 'Escape' && !dr.hidden){ closeDrawer(); return; }
   if(typing) return;
-  if(e.key === '/'){ if(!dr.hidden) closeDrawer(); var q = document.getElementById(S.jobId ? 'cq' : 'jq'); if(q){ e.preventDefault(); q.focus(); } }
+  if(e.key === '/'){ if(!dr.hidden) closeDrawer(); var q = document.getElementById(S.page === 'iv' ? 'ivq' : S.jobId ? 'cq' : 'jq'); if(q){ e.preventDefault(); q.focus(); } }
   if(!dr.hidden && (e.key === 'j' || e.key === 'ArrowDown')){ e.preventDefault(); step(1); }
   if(!dr.hidden && (e.key === 'k' || e.key === 'ArrowUp')){ e.preventDefault(); step(-1); }
 });
@@ -388,6 +473,25 @@ function navBar(){ var i = S.visible.indexOf(S.candId), n = S.visible.length;
   return '<div class="dnav"><button class="btn sm" id="pv"' + (i <= 0 ? ' disabled' : '') + ' aria-label="Previous candidate">↑ Prev</button><button class="btn sm" id="nx"' + (i < 0 || i >= n - 1 ? ' disabled' : '') + ' aria-label="Next candidate">Next ↓</button><span>' + (i >= 0 ? (i + 1) + ' of ' + n + ' &nbsp;' : '') + '<span class="kbd">K</span> <span class="kbd">J</span></span><span class="sp"></span><button class="btn sm" id="dx" aria-label="Close">✕ Close</button></div>'; }
 function bindNav(){ document.getElementById('dx').onclick = function(){ closeDrawer(); }; var p = document.getElementById('pv'), n = document.getElementById('nx'); if(p) p.onclick = function(){ step(-1); }; if(n) n.onclick = function(){ step(1); }; }
 function chipFor(st){ var k = stageOf(st); var c = k === 'closed' ? 'bad' : k === 'hold' ? 'pend' : k === 'hired' || k === 'offer' ? 'ok' : k === 'out' ? '' : 'br'; return '<span class="chip ' + c + '">' + esc(st || '—') + '</span>'; }
+// journey along the hiring blueprint: Screening → … → Hired, from this job's status + the status history
+var PATH = [['screen','Screening'],['assess','Assessment',1],['blitz','Blitz',1],['r1','R1'],['r2','R2'],['r3','R3'],['vibe','Vibe / Ref'],['offer','Offer'],['hired','Hired']];
+function journey(j){
+  var want = S.jobId || S.focusJob, jobRow = (j.jobs || []).filter(function(x){ return String(x.id) === String(want); })[0] || (j.jobs || [])[0];
+  if(!jobRow) return '';
+  var cur = stageOf(jobRow.status), order = {}; PATH.forEach(function(p, i){ order[p[0]] = i; });
+  var seen = {}, when = {};
+  (j.history || []).slice().reverse().forEach(function(e){ (e.fields || []).forEach(function(f){ if(/candidate status|hiring process status|hiring status/i.test(f.f || '')){ var k = stageOf(f.to); if(order[k] != null){ seen[k] = 1; if(!when[k]) when[k] = e.at; } } }); });
+  var reached = cur;
+  if(order[cur] == null){ var best = -1; Object.keys(seen).forEach(function(k){ if(order[k] > best) best = order[k]; }); reached = best >= 0 ? PATH[best][0] : 'screen'; }
+  var ri = order[reached];
+  var stop = cur === 'closed' ? 'stop' : cur === 'hold' ? 'hold' : '';
+  var steps = PATH.map(function(p, i){
+    var cls = i < ri ? (p[2] && !seen[p[0]] ? 'skip' : 'done') : i === ri ? (stop || (cur === 'hired' ? 'done' : 'cur')) : '';
+    var mark = cls === 'done' ? '✓' : cls === 'stop' ? '✕' : cls === 'hold' ? '❚❚' : String(i + 1);
+    return '<div class="jstep ' + cls + '" title="' + esc(p[1]) + '"><i>' + mark + '</i><b>' + esc(p[1]) + '</b>' + (when[p[0]] ? '<span>' + esc(new Date(when[p[0]]).toLocaleDateString('en-IN', { day:'numeric', month:'short' })) + '</span>' : '') + '</div>';
+  }).join('');
+  return '<div class="sec" style="margin-top:0">Journey · ' + esc(jobRow.title) + '</div><div class="journey">' + steps + '</div>' + (stop ? '<div class="box" style="margin:-4px 0 12px;font-size:13px">' + (stop === 'stop' ? '✕ ' : '❚❚ ') + 'Now: <b>' + esc(jobRow.status) + '</b></div>' : '');
+}
 function viewCandidate(){
   var j = S.cj, c = j.candidate, tab = candTab;
   var nFb = (j.feedback || []).length, nIv = (j.interviews || []).length;
@@ -397,6 +501,7 @@ function viewCandidate(){
   var tabs = [['over','Overview'],['rounds','Rounds' + (nIv ? ' (' + nIv + ')' : '') + (nFb ? ' · ' + nFb + ' feedback' : '')],['hist','History']];
   h += '<div class="tabs" role="tablist">' + tabs.map(function(t){ return '<button class="tab" role="tab" data-t="' + t[0] + '" aria-selected="' + (tab === t[0]) + '">' + esc(t[1]) + '</button>'; }).join('') + '</div><div class="db">';
   if(tab === 'over'){
+    h += journey(j);
     var F = [['Candidate ID','Candidate_ID'],['Experience','Experience_in_Years','y'],['Notice period','Notice_Period'],['City','City'],['Source','Source'],['Owner','Owner'],['Email','Email'],['Mobile','Mobile'],['Qualification','Highest_Qualification_Held'],['Current salary','Current_Salary'],['Expected salary','Expected_Salary'],['Evaluation','Evaluation_Status'],['Rejection reason','Rejection_Reason'],['Withdrawal reason','Withdrawal_Reason'],['Added','Created_Time','t'],['Last updated','Updated_On','t']];
     h += '<div class="kv">' + F.filter(function(f){ return c[f[1]] != null && c[f[1]] !== ''; }).map(function(f){ var v = f[2] === 't' ? dt(c[f[1]], true) : f[2] === 'y' ? yrs(c[f[1]]) : String(c[f[1]]); return '<div><small>' + esc(f[0]) + '</small><b>' + esc(v) + '</b></div>'; }).join('') + '</div>';
     var ub = [['Resume','Unberry_Resume_Score','Unberry_Resume_Result'],['Assessment','Unberry_Assessment_Score','Unberry_Assessment_Result'],['AI interview','Unberry_Interview_Score','Unberry_Interview_Result']].filter(function(u){ return c[u[1]] != null || c[u[2]]; });
@@ -411,7 +516,8 @@ function viewCandidate(){
     ivs.slice().reverse().forEach(function(v){
       var fb = (j.feedback || []).filter(function(f){ return f.ivId === String(v.id); });
       h += '<div class="round"><div class="rh"><b>' + esc(v.name || v.round || 'Interview') + '</b>' + (v.status ? '<span class="chip">' + esc(v.status) + '</span>' : '') + '<span class="hint" style="margin-left:auto">' + esc(dt(v.start, true)) + '</span></div>' +
-        '<div class="hint">' + esc([v.job, v.interviewers.length ? 'Panel: ' + v.interviewers.join(', ') : ''].filter(Boolean).join(' · ')) + '</div>' +
+        '<div class="hint">' + esc([v.job, v.interviewers.length ? 'Panel: ' + v.interviewers.join(', ') : '', v.owner ? 'Owner: ' + v.owner : ''].filter(Boolean).join(' · ')) + '</div>' +
+        '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">' + (v.url && new Date(v.end || v.start) >= Date.now() ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener">Join ↗</a>' : '') + (fb.some(function(f){ return f.status === 'Pending'; }) ? '<a class="btn sm" href="' + FB_TAB + '" target="_top">Give feedback</a>' : '') + '<a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener">Interview in Recruit ↗</a></div>' +
         (fb.length ? fb.map(function(f){ var st = f.status === 'Submitted' || f.status === 'Filed in Recruit' ? 'ok' : 'pend';
           return '<div class="fb"><div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><b>' + esc(f.who) + '</b><span class="chip ' + st + '">' + esc(f.status === 'Pending' ? 'To fill' : f.status) + '</span>' + (f.rec ? '<span class="chip br">' + esc(f.rec) + '</span>' : '') + (f.rating ? '<span class="hint">' + esc(f.rating) + '/5</span>' : '') + '</div>' + (f.comments ? '<div class="c">' + esc(f.comments) + '</div>' : '') + '</div>'; }).join('')
           : '<div class="fb hint">No panel feedback recorded for this round.</div>') + '</div>';
