@@ -162,7 +162,7 @@ section.dsec{border-top:4px solid var(--c)}.dsh h3{display:flex;align-items:cent
 @media (max-width:560px){.frow{grid-template-columns:96px 1fr 40px}.fdrop{padding-left:106px}.dn{width:140px;height:140px}}
 .pvbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#fff4e5;border:1px solid #f3c98b;color:#5a3500;border-radius:12px;padding:10px 14px;margin-bottom:14px;font-size:13.5px}.pvbar b{color:#1b1530}.pvbar .btn{margin-left:auto}
 .vas{display:grid;gap:4px;margin:2px 2px 10px;padding:10px;background:#fff;border:1px dashed var(--brand-line);border-radius:12px}.vas label{font-size:12px;font-weight:800;color:var(--brand-d)}.vas select{border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;font-weight:700;background:#fff}
-body.previewing [data-qremind],body.previewing [data-qfile],body.previewing [data-qskip],body.previewing [data-step],body.previewing [data-fileeval],body.previewing [data-remind],body.previewing #nxgo{pointer-events:none;opacity:.4}
+body.previewing [data-qremind],body.previewing [data-qfile],body.previewing [data-qskip],body.previewing [data-step],body.previewing [data-fileeval],body.previewing [data-remind],body.previewing #nxgo,body.previewing [data-ivact]{pointer-events:none;opacity:.4}
 @keyframes fanIn{from{opacity:0;transform:perspective(900px) translateY(18px) rotateX(-14deg) translateZ(-40px)}to{opacity:1;transform:none}}
 @keyframes rise{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
@@ -215,6 +215,19 @@ body.previewing [data-qremind],body.previewing [data-qfile],body.previewing [dat
 @keyframes cfx{0%{opacity:1;transform:translate(0,0) rotate(0)}70%{opacity:1}100%{opacity:0;transform:translate(var(--x),calc(var(--y) + 340px)) rotate(var(--r))}}
 #toast{background:linear-gradient(135deg,#3b1290,#8644f0)!important}
 @media (prefers-reduced-motion:reduce){.yay span{animation:none}}
+.ivcp{width:min(820px,94vw)}.ivcb{overflow:auto;padding:0 0 16px}.ivcb header{display:flex;justify-content:space-between;gap:12px;padding:16px 18px 6px}.ivcb h3{margin:0;font-size:18px}.ivcb header p{margin:3px 0 0;color:var(--ink2);font-size:13px}
+.ivc-when{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:6px 18px 0;padding:12px 14px;border-radius:14px;background:linear-gradient(120deg,#f6efff,#ffeef7)}.ivc-date{display:grid;margin-right:auto}.ivc-date b{font-size:16px;color:var(--ink)}.ivc-date span{font-size:13px;color:var(--ink2)}
+.ivc-cal{margin:10px 18px 0;font-size:13px;color:var(--ink2);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:9px 12px}.ivc-cal b{color:var(--ink)}
+.ivc-sec{margin:14px 18px 0}.ivc-sec h4{margin:0 0 8px;font-size:14px;display:flex;gap:8px;align-items:center}.ivc-sec .qn{background:#8644f0}
+.ivc-ppl{display:grid;gap:6px}.ivc-p{display:grid;grid-template-columns:34px minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:#fff;animation:rise .25s ease both}
+.ivc-pt{display:grid;min-width:0}.ivc-pt b{color:var(--ink);font-size:13.5px}.ivc-pt small{color:var(--muted);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ivc-role{font-size:11.5px;font-weight:800;color:var(--c);background:color-mix(in srgb,var(--c) 12%,#fff);border-radius:99px;padding:2px 9px}.ivc-fb{font-size:11.5px;font-weight:700}.ivc-fb.p{color:var(--warn)}.ivc-fb.ok{color:var(--ok)}
+.ivc-x{border:0;background:none;color:var(--muted);font-size:15px;cursor:pointer;border-radius:8px;padding:2px 6px}.ivc-x:hover{background:var(--bad-l);color:var(--bad)}
+.ivc-add{margin-top:10px;padding:10px;border:1.5px dashed var(--brand-line);border-radius:12px;background:#fcfaff}.ivc-add label{font-size:13px;font-weight:800;color:var(--brand-d)}
+.ivc-addrow{display:flex;gap:8px;margin-top:6px}.ivc-addrow input{flex:1;font:inherit;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px}
+.ivc-sug{display:grid;gap:2px;margin-top:4px}.ivc-s{display:grid;grid-template-columns:30px auto 1fr;gap:8px;align-items:center;text-align:left;font:inherit;background:none;border:0;border-radius:8px;padding:5px 6px;cursor:pointer}.ivc-s:hover{background:var(--brand-ll)}.ivc-s b{color:var(--ink);font-size:13px}.ivc-s small{color:var(--muted);font-size:12px}.ivc-s .mav{width:28px;height:28px;font-size:11px}
+.ivc-acts{display:flex;gap:8px;flex-wrap:wrap;margin:14px 18px 0}.ivc-form{margin:12px 18px 0}
+@media (max-width:560px){.ivc-pt small{white-space:normal}}
 .ldbar{height:6px;background:var(--brand-ll);border-radius:99px;margin-top:12px;overflow:hidden}.ldbar i{display:block;height:100%;background:var(--brand);border-radius:99px;transition:width .3s}
 .qjump{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}.qjump .chip{text-decoration:none;background:#fff;border:1px solid var(--line);color:var(--ink)}.qjump .chip b{color:var(--brand-d)}.qjump .chip.dim{opacity:.55}
 .qgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:14px;align-items:start}
@@ -542,7 +555,7 @@ function viewInterviews(){
     return '<div class="ivrow st-' + st.k + (isPast ? ' past' : '') + '" tabindex="0" data-c="' + esc(v.candId) + '" data-j="' + esc(v.jobId) + '"><div class="tm">' + esc(timeOf(v.start)) + '<small>' + esc(dayLabel(v.start)) + '</small></div>' +
       '<div style="min-width:0"><div class="who">' + esc(v.cand) + ' <span class="chip br" style="margin-left:4px">' + esc(String(v.round).replace(/ Interview$/,'')) + '</span>' + (v.status ? ' <span class="chip">' + esc(v.status) + '</span>' : '') + '</div>' +
       '<div class="sub">' + esc(v.job) + (v.panel.length ? ' · Panel: <b class="pn">' + esc(v.panel.join(', ')) + '</b>' : ' · <span style="color:var(--warn)">no interviewer set</span>') + (v.owner ? ' · Owner: <b class="pn">' + esc(v.owner) + '</b>' : '') + '</div></div>' +
-      '<div class="acts">' + fb + (v.url && !isPast ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener" data-stop="1">Join ↗</a>' : '') + (isPast && v.fb && v.fb.done < v.fb.total ? '<a class="btn sm" href="' + FB_TAB + '" target="_top" data-stop="1">Give feedback</a>' : '') + '<a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener" data-stop="1">Recruit ↗</a></div></div>';
+      '<div class="acts">' + fb + (v.url && !isPast ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener" data-stop="1">Join ↗</a>' : '') + (isPast && v.fb && v.fb.done < v.fb.total ? '<a class="btn sm" href="' + FB_TAB + '" target="_top" data-stop="1">Give feedback</a>' : '') + '<button class="btn sm" data-ivcard="' + esc(v.id) + '" data-stop="1">⚙ Manage</button><a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener" data-stop="1">Recruit ↗</a></div></div>';
   };
   var groupBy = function(arr, isPast){ var out = '', last = null; arr.forEach(function(v){ var k = dayKey(v.start); if(k !== last){ out += '<div class="ivday">' + esc(dayLabel(v.start)) + '</div>'; last = k; } out += row(v, isPast); }); return out; };
   main.innerHTML = jobSelect() +
@@ -802,7 +815,7 @@ function viewCandidate(){
       var cur = S.rtab[v.id]; if(!tabs.some(function(t){ return t.k === cur; })){ var sub = tabs.filter(function(t){ return t.f && t.f.status === 'Submitted'; })[0]; cur = (tabs[0] && tabs[0].k === 'eval') ? 'eval' : sub ? sub.k : (tabs[0] && tabs[0].k); }
       h += '<div class="round" data-iv="' + esc(v.id) + '"><div class="rh"><b style="font-size:15.5px">' + esc(v.name || v.round || 'Interview') + '</b>' + (v.status ? '<span class="chip">' + esc(v.status) + '</span>' : '') + '<span class="hint" style="margin-left:auto">' + esc(dt(v.start, true)) + '</span></div>' +
         '<div class="hint">' + [esc(v.job), v.interviewers.length ? 'Panel: <b class="pn">' + esc(v.interviewers.join(', ')) + '</b>' : '', v.owner ? 'Owner: <b class="pn">' + esc(v.owner) + '</b>' : ''].filter(Boolean).join(' · ') + '</div>' +
-        '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">' + (v.url && new Date(v.end || v.start) >= Date.now() ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener">Join ↗</a>' : '') + (fb.some(function(f){ return f.status === 'Pending'; }) ? '<a class="btn sm" href="' + FB_TAB + '" target="_top">Give feedback</a>' : '') + '<a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener">Interview in Recruit ↗</a></div>';
+        '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">' + (v.url && new Date(v.end || v.start) >= Date.now() ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener">Join ↗</a>' : '') + (fb.some(function(f){ return f.status === 'Pending'; }) ? '<a class="btn sm" href="' + FB_TAB + '" target="_top">Give feedback</a>' : '') + '<button class="btn sm" data-ivcard="' + esc(v.id) + '">⚙ Manage interview</button><a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener">Interview in Recruit ↗</a></div>';
       if(!tabs.length){ h += '<div class="hint" style="margin-top:12px">No feedback or evaluation yet for this round.</div></div>'; return; }
       h += '<div class="rtabs" role="tablist">' + tabs.map(function(t){ return '<button class="rtab" role="tab" data-iv="' + esc(v.id) + '" data-k="' + esc(t.k) + '" aria-selected="' + (t.k === cur) + '" style="--c:' + t.c + '"><i></i>' + esc(t.label) + '</button>'; }).join('') + '</div>';
       var at = tabs.filter(function(t){ return t.k === cur; })[0];
@@ -885,6 +898,7 @@ function doStep(k){
   post('move', body).then(function(r){
     if(!r.ok){ toastMsg(r.error || 'Could not save'); if(r.stale){ loadNext(); return; } b.disabled = false; b.textContent = 'Confirm: ' + st.label; return; }
     toastMsg('🎉 Done: ' + st.label); confetti();
+    if(st.kind === 'schedule' && r.ivId) setTimeout(function(){ openIvCard(r.ivId, {}); }, 700);
     (S.rows || []).forEach(function(x){ if(x.id === f.candId && String(S.jobId) === String(f.jobId)) x.Candidate_Status = r.status; });
     S.ivFresh = true;
     if(S.page !== 'iv' && S.jobId) try{ drawJob(); }catch(e){}
@@ -1032,7 +1046,7 @@ function viewWork(){
   var by = function(k){ return D.todo.filter(function(t){ return t.k === k; }).map(item); };
   var today = D.today.map(function(v){ var f = D.fbBy[v.id] || [], past = v.e < D.now;
     return qRow(v.candId, v.jobId, '<b>' + esc(timeOf(v.start)) + '</b> ' + nm2(v.cand, v.job), esc(String(v.round).replace(/ Interview$/, '')) + (v.panel.length ? ' · <b class="pn">' + esc(v.panel.join(', ')) + '</b>' : ' · <span style="color:var(--warn)">no interviewer set</span>'),
-      (past && f.length ? '<span class="chip ' + (f.every(function(x){ return x.st !== 'Pending'; }) ? 'ok' : 'pend') + '">' + f.filter(function(x){ return x.st !== 'Pending'; }).length + ' of ' + f.length + ' feedback</span>' : '') + (v.url && !past ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener" data-stop="1">Join ↗</a>' : '')); });
+      (past && f.length ? '<span class="chip ' + (f.every(function(x){ return x.st !== 'Pending'; }) ? 'ok' : 'pend') + '">' + f.filter(function(x){ return x.st !== 'Pending'; }).length + ' of ' + f.length + ' feedback</span>' : '') + (v.url && !past ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener" data-stop="1">Join ↗</a>' : '') + '<button class="btn sm" data-ivcard="' + esc(v.id) + '" data-stop="1">⚙ Manage</button>'); });
   var cards = [['today','🗓','Interviews today','Who you are meeting and the join links',today,'#8644f0'],
     ['evalmiss','📝','Evaluation missing','Held in the last ' + EVAL_DAYS + ' days, no evaluation in Recruit',by('evalmiss'),'#c8102e'],
     ['passed','✅','Passed, book next round','Evaluation says move on, nothing booked',by('passed'),'#2f7d00'],
@@ -1128,6 +1142,7 @@ function openDrill(key){
   var cs = document.getElementById('mdlCsv'); if(cs) cs.onclick = function(){ csvDownload(d.title.replace(/[^a-z0-9]+/gi, '-').toLowerCase(), ['Candidate','Role','Detail'], d.items.map(function(it){ return [it.name, it.job, String(it.detail).replace(/<[^>]+>/g, '')]; })); };
 }
 function closeDrill(now){ var ov = document.getElementById('mdl'); if(!ov) return; if(now){ ov.remove(); return; } ov.classList.add('out'); document.body.style.overflow = ''; setTimeout(function(){ ov.remove(); }, 180); }
+document.addEventListener('click', function(e){ var b = e.target.closest && e.target.closest('[data-ivcard]'); if(b){ e.preventDefault(); e.stopPropagation(); openIvCard(b.dataset.ivcard); } }, true);
 document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && document.getElementById('mdl')){ e.stopPropagation(); closeDrill(); } }, true);
 function bindDrills(root){ root.querySelectorAll('[data-drill]').forEach(function(el){ if(!el.getAttribute('role')) el.setAttribute('role', 'button'); if(!el.hasAttribute('tabindex')) el.tabIndex = 0;
   el.onclick = function(e){ e.stopPropagation(); openDrill(el.dataset.drill); }; el.onkeydown = function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openDrill(el.dataset.drill); } }; }); }
@@ -1347,6 +1362,78 @@ function confetti(){
   var html = ''; for(var i = 0; i < 34; i++){ var c = JOY[i % JOY.length], x = (Math.random() * 2 - 1) * 260, y = -(140 + Math.random() * 220), r = Math.random() * 540 - 270;
     html += '<i style="background:' + c + ';--x:' + x.toFixed(0) + 'px;--y:' + y.toFixed(0) + 'px;--r:' + r.toFixed(0) + 'deg;animation-delay:' + (Math.random() * 80).toFixed(0) + 'ms;' + (i % 3 ? '' : 'border-radius:50%;') + '"></i>'; }
   box.innerHTML = html; document.body.appendChild(box); setTimeout(function(){ box.remove(); }, 1400);
+}
+// ---------- Interview card (25 Nov): who's invited, add / remove interviewer, reschedule, cancel, Google Meet ----------
+// Same idea as the CRM Deal Meetings widget. Google sign-ins are shared with that widget (stored once in CRM, used
+// server-side only). Every change updates Recruit and, when there is one, the calendar invite.
+function openIvCard(ivId, opts){
+  closeDrill(true); var old = document.getElementById('ivc'); if(old) old.remove();
+  var ov = document.createElement('div'); ov.className = 'mdl'; ov.id = 'ivc';
+  ov.innerHTML = '<div class="mbk"></div><section class="mpn ivcp" role="dialog" aria-modal="true" aria-labelledby="ivcT" style="--c:#8644f0"><div class="ivcb">' + loading('Opening the interview…') + '</div></section>';
+  document.body.appendChild(ov); document.body.style.overflow = 'hidden';
+  var close = function(){ ov.classList.add('out'); document.body.style.overflow = ''; setTimeout(function(){ ov.remove(); }, 180); };
+  ov.querySelector('.mbk').onclick = close;
+  var esc2 = function(e){ if(e.key === 'Escape' && document.getElementById('ivc')){ e.stopPropagation(); close(); document.removeEventListener('keydown', esc2, true); } }; document.addEventListener('keydown', esc2, true);
+  var C = { form: (opts && opts.form) || '' };
+  var load = function(){ post('ivcard', { ivId: ivId }).then(function(j){ if(!document.getElementById('ivc')) return; if(!j.ok){ ov.querySelector('.ivcb').innerHTML = '<div class="card err">' + esc(j.error || 'Could not open the interview.') + '</div>'; return; } C.d = j; draw(); })
+    .catch(function(e){ ov.querySelector('.ivcb').innerHTML = '<div class="card err">' + esc(e.message) + '</div>'; }); };
+  var after = function(msg){ toastMsg(msg); confetti(); S.actAt = 0; C.form = ''; load(); };
+  var act = function(b, action, body, okMsg){ var lbl = b.textContent; b.disabled = true; b.textContent = 'Saving…';
+    post(action, Object.assign({ ivId: ivId }, body)).then(function(r){ if(!r.ok){ b.disabled = false; b.textContent = lbl; if(r.code === 'gconnect'){ connectG(); return; } toastMsg(r.error || 'Could not save'); return; } after(okMsg(r)); })
+      .catch(function(e){ b.disabled = false; b.textContent = lbl; toastMsg(e.message); }); };
+  var connectG = function(){
+    post('gconnect', {}).then(function(r){ if(!r.ok){ toastMsg(r.error || 'Could not start Google sign-in'); return; }
+      var w = window.open(r.url, 'hire_g', 'width=520,height=680'); if(!w){ toastMsg('Allow pop-ups for this page, then try again'); return; }
+      var on = function(e){ if(!e.data || e.data.type !== 'hire-gauth') return; window.removeEventListener('message', on); if(e.data.ok){ toastMsg('✅ Google connected'); load(); } else toastMsg(e.data.error || 'Google sign-in did not complete'); };
+      window.addEventListener('message', on); }); };
+  function draw(){
+    var d = C.d, iv = d.iv, st = new Date(iv.start), en = new Date(iv.end), mins = Math.round((en - st) / 60000), cancelled = /cancel/i.test(iv.status), past = en < Date.now();
+    var ROLE = { panel: ['Panel','#8644f0'], added: ['Added','#0f766e'], candidate: ['Candidate','#c2410c'], peopleops: ['People Ops','#6b6385'] };
+    var h = '<header><div><h3 id="ivcT">🗓 ' + esc(String(iv.name).replace(/ Interview$/, '') + ' · ' + iv.candidate.name) + '</h3><p>' + esc(iv.job.title) + '</p></div><button class="btn sm" id="ivcX" aria-label="Close">✕</button></header>' +
+      '<div class="ivc-when"><div class="ivc-date"><b>' + esc(st.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })) + '</b><span>' + esc(timeOf(iv.start)) + ' – ' + esc(timeOf(iv.end)) + ' · ' + mins + ' min</span></div>' +
+        (cancelled ? '<span class="chip bad">Cancelled' + (iv.cancelReason ? ' · ' + esc(iv.cancelReason) : '') + '</span>' : past ? '<span class="chip">Done</span>' : '<span class="chip br">Upcoming</span>') +
+        (iv.url && !cancelled ? '<a class="btn sm primary" href="' + esc(iv.url) + '" target="_blank" rel="noopener">Join ↗</a>' : '') +
+        '<a class="btn sm" href="' + RC + 'Interviews&id=' + esc(iv.id) + '" target="_blank" rel="noopener">Recruit ↗</a></div>' +
+      '<div class="ivc-cal">' + (iv.event ? '📨 Calendar invite sent by <b>' + esc(iv.event.organizer) + '</b>. Changes here update it for everyone.' : iv.legacyMeet ? '📨 This Meet was made with Recruit\'s Setup Google Meet button, so it can\'t be changed from here. Create a new Meet below to manage it here.' : '📭 No calendar invite yet.') + '</div>';
+    h += '<div class="ivc-sec"><h4>Who\'s invited <span class="qn">' + d.invitees.length + '</span></h4><div class="ivc-ppl">' + d.invitees.map(function(a){ var r = ROLE[a.role] || ['', '#8644f0'];
+      return '<div class="ivc-p"><span class="mav" style="--c:' + hueOf(a.name) + '">' + esc(initials(a.name)) + '</span><div class="ivc-pt"><b>' + esc(a.name) + '</b><small>' + esc(a.email) + (a.fb ? ' · <span class="ivc-fb ' + (a.fb === 'Pending' ? 'p' : 'ok') + '">' + (a.fb === 'Pending' ? '⏳ feedback due' : '✓ feedback ' + esc(a.fb.toLowerCase())) + '</span>' : '') + '</small></div><span class="ivc-role" style="--c:' + r[1] + '">' + r[0] + '</span>' +
+        (a.removable && !cancelled ? '<button class="ivc-x" data-ivrm="' + esc(a.email) + '" title="Remove ' + esc(a.name) + '" aria-label="Remove ' + esc(a.name) + '" data-ivact="1">✕</button>' : '') + '</div>'; }).join('') + '</div>';
+    if(!cancelled) h += '<div class="ivc-add"><label for="ivcQ">➕ Add an interviewer</label><div class="ivc-addrow"><input id="ivcQ" type="text" autocomplete="off" placeholder="Search a name, or type a leegality.com email" data-ivact="1"><button class="btn sm primary" id="ivcAdd" data-ivact="1">Add</button></div><div class="ivc-sug" id="ivcSug"></div></div>';
+    h += '</div>';
+    if(!cancelled){
+      h += '<div class="ivc-acts">' + (!iv.event ? (d.connected ? '<button class="btn primary" id="ivcMeet" data-ivact="1">🎥 Create Google Meet invite</button>' : '<button class="btn primary" id="ivcConn" data-ivact="1">🔗 Connect Google to send invites</button>') : '') +
+        '<button class="btn" data-ivform="re" data-ivact="1">🕑 Reschedule</button><button class="btn bad" data-ivform="cx" data-ivact="1">✖ Cancel interview</button></div>';
+      if(C.form === 're'){ var dd = new Date(Math.max(st.getTime(), Date.now() + 3600000)); var v = dd.getFullYear() + '-' + ('0' + (dd.getMonth() + 1)).slice(-2) + '-' + ('0' + dd.getDate()).slice(-2) + 'T' + ('0' + dd.getHours()).slice(-2) + ':' + ('0' + dd.getMinutes()).slice(-2);
+        h += '<div class="nxform ivc-form"><b>🕑 Move this interview</b><div class="row2"><label>New date and time (IST)<input type="datetime-local" id="ivcWhen" value="' + v + '"></label><label>Length<select id="ivcMin">' + [30,45,60,90].map(function(m){ return '<option value="' + m + '"' + (m === (mins || 45) ? ' selected' : '') + '>' + m + ' min</option>'; }).join('') + '</select></label></div>' +
+          '<label>Note for the record (optional)<input id="ivcNote" type="text" placeholder="e.g. Candidate asked for a later slot"></label><div class="nxnote">Recruit\'s reschedule alerts and the Cliq heads-up go out as usual' + (iv.event ? ', and everyone gets the updated calendar invite.' : '. There is no calendar invite yet to update.') + '</div>' +
+          '<div style="display:flex;gap:8px"><button class="btn primary" id="ivcGoRe" data-ivact="1">Save new time</button><button class="btn" data-ivform="" >Back</button></div></div>'; }
+      if(C.form === 'cx') h += '<div class="nxform ivc-form"><b>✖ Cancel this interview</b><label>Reason<select id="ivcWhy"><option value="">Choose…</option>' + ['Interviewer unavailable','Candidate no-show','Job opening closed','Candidate Unassociated','Others'].map(function(r){ return '<option>' + r + '</option>'; }).join('') + '</select></label>' +
+        '<label>Note (optional)<input id="ivcCNote" type="text" placeholder="Anything the team should know"></label><div class="nxnote">The interview is marked Cancelled in Recruit' + (iv.event ? ', the calendar invite is cancelled for everyone' : '') + ', and pending feedback reminders stop. The candidate\'s status does not change.</div>' +
+        '<div style="display:flex;gap:8px"><button class="btn bad" id="ivcGoCx" data-ivact="1">Cancel interview</button><button class="btn" data-ivform="">Keep it</button></div></div>';
+    }
+    if(S.viewAs) h += '<div class="pvnote">👁 Preview as <b>' + esc(S.viewAs) + '</b>: buttons are switched off.</div>';
+    var p = ov.querySelector('.ivcb'); p.innerHTML = h;
+    document.getElementById('ivcX').onclick = close;
+    p.querySelectorAll('[data-ivform]').forEach(function(b){ b.onclick = function(){ C.form = C.form === b.dataset.ivform ? '' : b.dataset.ivform; draw(); }; });
+    p.querySelectorAll('[data-ivrm]').forEach(function(b){ b.onclick = function(){ if(!confirm('Remove ' + b.dataset.ivrm + ' from this interview?')) return; act(b, 'ivremove', { email: b.dataset.ivrm }, function(r){ return '👋 Removed · ' + r.cal; }); }; });
+    var mt = document.getElementById('ivcMeet'); if(mt) mt.onclick = function(){ act(mt, 'ivmeet', {}, function(){ return '🎥 Google Meet created and invites sent'; }); };
+    var cn = document.getElementById('ivcConn'); if(cn) cn.onclick = connectG;
+    var gr = document.getElementById('ivcGoRe'); if(gr) gr.onclick = function(){ act(gr, 'ivresched', { start: document.getElementById('ivcWhen').value, minutes: document.getElementById('ivcMin').value, note: document.getElementById('ivcNote').value }, function(r){ return '🕑 Rescheduled · ' + r.cal; }); };
+    var gc = document.getElementById('ivcGoCx'); if(gc) gc.onclick = function(){ var why = document.getElementById('ivcWhy').value; if(!why){ toastMsg('Pick a reason'); return; } act(gc, 'ivcancel', { reason: why, note: document.getElementById('ivcCNote').value }, function(r){ return '✖ Interview cancelled · ' + r.cal; }); };
+    // add interviewer: suggestions from the job's panel and Recruit users; any leegality.com email works too
+    var qi = document.getElementById('ivcQ'), sug = document.getElementById('ivcSug');
+    if(qi){ var pick = null;
+      var show = function(){ var q = qi.value.trim().toLowerCase(); pick = null;
+        var list = (d.people || []).filter(function(x){ return !q || (x.name + ' ' + x.email).toLowerCase().indexOf(q) >= 0; }).slice(0, q ? 8 : 5);
+        sug.innerHTML = list.map(function(x, i){ return '<button class="ivc-s" data-i="' + i + '" type="button"><span class="mav" style="--c:' + hueOf(x.name) + '">' + esc(initials(x.name)) + '</span><b>' + esc(x.name) + '</b><small>' + esc(x.email) + (x.tag ? ' · ' + esc(x.tag) : '') + '</small></button>'; }).join('') +
+          (q && /@/.test(q) && !list.some(function(x){ return x.email === q; }) ? '<div class="hint" style="padding:6px 8px">' + (/@leegality\.com$/.test(q) ? 'Press Add to invite <b>' + esc(q) + '</b>' : 'Only leegality.com addresses can be added') + '</div>' : '');
+        sug.querySelectorAll('.ivc-s').forEach(function(b){ b.onclick = function(){ pick = list[+b.dataset.i]; qi.value = pick.email; sug.innerHTML = '<div class="hint" style="padding:6px 8px">Press Add to invite <b>' + esc(pick.name) + '</b></div>'; }; }); };
+      qi.oninput = show; qi.onfocus = show;
+      var doAdd = function(){ var em = qi.value.trim().toLowerCase(); if(!/^[^@\s]+@leegality\.com$/.test(em)){ toastMsg('Use a leegality.com email'); return; } var nm2 = pick && pick.email === em ? pick.name : ''; act(document.getElementById('ivcAdd'), 'ivadd', { email: em, name: nm2 }, function(r){ return '➕ Added · ' + r.cal; }); };
+      document.getElementById('ivcAdd').onclick = doAdd; qi.onkeydown = function(e){ if(e.key === 'Enter'){ e.preventDefault(); doAdd(); } };
+    }
+  }
+  load();
 }
 function render(){
   if(S.pending){ var pd = S.pending; S.pending = null; if(pd.ok){ gotAuth(pd); return; } S.authErr = pd.error || 'Sign-in failed.'; }
