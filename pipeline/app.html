@@ -483,6 +483,7 @@ b.pn,.sub b,.hint b,.dtbl td b{color:var(--ink);font-weight:800}
 @container (max-width:420px){.ivgroup .ivrow{grid-template-columns:70px minmax(0,1fr)}.ivgroup .ivrow .acts{grid-column:1/-1;justify-content:flex-start;max-width:none}}
 .qcard2 .qx:not(.qshow),.ivgroup .qx:not(.qshow){display:none}
 .ivgrid.rowsal{row-gap:14px;align-items:stretch}
+body.ivonly .side .search,body.ivonly .side .segs,body.ivonly .vas,body.ivonly #gs,body.ivonly .jsel{display:none!important}
 </style>
 </head>
 <body>
@@ -597,6 +598,8 @@ function drawSide(){
   sgm.querySelectorAll('button').forEach(function(b){ b.onclick = function(){ S.onlyMine = b.dataset.m === '1'; store('hire_mine', S.onlyMine ? '1' : '0'); drawSide(); if(S.page === 'home') viewHome(); if(S.page === 'iv') viewInterviews(); if(S.page === 'work') loadSum(false, viewWork); if(S.page === 'dash') loadSum(false, viewDash); }; });
   sgs.querySelectorAll('button').forEach(function(b){ b.onclick = function(){ S.jstat = b.dataset.g; drawSide(); if(S.page === 'home') viewHome(); }; });
   var item = function(x){ return '<button class="ji" data-j="' + esc(x.id) + '" aria-current="' + (x.id === S.jobId) + '" title="' + esc(x.title) + '"><span class="dot" aria-hidden="true" style="--jc:' + hueOf(x.title) + '">' + esc(jobInitials(x.title)) + '</span><span class="tx"><span class="tt">' + esc(x.title) + '</span><span class="ss">' + esc(x.group === 'open' ? (x.dept || '') : (x.status || '') + (x.dept ? ' · ' + x.dept : '')) + '</span></span><span class="n">' + (x.candidates || 0).toLocaleString('en-IN') + '</span></button>'; };
+  if(!S.ta){ document.getElementById('sideTitle').textContent = 'Interviews'; el.innerHTML = '<button class="home-link" id="myi" aria-current="true">🎤 My interviews</button><div class="hint" style="padding:10px 12px;font-size:12.5px">Your interviews, the evaluations you owe and your availability. The pipeline and dashboard are for the TA team.</div>';
+    document.getElementById('myi').onclick = function(){ goMine(); }; return; }
   var mine = list.filter(function(x){ return x.mine; }), rest = list.filter(function(x){ return !x.mine; });
   el.innerHTML = '<button class="home-link" id="wk" aria-current="' + (S.page === 'work') + '">✅ My work</button><button class="home-link" id="dsb" aria-current="' + (S.page === 'dash') + '">📊 Hiring overview</button><button class="home-link" id="hm" aria-current="' + (S.page === 'home') + '">⌂ All jobs</button><button class="home-link" id="ivl" aria-current="' + (S.page === 'iv') + '">🗓 Interviews</button><button class="home-link" id="myi" aria-current="' + (S.page === 'mine') + '">🎤 My interviews</button>' + (list.length ? (!S.onlyMine && mine.length && rest.length ? '<div class="grp">My jobs</div>' + mine.map(item).join('') + '<div class="grp">Other jobs</div>' + rest.map(item).join('') : list.map(item).join(''))
     : '<div class="hint" style="padding:12px">' + (S.jq ? 'No jobs match.' : S.onlyMine ? 'No ' + (S.jstat === 'open' ? 'open' : S.jstat === 'hold' ? 'on-hold' : 'closed') + ' jobs where you are the recruiter or hiring manager. Try “All jobs”.' : 'No jobs here.') + '</div>');
@@ -630,12 +633,14 @@ function bindJobSelect(){ var px = document.getElementById('pvx'); if(px) px.onc
 
 function loadJobs(){
   root.innerHTML = loading('Loading open jobs…');
-  post('jobs').then(function(j){ if(j.ok){ var nOpen = (j.jobs || []).filter(function(x){ return x.group === 'open'; }).length; SPL.step(32, 'Signed in · ' + nOpen + ' open roles', 'auth'); SPL.step(34, null, 'roles', String(nOpen)); } else SPL.done(); if(!j.ok){ root.innerHTML = '<div style="padding:20px"><div class="card err">' + esc(j.error) + '</div></div>'; return; } var gsEl = document.getElementById('gs'); if(gsEl){ gsEl.hidden = false; bindGSearch(); } S.jobs = j.jobs; S.admin = !!j.admin; S.ta = j.ta !== false; document.body.classList.toggle('viewer', !S.ta); S.scope = S.admin ? 'all' : 'mine'; var sm = store('hire_mine'); S.onlyMine = sm === '1' ? true : sm === '0' ? false : !S.admin; shell(); route(true); })
+  post('jobs').then(function(j){ if(j.ok){ var nOpen = (j.jobs || []).filter(function(x){ return x.group === 'open'; }).length; SPL.step(32, 'Signed in · ' + nOpen + ' open roles', 'auth'); SPL.step(34, null, 'roles', String(nOpen)); } else SPL.done(); if(!j.ok){ root.innerHTML = '<div style="padding:20px"><div class="card err">' + esc(j.error) + '</div></div>'; return; } var gsEl = document.getElementById('gs'); if(gsEl && j.ta !== false){ gsEl.hidden = false; bindGSearch(); } S.jobs = j.jobs; S.admin = !!j.admin; S.ta = j.ta !== false; document.body.classList.toggle('viewer', !S.ta); document.body.classList.toggle('ivonly', !S.ta); S.scope = S.admin ? 'all' : 'mine'; var sm = store('hire_mine'); S.onlyMine = sm === '1' ? true : sm === '0' ? false : !S.admin; shell(); route(true); })
     .catch(function(e){ root.innerHTML = '<div style="padding:20px"><div class="card err">' + esc(e.message) + '</div></div>'; });
 }
 function route(first){
   if(!S.jobs) return;
   var h = readHash(), job = h.job;
+  // interviewers and hiring managers outside the TA team only get My interviews (Sumit 26 Nov); the server refuses the rest
+  if(!S.ta){ S.jobId = ''; closeDrawer(true); if(S.page !== 'mine' || first) goMine(true); return; }
   if(location.hash.indexOf('view=mine') >= 0 || (first && !job && !S.ta && !S.admin && !S.jobs.some(function(x){ return x.mine; }))){ S.jobId = ''; goMine(true); return; }
   var vw = (location.hash.match(/view=(work|dash)/) || [])[1];
   if(vw || (first && !job)){ S.jobId = ''; if(S.page !== vw || first){ if(vw === 'dash' || (!vw && S.admin)) goDash(true); else goWork(true); } if(h.c && h.c !== S.candId) openCandidate(h.c, true); else if(!h.c) closeDrawer(true); return; }
