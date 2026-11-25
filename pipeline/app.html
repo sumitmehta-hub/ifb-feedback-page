@@ -638,7 +638,7 @@ function drawSide(){
   var mine = list.filter(function(x){ return x.mine; }), rest = list.filter(function(x){ return !x.mine; });
   el.innerHTML = '<button class="home-link" id="wk" aria-current="' + (S.page === 'work') + '">✅ My work</button><button class="home-link" id="dsb" aria-current="' + (S.page === 'dash') + '">📊 Hiring overview</button><button class="home-link" id="hm" aria-current="' + (S.page === 'home') + '">⌂ All jobs</button><button class="home-link" id="ivl" aria-current="' + (S.page === 'iv') + '">🗓 Interviews</button><button class="home-link" id="myi" aria-current="' + (S.page === 'mine') + '">🎤 My interviews</button>' + (list.length ? (!S.onlyMine && mine.length && rest.length ? '<div class="grp">My jobs</div>' + mine.map(item).join('') + '<div class="grp">Other jobs</div>' + rest.map(item).join('') : list.map(item).join(''))
     : '<div class="hint" style="padding:12px">' + (S.jq ? 'No jobs match.' : S.onlyMine ? 'No ' + (S.jstat === 'open' ? 'open' : S.jstat === 'hold' ? 'on-hold' : 'closed') + ' jobs where you are the recruiter or hiring manager. Try “All jobs”.' : 'No jobs here.') + '</div>');
-  el.querySelectorAll('[data-j]').forEach(function(b){ b.onclick = function(){ openJob(b.dataset.j); }; });
+  el.querySelectorAll('[data-j]').forEach(function(b){ b.onclick = function(){ openJob(b.dataset.j); }; var ht; b.onmouseenter = function(){ ht = setTimeout(function(){ prefetchJob(b.dataset.j); }, 120); }; b.onmouseleave = function(){ clearTimeout(ht); }; });
   if(realAdmin()){ var ppl = viewAsPeople(); if(ppl.length){ var va = document.createElement('div'); va.className = 'vas'; va.innerHTML = '<label for="vasel">🔎 Recruiter</label><select id="vasel" aria-label="Filter by recruiter"><option value="">Everyone</option>' + ppl.map(function(n){ return '<option' + (n === S.viewAs ? ' selected' : '') + '>' + esc(n) + '</option>'; }).join('') + '</select>';
     el.insertBefore(va, el.firstChild); document.getElementById('vasel').onchange = function(){ setViewAs(this.value); }; } }
   document.getElementById('hm').onclick = goHome;
@@ -926,6 +926,8 @@ function openJob(id, fresh, fromRoute, candToOpen){ SPL.done();
   var main = document.getElementById('main');
   var scope = S.showAll ? 'all' : 'active', ck = id + '|' + scope;
   var cached = S.cache[ck] || (scope === 'active' && S.cache[id + '|all']);
+  // speed (26 Nov): reuse what My work / the overview already loaded for this role (same "active" list, under 10 min old)
+  var jr0 = S.jr && S.jr[id]; if(!cached && !fresh && scope === 'active' && jr0 && jr0.full && jr0.at > Date.now() - 10 * 60000){ jr0.rows.forEach(function(r){ r._st = stageOf(r.Candidate_Status); }); cached = S.cache[ck] = { rows: jr0.rows, at: new Date(jr0.at).toISOString(), scope: 'active' }; }
   if(cached && !fresh){ S.rows = cached.rows; S.cachedAt = cached.at; S.scopeLoaded = cached.scope; viewJob(); if(candToOpen) openCandidate(candToOpen, true); return; }
   S.rows = null;
   main.innerHTML = jobSelect() + loading(scope === 'all' ? 'Loading all ' + (S.job.candidates ? S.job.candidates.toLocaleString('en-IN') + ' ' : '') + 'candidates' + (S.job.candidates > 400 ? ', this can take a few seconds' : '') + '…' : 'Loading candidates in process…'); bindJobSelect();
@@ -936,6 +938,10 @@ function openJob(id, fresh, fromRoute, candToOpen){ SPL.done();
     S.filterNote = j.filterNote || ''; S.rows = j.candidates; S.cachedAt = j.cachedAt; S.scopeLoaded = j.scope || scope; S.cache[id + '|' + S.scopeLoaded] = { rows: j.candidates, at: j.cachedAt, scope: S.scopeLoaded }; viewJob(); if(candToOpen) openCandidate(candToOpen, true);
   }).catch(function(e){ main.innerHTML = '<div class="card err">' + esc(e.message) + '</div>'; });
 }
+// hover a role in the sidebar and its candidates start loading, so the click opens it at once (26 Nov)
+var JOB_PF = {};
+function prefetchJob(id){ if(!id || S.cache[id + '|active'] || S.cache[id + '|all'] || JOB_PF[id]) return; JOB_PF[id] = 1;
+  post('job', { jobId: id, scope: 'active' }).then(function(j){ if(j && j.ok && !S.cache[id + '|active']){ j.candidates.forEach(function(r){ r._st = stageOf(r.Candidate_Status); }); S.cache[id + '|' + (j.scope || 'active')] = { rows: j.candidates, at: j.cachedAt, scope: j.scope || 'active' }; } }).catch(function(){}).then(function(){ delete JOB_PF[id]; }); }
 var RECENT_DAYS = 90;   // candidates not updated in 3 months are hidden until asked for
 function isRecent(r){ var t = new Date(r.Updated_On || r.Created_Time || 0).getTime(); return t >= Date.now() - RECENT_DAYS * 86400000; }
 function baseRows(){ return S.older ? S.rows : S.rows.filter(isRecent); }
@@ -1416,7 +1422,7 @@ function loadSum(fresh, then){
   if(!have) main.innerHTML = jobSelect() + '<div class="hero"><h1>' + (page === 'dash' ? 'Hiring overview' : 'My work') + '</h1><div class="hint" style="margin-top:4px">Reading today’s interviews…</div><div class="ldbar"><i style="width:15%"></i></div></div>';
   var q = need.slice();
   var one = function(){ var x = q.shift(); if(!x) return Promise.resolve();
-    return post('job', { jobId: x.id, fresh: !!fresh }).then(function(j){ if(j.ok) S.jr[x.id] = { at: Date.now(), rows: j.candidates || [] }; else errs++; }).catch(function(){ errs++; }).then(function(){ done++; prog(); soon(); return one(); }); };
+    return post('job', { jobId: x.id, fresh: !!fresh }).then(function(j){ if(j.ok) S.jr[x.id] = { at: Date.now(), rows: j.candidates || [], full: true }; else errs++; }).catch(function(){ errs++; }).then(function(){ done++; prog(); soon(); return one(); }); };
   var act = actOk ? Promise.resolve() : post('activity', { fresh: !!fresh }).then(function(j){ if(j.ok){ S.act = j; S.actAt = Date.now(); if(SPL.active()){ SPL.step(55, 'Interviews: ' + (j.interviews || []).length + ' in 9 weeks', 'iv', String((j.interviews || []).length)); SPL.step(56, null, 'fb', String((j.feedback || []).length)); } } else S.actErr = j.error; prog(); draw(); });
   Promise.all([act, one(), one(), one(), one()]).then(function(){ S.sumBusy = false; S.sumProg = ''; S.sumErr = errs ? errs + ' role' + (errs === 1 ? '' : 's') + ' could not be read; numbers may be low.' : ''; sumSave(); clearTimeout(t); draw(); if(SPL.active()){ var nc = 0; Object.keys(S.jr).forEach(function(k){ nc += ((S.jr[k] || {}).rows || []).length; }); SPL.step(100, 'Candidates in process: ' + nc, 'cands', String(nc), 'ok'); } SPL.done(); });
 }
