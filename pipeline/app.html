@@ -400,7 +400,7 @@ function openJob(id, fresh, fromRoute, candToOpen){
   S.page = 'job'; S.jobId = id; S.job = S.jobs.filter(function(x){ return x.id === id; })[0] || { id: id, title: 'Job' };
   if(S.job.group && S.job.group !== S.jstat){ S.jstat = S.job.group; }
   store('hire_job', id); if(!fromRoute) writeHash(id, ''); drawSide();
-  if(changed){ S.q = ''; S.stage = ''; S.showAll = false; S.older = false; S.colLimit = {}; S.listLimit = 50; }
+  if(changed){ S.q = ''; S.stage = ''; S.showAll = false; S.older = false; S.olderCols = {}; S.colLimit = {}; S.listLimit = 50; }
   closeDrawer(true);
   var main = document.getElementById('main');
   var scope = S.showAll ? 'all' : 'active', ck = id + '|' + scope;
@@ -415,9 +415,9 @@ function openJob(id, fresh, fromRoute, candToOpen){
     S.filterNote = j.filterNote || ''; S.rows = j.candidates; S.cachedAt = j.cachedAt; S.scopeLoaded = j.scope || scope; S.cache[id + '|' + S.scopeLoaded] = { rows: j.candidates, at: j.cachedAt, scope: S.scopeLoaded }; viewJob(); if(candToOpen) openCandidate(candToOpen, true);
   }).catch(function(e){ main.innerHTML = '<div class="card err">' + esc(e.message) + '</div>'; });
 }
-var RECENT_DAYS = 180;
+var RECENT_DAYS = 90;   // candidates not updated in 3 months are hidden until asked for
 function isRecent(r){ var t = new Date(r.Updated_On || r.Created_Time || 0).getTime(); return t >= Date.now() - RECENT_DAYS * 86400000; }
-function baseRows(){ return S.rows; }
+function baseRows(){ return S.older ? S.rows : S.rows.filter(isRecent); }
 function viewJob(){
   var main = document.getElementById('main'), job = S.job, rows = baseRows();
   var nOlder = S.rows.length - S.rows.filter(isRecent).length;
@@ -432,11 +432,12 @@ function viewJob(){
     '<div class="toolbar"><label class="search">' + ICON_SEARCH + '<input id="cq" type="search" placeholder="Search name, status, company or title" aria-label="Search candidates" value="' + esc(S.q) + '"><span class="k kbd">/</span></label>' +
     '<label class="chk"><input type="checkbox" id="all"' + (S.showAll ? ' checked' : '') + '> Show closed &amp; not in process' + (S.scopeLoaded !== 'all' && job.candidates > 300 ? ' <span class="hint">(loads all ' + job.candidates.toLocaleString('en-IN') + ')</span>' : '') + '</label>' +
     '<div class="seg" role="group" aria-label="View"><button data-v="board" aria-pressed="' + (S.view === 'board') + '">Board</button><button data-v="list" aria-pressed="' + (S.view === 'list') + '">List</button></div></div>' +
-    '<div class="hint" style="font-size:12.5px;margin:-4px 0 8px">Newest first.' + (S.scopeLoaded !== 'all' ? ' Showing candidates in process; tick the box to load closed and not-in-process too.' : '') + '</div>' +
+    '<div class="hint" style="font-size:12.5px;margin:-4px 0 8px">Newest first · updated in the last 3 months' + (nOlder && !S.older ? ' (' + nOlder.toLocaleString('en-IN') + ' older hidden, <a href="#" id="olderAll">show them</a>)' : S.older ? ' and older (<a href="#" id="olderAll">hide older</a>)' : '') + '.' + (S.scopeLoaded !== 'all' ? ' Only candidates in process are loaded; tick the box for closed and not-in-process.' : '') + '</div>' +
     (S.filterNote ? '<div class="hint" style="font-size:11.5px;margin:-4px 0 8px">Admin note: Recruit refused the status filter, loaded everything instead: ' + esc(S.filterNote) + '</div>' : '') +
     '<div class="chips" id="chips"></div><div id="bd"></div>';
   bindJobSelect();
   document.getElementById('rf').onclick = function(){ openJob(job.id, true); };
+  var oa = document.getElementById('olderAll'); if(oa) oa.onclick = function(e){ e.preventDefault(); S.older = !S.older; S.olderCols = {}; viewJob(); };
 
   document.getElementById('cq').oninput = function(){ S.q = this.value; S.colLimit = {}; S.listLimit = 50; drawJob(); };
   document.getElementById('all').onchange = function(){ S.showAll = this.checked; if(!S.showAll && HIDDEN[S.stage]) S.stage = ''; if(S.showAll && S.scopeLoaded !== 'all'){ openJob(S.jobId, false, true); return; } drawJob(); };
@@ -445,7 +446,7 @@ function viewJob(){
 }
 function filtered(){
   var q = S.q.trim().toLowerCase();
-  return S.rows.filter(function(r){ return (S.showAll || !HIDDEN[r._st] || S.stage === r._st) && (!S.stage || r._st === S.stage) && (!q || [r.Full_Name, r.Candidate_Status, r.Current_Employer, r.Current_Job_Title, r.City, r.Source].join(' ').toLowerCase().indexOf(q) >= 0); });
+  return S.rows.filter(function(r){ return (S.older || q || isRecent(r) || S.olderCols && S.olderCols[r._st]) && (S.showAll || !HIDDEN[r._st] || S.stage === r._st) && (!S.stage || r._st === S.stage) && (!q || [r.Full_Name, r.Candidate_Status, r.Current_Employer, r.Current_Job_Title, r.City, r.Source].join(' ').toLowerCase().indexOf(q) >= 0); });
 }
 function drawJob(){
   var counts = {}; baseRows().forEach(function(r){ counts[r._st] = (counts[r._st] || 0) + 1; });
@@ -473,12 +474,14 @@ function drawJob(){
         var meta = []; if(r.Experience_in_Years != null) meta.push(yrs(r.Experience_in_Years)); if(r.Unberry_Verdict) meta.push('Unberry: ' + r.Unberry_Verdict); if(r.Updated_On) meta.push('Updated ' + when(r.Updated_On));
         return '<button class="cc" style="--c:' + s[2] + '" data-c="' + esc(r.id) + '" aria-current="' + (r.id === S.candId) + '"><div class="nm">' + esc(r.Full_Name) + '</div><div class="s">' + esc(r.Candidate_Status) + '</div>' +
           (r.Current_Job_Title || r.Current_Employer ? '<div class="s" style="color:var(--muted)">' + esc([r.Current_Job_Title, r.Current_Employer].filter(Boolean).join(' · ')) + '</div>' : '') + '<div class="m">' + meta.map(esc).join(' · ') + '</div></button>';
-      }).join('') + (items.length > shown.length ? '<button class="btn sm" data-more="' + s[0] + '" style="margin:4px auto 2px;display:block">Load more · ' + (items.length - shown.length).toLocaleString('en-IN') + ' older</button>' : '') + '</div></section>';
+      }).join('') + (items.length > shown.length ? '<button class="btn sm" data-more="' + s[0] + '" style="margin:4px auto 2px;display:block">Load more · ' + (items.length - shown.length).toLocaleString('en-IN') + ' more</button>' : '') +
+        (function(){ if(S.older || S.q || (S.olderCols && S.olderCols[s[0]]) || items.length > shown.length) return ''; var old = S.rows.filter(function(r){ return r._st === s[0] && !isRecent(r); }).length; return old ? '<button class="btn sm" data-old="' + s[0] + '" style="margin:4px auto 2px;display:block;color:var(--muted)">Show ' + old.toLocaleString('en-IN') + ' older than 3 months</button>' : ''; })() + '</div></section>';
     }).join('') + '</div>' : emptyMsg();
     S.visible = vis;
   }
   bd.querySelectorAll('[data-more]').forEach(function(b){ b.onclick = function(){ var k = b.dataset.more, col = b.closest('.cards'), top = col ? col.scrollTop : 0; S.colLimit[k] = (S.colLimit[k] || 25) + 25; drawJob(); var nb = document.querySelector('.col[data-st="' + k + '"] .cards'); if(nb) nb.scrollTop = top; }; });
   var lm = document.getElementById('lmore'); if(lm) lm.onclick = function(){ S.listLimit += 50; drawJob(); };
+  bd.querySelectorAll('[data-old]').forEach(function(b){ b.onclick = function(){ S.olderCols = S.olderCols || {}; S.olderCols[b.dataset.old] = 1; var col = b.closest('.cards'), top = col ? col.scrollTop : 0; drawJob(); var nb = document.querySelector('.col[data-st="' + b.dataset.old + '"] .cards'); if(nb) nb.scrollTop = top; }; });
   bd.querySelectorAll('[data-c]').forEach(function(b){ b.onclick = function(){ openCandidate(b.dataset.c); }; b.onkeydown = function(e){ if(e.key === 'Enter') openCandidate(b.dataset.c); }; });
 }
 function emptyMsg(){ return '<div class="empty">' + (S.q || S.stage ? 'No candidates match.' : 'No candidates in process. Tick “Show closed &amp; not in process” to see everyone.') + '</div>'; }
