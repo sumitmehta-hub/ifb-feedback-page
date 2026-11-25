@@ -1156,18 +1156,24 @@ function drawNext(form){
   box.querySelectorAll('[data-step]').forEach(function(b){ b.onclick = function(){ drawNext(b.dataset.step === form ? '' : b.dataset.step); var fi = box.querySelector('.nxform input, .nxform textarea'); if(fi) fi.focus(); }; });
   box.querySelectorAll('[data-fileeval]').forEach(function(b){ b.onclick = function(){ fileEval(b); }; });
   var go = document.getElementById('nxgo'); if(go) go.onclick = function(){ doStep(form); };
+  if(f.canWrite && !form) f.steps.forEach(function(st){ if(st.kind === 'schedule'){ slotsFetch(st.panelId ? [st.panelId] : [], []).catch(function(){}); teamFetch().catch(function(){}); } });
   if(document.getElementById('nxSlots')) loadSlots();
   var cx = document.getElementById('nxcx'); if(cx) cx.onclick = function(){ drawNext(''); };
   if(auto && form){ var nf = box.querySelector('.nxform'); if(nf && nf.scrollIntoView) nf.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
 }
 // ---------- Phase 2 (25 Nov): book from interviewers' availability. Chips = free windows (weekly hours minus days off and
 // interviews already booked, within notice and daily max). Google Calendar only warns. The TA picks the time and length.
-var SL = { extra: [] };
+var SL = { extra: [], cache: {} };
+// availability is fetched once and reused for 2 minutes; it starts in the background as soon as the candidate's next
+// steps show a Schedule step, so the panel is usually ready by the time the form opens (Sumit 26 Nov: "quite slow")
+function slotsFetch(ids, extra){ var key = ids.join(',') + '|' + extra.join(','), c = SL.cache[key]; if(c && Date.now() - c.at < 120000) return c.p;
+  var p = post('slots', { ids: ids, emails: extra, fast: true }).then(function(r){ if(!r.ok) delete SL.cache[key]; return r; }, function(e){ delete SL.cache[key]; throw e; });
+  SL.cache[key] = { at: Date.now(), p: p }; return p; }
+function teamFetch(){ if(AV.team) return Promise.resolve(null); if(!SL.teamP) SL.teamP = post('availlist', {}).then(function(r){ if(r && r.ok){ AV.team = r.list; AV.people = r.people; } SL.teamP = null; return r; }, function(e){ SL.teamP = null; throw e; }); return SL.teamP; }
 function slTime(iso){ var d = new Date(iso); return hm12(d.getHours(), d.getMinutes()).replace(':00 ', ' '); }
 function loadSlots(){ var box = document.getElementById('nxSlots'); if(!box) return; var ids = box.dataset.ids ? [box.dataset.ids] : []; if(SL.c !== box.dataset.c){ SL.c = box.dataset.c; SL.extra = []; }
   box.innerHTML = '<div class="hint">Checking the panel’s availability…</div>';
-  var calls = [post('slots', { ids: ids, emails: SL.extra })]; if(!AV.team) calls.push(post('availlist', {}));
-  Promise.all(calls).then(function(r){ if(r[1] && r[1].ok){ AV.team = r[1].list; AV.people = r[1].people; } var j = r[0]; if(!document.getElementById('nxSlots')) return;
+  Promise.all([slotsFetch(ids, SL.extra), teamFetch()]).then(function(r){ var j = r[0]; if(!document.getElementById('nxSlots')) return;
     if(!j.ok){ box.innerHTML = '<div class="hint">' + esc(j.error || 'Could not read availability') + '</div>'; return; } SL.data = j; drawSlots(); })
     .catch(function(e){ box.innerHTML = '<div class="hint">' + esc(e.message) + '</div>'; }); }
 function drawSlots(){ var box = document.getElementById('nxSlots'), j = SL.data; if(!box || !j) return;
@@ -1270,7 +1276,7 @@ function doStep(k){
   var b = document.getElementById('nxgo'); b.disabled = true; b.textContent = 'Saving in Recruit…';
   post('move', body).then(function(r){
     if(!r.ok){ toastMsg(r.error || 'Could not save'); if(r.stale){ loadNext(); return; } b.disabled = false; b.textContent = 'Confirm: ' + st.label; return; }
-    toastMsg('🎉 Done: ' + st.label); confetti();
+    toastMsg('🎉 Done: ' + st.label); confetti(); SL.cache = {};
     if(st.kind === 'schedule' && r.ivId) setTimeout(function(){ openIvCard(r.ivId, {}); }, 700);
     (S.rows || []).forEach(function(x){ if(x.id === f.candId && String(S.jobId) === String(f.jobId)){ x.Candidate_Status = r.status; x._st = stageOf(r.status); } });
     S.ivFresh = true;
