@@ -249,6 +249,8 @@ body.previewing [data-qremind],body.previewing [data-qfile],body.previewing [dat
 .av-day{display:grid;grid-template-columns:90px minmax(0,1fr) auto;gap:10px;align-items:start;padding:8px 0;border-bottom:1px solid var(--line)}.av-day:last-child{border-bottom:0}
 .av-dl{display:flex;gap:8px;align-items:center;cursor:pointer;padding-top:6px}.av-dl input{width:17px;height:17px;accent-color:var(--brand)}.av-day.off .av-dl b{color:var(--ink2)}
 .av-ranges{display:grid;gap:6px}.av-rg{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.av-rg select{font:inherit;font-size:13.5px;padding:6px 8px;border-radius:9px;border:1px solid var(--line);background:#fff;color:var(--ink)}
+.av-parts{display:flex;flex-wrap:wrap;gap:6px}.av-pt{font:inherit;font-size:12.5px;font-weight:700;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink2);cursor:pointer}.av-pt span{font-weight:500;color:var(--muted)}
+.av-pt:hover{border-color:var(--brand);color:var(--brand-d)}.av-pt.on{background:var(--brand-ll);border-color:var(--brand);color:var(--brand-d)}.av-pt.on span{color:var(--brand-d)}.av-pt:focus-visible{outline:2px solid var(--brand)}
 .av-qp{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin:0 0 8px}.av-qpl{font-size:12.5px;font-weight:700;color:var(--ink2);margin-right:2px}
 .av-qb{display:grid;gap:0;text-align:left;font:inherit;padding:5px 11px;border-radius:10px;border:1px solid var(--line);background:#fff;cursor:pointer;color:var(--ink)}.av-qb b{font-size:13px}.av-qb span{font-size:11.5px;color:var(--ink2)}
 .av-qb:hover{border-color:var(--brand);background:#faf7ff}.av-qb.on{border-color:var(--brand);background:var(--brand-ll);box-shadow:inset 0 0 0 1px var(--brand)}.av-qb:focus-visible{outline:2px solid var(--brand);outline-offset:1px}.av-qph{flex-basis:100%;font-size:12px}
@@ -716,7 +718,13 @@ function goMine(fromRoute){ SPL.done();
 // Weekly 30-minute blocks (7 am to 10 pm IST), a daily cap, notice, days off and a note. No Google Calendar sync.
 var AV = { who: '', av: null, week: {}, dirty: false, people: null, team: null };
 var AV_DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], AV_FROM = 7 * 60, AV_TO = 22 * 60;
-var AV_PRESETS = [['Workday', '10 am – 6 pm', [[600, 1080]]], ['Mornings', '10 am – 1 pm', [[600, 780]]], ['Afternoons', '2 – 5 pm', [[840, 1020]]], ['Evenings', '4 – 8 pm', [[960, 1200]]], ['Around lunch', '10–1 and 2–6', [[600, 780], [840, 1080]]], ['Mornings + evenings', '10–12 and 5–8', [[600, 720], [1020, 1200]]]];
+// day parts (26 Nov, Sumit: "real life" weeks differ day to day): each day row has its own Morning / Afternoon / Evening
+// toggles; they add or remove that block and touching blocks merge, so Afternoon + Evening = 2 – 8 pm in one stretch
+var AV_PARTS = [['Morning', '10 – 1', 600, 780], ['Afternoon', '2 – 5', 840, 1020], ['Evening', '5 – 8', 1020, 1200]];
+function avMerge(rs){ var a = rs.map(function(p){ return [p[0], p[1]]; }).sort(function(x, y){ return x[0] - y[0]; }), out = [];
+  a.forEach(function(p){ var l = out[out.length - 1]; if(l && p[0] <= l[1]) l[1] = Math.max(l[1], p[1]); else out.push(p); }); return out; }
+function avHas(rs, s0, e0){ return (rs || []).some(function(p){ return p[0] <= s0 && p[1] >= e0; }); }
+function avCut(rs, s0, e0){ var out = []; (rs || []).forEach(function(p){ if(p[1] <= s0 || p[0] >= e0) out.push(p); else { if(p[0] < s0) out.push([p[0], s0]); if(p[1] > e0) out.push([e0, p[1]]); } }); return out.filter(function(p){ return p[1] - p[0] >= 30; }); }
 function avTime(m){ return hm12(Math.floor(m / 60), m % 60).replace(':00 ', ' '); }
 function avSummary(av){ if(!av) return 'Not set yet'; var parts = [];
   for(var d = 1; d <= 7; d++){ var w = (av.week || {})[d]; if(w && w.length) parts.push(AV_DAYS[d - 1] + ' ' + w.map(function(p){ return avTime(p[0]) + '–' + avTime(p[1]); }).join(', ')); }
@@ -737,16 +745,11 @@ function drawAvail(){ var box = document.getElementById('avbox'); if(!box) retur
   var h = '<h3>🗓 ' + (mine ? 'My availability for interviews' : 'Availability: ' + esc(whoName)) + '</h3>';
   if(S.ta) h += '<div class="av-who"><label for="avWho">Edit for</label><select id="avWho"><option value="' + esc((S.me && S.me.email) || '') + '">Me</option>' + (AV.people || []).filter(function(p){ return p.email !== ((S.me && S.me.email) || ''); }).map(function(p){ return '<option value="' + esc(p.email) + '"' + (p.email === AV.who ? ' selected' : '') + '>' + esc(p.name) + '</option>'; }).join('') + '</select><span class="hint">Fill this in for someone who shared their free time on chat.</span></div>';
   h += '<div class="hint" style="margin:2px 0 10px">When ' + (mine ? 'are you' : 'are they') + ' usually free for interviews? Times are IST. The TA team picks the exact slot and length from these hours. Google Calendar is not read.</div>';
-  // quick picks (Calendly / Cal.com style presets, 26 Nov): one click fills the ticked days (Mon–Fri if none ticked);
-  // the time pickers below still fine-tune. Evenings for people whose days are taken by sales / CS calls.
-  var tick = []; for(var t = 1; t <= 7; t++) if(W[t] && W[t].length) tick.push(t);
-  var same = function(a, b){ return JSON.stringify(a) === JSON.stringify(b); };
-  h += '<h4 class="av-h4">Weekly hours</h4><div class="av-qp"><span class="av-qpl">Quick pick</span>' + AV_PRESETS.map(function(p, i){ var on = tick.length && tick.every(function(d){ return same(W[d], p[2]); });
-    return '<button type="button" class="av-qb' + (on ? ' on' : '') + '" data-avp="' + i + '" title="' + esc(p[1]) + '"><b>' + esc(p[0]) + '</b><span>' + esc(p[1]) + '</span></button>'; }).join('') +
-    '<span class="hint av-qph">Fills ' + (tick.length ? 'the ticked days' : 'Mon–Fri') + '. Adjust any day below.</span></div><div class="av-days">';
+  h += '<h4 class="av-h4">Weekly hours</h4><div class="hint" style="margin:-2px 0 8px">Tap Morning, Afternoon or Evening on each day, combine them as you like, or set exact times. ⧉ copies a day to Mon–Fri.</div><div class="av-days">';
   for(var d = 1; d <= 7; d++){ var rs = W[d] || [], on = rs.length > 0;
     h += '<div class="av-day' + (on ? '' : ' off') + '"><label class="av-dl"><input type="checkbox" data-dayon="' + d + '"' + (on ? ' checked' : '') + '> <b>' + AV_DAYS[d - 1] + '</b></label><div class="av-ranges">' +
       (on ? rs.map(function(p, i){ return '<div class="av-rg"><select data-rs="' + d + ':' + i + '" aria-label="' + AV_DAYS[d - 1] + ' from">' + tOpts(p[0], AV_FROM, AV_TO - 30) + '</select><span>–</span><select data-re="' + d + ':' + i + '" aria-label="' + AV_DAYS[d - 1] + ' to">' + tOpts(p[1], AV_FROM + 30, AV_TO) + '</select><button type="button" class="av-ib" data-rdel="' + d + ':' + i + '" title="Remove these hours" aria-label="Remove">✕</button></div>'; }).join('') : '<span class="av-un">Unavailable</span>') +
+      '<div class="av-parts" role="group" aria-label="' + AV_DAYS[d - 1] + ' quick times">' + AV_PARTS.map(function(pt, pi){ var on = avHas(rs, pt[2], pt[3]); return '<button type="button" class="av-pt' + (on ? ' on' : '') + '" data-avpt="' + d + ':' + pi + '" aria-pressed="' + on + '">' + (on ? '✓ ' : '') + pt[0] + ' <span>' + pt[1] + '</span></button>'; }).join('') + '</div>' +
       '</div><div class="av-dacts"><button type="button" class="av-ib" data-radd="' + d + '" title="Add hours" aria-label="Add hours on ' + AV_DAYS[d - 1] + '">＋</button>' + (on ? '<button type="button" class="av-ib" data-rcopy="' + d + '" title="Copy these hours to Mon–Fri" aria-label="Copy ' + AV_DAYS[d - 1] + ' hours to weekdays">⧉</button>' : '') + '</div></div>'; }
   h += '</div>';
   var opt = function(vals, cur, lab){ return vals.map(function(v){ return '<option value="' + v + '"' + (+cur === v ? ' selected' : '') + '>' + lab(v) + '</option>'; }).join(''); };
@@ -762,8 +765,8 @@ function drawAvail(){ var box = document.getElementById('avbox'); if(!box) retur
   var redraw = function(){ syncForm(); AV.dirty = true; drawAvail(); };
   var key = function(x){ var k = x.split(':'); return { d: +k[0], i: +k[1] }; };
   box.querySelectorAll('[data-dayon]').forEach(function(c){ c.onchange = function(){ var d = +c.dataset.dayon; if(c.checked) W[d] = [[9 * 60, 17 * 60]]; else delete W[d]; redraw(); }; });
-  box.querySelectorAll('[data-avp]').forEach(function(b){ b.onclick = function(){ var p = AV_PRESETS[+b.dataset.avp], days = tick.length ? tick : [1, 2, 3, 4, 5];
-    days.forEach(function(d){ W[d] = p[2].map(function(r){ return [r[0], r[1]]; }); }); redraw(); toastMsg(p[0] + ' (' + p[1] + ') set for ' + days.map(function(d){ return AV_DAYS[d - 1]; }).join(', ')); }; });
+  box.querySelectorAll('[data-avpt]').forEach(function(b){ b.onclick = function(){ var k = b.dataset.avpt.split(':'), d = +k[0], pt = AV_PARTS[+k[1]], rs = W[d] || [];
+    rs = avHas(rs, pt[2], pt[3]) ? avCut(rs, pt[2], pt[3]) : avMerge(rs.concat([[pt[2], pt[3]]])); if(rs.length) W[d] = rs; else delete W[d]; redraw(); }; });
   box.querySelectorAll('[data-radd]').forEach(function(b){ b.onclick = function(){ var d = +b.dataset.radd, rs = W[d] || [], lastEnd = rs.length ? rs[rs.length - 1][1] : 9 * 60 - 60;
     var st = Math.min(AV_TO - 60, lastEnd + 60); W[d] = rs.concat([[st, Math.min(AV_TO, st + 120)]]); redraw(); }; });
   box.querySelectorAll('[data-rdel]').forEach(function(b){ b.onclick = function(){ var k = key(b.dataset.rdel); W[k.d].splice(k.i, 1); if(!W[k.d].length) delete W[k.d]; redraw(); }; });
