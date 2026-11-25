@@ -980,11 +980,12 @@ function csvDownload(name, head, rows){
 }
 function med(a){ if(!a.length) return null; var s = a.slice().sort(function(x, y){ return x - y; }), m = Math.floor(s.length / 2); return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; }
 function dur(h){ return h == null ? '—' : h < 1 ? Math.round(h * 60) + ' min' : h < 48 ? Math.round(h) + ' h' : Math.round(h / 24) + ' d'; }
-function delta(a, b, good){ if(b == null) return ''; var d = a - b; if(!d) return '<span class="dl">= last week</span>'; var up = d > 0, ok = good === 'up' ? up : !up; return '<span class="dl ' + (ok ? 'g' : 'b') + '">' + (up ? '▲' : '▼') + ' ' + Math.abs(d) + ' vs last week</span>'; }
+function delta(a, b, good){ if(b == null) return ''; var d = a - b; if(!d) return '<span class="dl">same as last week so far</span>'; var up = d > 0, ok = good === 'up' ? up : !up; return '<span class="dl ' + (ok ? 'g' : 'b') + '">' + (up ? '▲' : '▼') + ' ' + Math.abs(d) + ' vs same point last week</span>'; }
 function viewDash(){
   var main = document.getElementById('main'); if(!main || S.page !== 'dash') return;
   var D = buildSum(), now = D.now, w0 = weekStart(0), w1 = weekStart(-1);
-  var inWeek = function(t, s){ return t >= s && t < s + 7 * DAY && t <= now; };
+  // week-to-date vs the same stretch of last week (a half-finished week must not be compared with a full one)
+  var elapsed = now - w0, inWeek = function(t, s){ return t >= s && t < s + Math.min(7 * DAY, elapsed) && t <= now; };
   var held = function(s){ return D.ivs.filter(function(v){ return inWeek(v.s, s); }).length; };
   var filed = function(s){ return D.ivs.filter(function(v){ return v.rv && inWeek(v.rv, s); }).length; };
   var newIn = function(s){ return D.rows.filter(function(r){ return inWeek(r.created, s); }).length; };
@@ -1031,7 +1032,7 @@ function viewDash(){
   var card = function(title, sub, body, csv){ return '<section class="dsec"><div class="dsh"><h3>' + esc(title) + '</h3>' + (sub ? '<span class="hint">' + esc(sub) + '</span>' : '') + (csv ? '<button class="btn sm" data-csv="' + csv + '">⬇ CSV</button>' : '') + '</div>' + body + '</section>'; };
   var hRows = health.map(function(h){ return [h.x.title, h.x.recruiters.join(', ') || h.x.manager || '—', h.act, h.late, h.iv14, h.up, h.waiting, h.last == null ? '—' : h.last + 'd', h.open == null ? '—' : h.open + 'd', h.flag]; });
   main.innerHTML = jobSelect() +
-    '<div class="whead"><div><h1>Hiring overview</h1><div class="hint">' + (S.onlyMine ? 'Your' : 'All') + ' ' + D.jobs.length + ' open roles · this week vs last week · candidates count as active if touched in the last ' + ACTIVE_DAYS + ' days</div></div>' +
+    '<div class="whead"><div><h1>Hiring overview</h1><div class="hint">' + (S.onlyMine ? 'Your' : 'All') + ' ' + D.jobs.length + ' open roles · this week so far vs the same point last week · candidates count as active if touched in the last ' + ACTIVE_DAYS + ' days</div></div>' +
     '<div class="acts">' + sumHint() + '<button class="btn sm" id="drf">↻ Refresh</button><button class="btn sm" id="dwork">✅ Team to-do</button></div></div>' +
     (S.sumErr ? '<div class="hint" style="color:var(--warn)">' + esc(S.sumErr) + '</div>' : '') +
     '<div class="kpis">' +
