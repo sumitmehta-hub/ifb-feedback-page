@@ -125,7 +125,7 @@ a{color:var(--brand-d);font-weight:600;text-decoration:none}a:hover{text-decorat
 .nx{background:#fff;border:1px solid var(--brand-line);border-radius:14px;padding:14px;margin:0 0 14px;box-shadow:var(--shadow)}
 .nx h4{margin:0 0 2px;font-size:14px}.nx .nxsteps{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
 .btn.ok{background:var(--ok-l);border-color:#bfe3ad;color:var(--ok)}.btn.bad{background:var(--bad-l);border-color:#f5b8c3;color:var(--bad)}
-.nxgate{background:var(--warn-l);border:1px solid #f3d3a5;color:#5a3500;border-radius:10px;padding:9px 12px;margin-top:10px;font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.nxgate{background:var(--warn-l);border:1px solid #f3d3a5;color:#5a3500;border-radius:10px;padding:9px 12px;margin-top:10px;font-size:13px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.nxgate>span{flex:1 1 240px;min-width:0}
 .nxform{margin-top:12px;border-top:1px dashed var(--line);padding-top:12px;display:grid;gap:10px}
 .nxform label{display:grid;gap:4px;font-size:12.5px;font-weight:700;color:var(--ink2)}
 .nxform input,.nxform select,.nxform textarea{font:inherit;font-weight:500;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff;color:var(--ink)}
@@ -863,7 +863,7 @@ function drawNext(form){
   // evaluation gate (same as the blueprint): outcome steps wait for the round's evaluation in Recruit
   Object.keys(f.gates || {}).forEach(function(g){ var x = f.gates[g]; if(x.filed) return;
     var lbl = { blitz:'Blitz', r1:'R1', r2:'R2', r3:'R3', vibe:'Vibe check' }[g] || g;
-    h += '<div class="nxgate">⏳ <span><b>' + esc(lbl) + ' evaluation not filed yet</b>' + (x.ivId ? (x.fbTotal ? ' · ' + x.fbDone + ' of ' + x.fbTotal + ' panel feedback in' : ' · no panel feedback tracked') : ' · no ' + esc(lbl) + ' interview found on this job') + '. Outcome steps open once it is filed.</span>' +
+    h += '<div class="nxgate">⏳ <span><b>' + esc(lbl) + ' evaluation not filed yet</b>' + (x.ivId ? (x.fbTotal ? ' · ' + x.fbDone + ' of ' + x.fbTotal + ' panel feedback in' : ' · no panel feedback tracked') : ' · no ' + esc(lbl) + ' interview found on this job') + '. File it in Recruit, or pick an outcome below and give a reason to skip it.</span>' +
       (f.canWrite && x.ivId && x.fbDone ? '<button class="btn sm primary" data-fileeval="' + esc(x.ivId) + '">File evaluation now</button>' : '') +
       (x.ivId ? '<a class="btn sm" href="' + RC + 'Interviews&id=' + esc(x.ivId) + '" target="_blank" rel="noopener">Open interview ↗</a>' : '') + '</div>'; });
   h += '<div class="nxsteps">' + f.steps.map(function(st){ var locked = st.gate && !st.gateOk;
@@ -904,7 +904,7 @@ function doStep(k){
     if(!r.ok){ toastMsg(r.error || 'Could not save'); if(r.stale){ loadNext(); return; } b.disabled = false; b.textContent = 'Confirm: ' + st.label; return; }
     toastMsg('🎉 Done: ' + st.label); confetti();
     if(st.kind === 'schedule' && r.ivId) setTimeout(function(){ openIvCard(r.ivId, {}); }, 700);
-    (S.rows || []).forEach(function(x){ if(x.id === f.candId && String(S.jobId) === String(f.jobId)) x.Candidate_Status = r.status; });
+    (S.rows || []).forEach(function(x){ if(x.id === f.candId && String(S.jobId) === String(f.jobId)){ x.Candidate_Status = r.status; x._st = stageOf(r.status); } });
     S.ivFresh = true;
     if(S.page !== 'iv' && S.jobId) try{ drawJob(); }catch(e){}
     openCandidate(f.candId, true);
@@ -1397,13 +1397,14 @@ function openIvCard(ivId, opts){
   var ov = document.createElement('div'); ov.className = 'mdl'; ov.id = 'ivc';
   ov.innerHTML = '<div class="mbk"></div><section class="mpn ivcp" role="dialog" aria-modal="true" aria-labelledby="ivcT" style="--c:#8644f0"><div class="ivcb">' + loading('Opening the interview…') + '</div></section>';
   document.body.appendChild(ov); document.body.style.overflow = 'hidden';
-  var close = function(){ ov.classList.add('out'); document.body.style.overflow = ''; setTimeout(function(){ ov.remove(); }, 180); };
+  var close = function(){ ov.classList.add('out'); document.body.style.overflow = dr.hidden ? '' : 'hidden'; setTimeout(function(){ ov.remove(); }, 180);
+    if(C.changed){ S.ivFresh = true; S.actAt = 0; try{ if(!dr.hidden && S.candId) openCandidate(S.candId, true); else if(S.page === 'iv' || S.page === 'work') render(); }catch(e){} } };
   ov.querySelector('.mbk').onclick = close;
   var esc2 = function(e){ if(e.key === 'Escape' && document.getElementById('ivc')){ e.stopPropagation(); close(); document.removeEventListener('keydown', esc2, true); } }; document.addEventListener('keydown', esc2, true);
   var C = { form: (opts && opts.form) || '' };
   var load = function(){ post('ivcard', { ivId: ivId }).then(function(j){ if(!document.getElementById('ivc')) return; if(!j.ok){ ov.querySelector('.ivcb').innerHTML = '<div class="card err">' + esc(j.error || 'Could not open the interview.') + '</div>'; return; } C.d = j; draw(); })
     .catch(function(e){ ov.querySelector('.ivcb').innerHTML = '<div class="card err">' + esc(e.message) + '</div>'; }); };
-  var after = function(msg){ toastMsg(msg); confetti(); S.actAt = 0; C.form = ''; load(); };
+  var after = function(msg){ toastMsg(msg); confetti(); S.actAt = 0; C.form = ''; C.changed = true; load(); };
   var act = function(b, action, body, okMsg){ var lbl = b.textContent; b.disabled = true; b.textContent = 'Saving…';
     post(action, Object.assign({ ivId: ivId }, body)).then(function(r){ if(!r.ok){ b.disabled = false; b.textContent = lbl; if(r.code === 'gconnect'){ connectG(); return; } toastMsg(r.error || 'Could not save'); return; } after(okMsg(r)); })
       .catch(function(e){ b.disabled = false; b.textContent = lbl; toastMsg(e.message); }); };
