@@ -473,6 +473,7 @@ b.pn,.sub b,.hint b,.dtbl td b{color:var(--ink);font-weight:800}
 .ivgroup .ivday{margin:10px 4px 8px;display:flex;gap:6px;align-items:center}.ivgroup .ivday b{background:var(--brand-l);color:var(--brand-d);border-radius:99px;padding:0 7px;font-size:11px;letter-spacing:0}
 .ivgroup .ivrow{grid-template-columns:78px minmax(0,1fr) auto}.ivgroup .ivrow .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:260px}
 @container (max-width:420px){.ivgroup .ivrow{grid-template-columns:70px minmax(0,1fr)}.ivgroup .ivrow .acts{grid-column:1/-1;justify-content:flex-start;max-width:none}}
+.qcard2 .qx:not(.qshow){display:none}
 </style>
 </head>
 <body>
@@ -1365,6 +1366,8 @@ function rowHtml(it, parts){
 function qRow(candId, jobId, main, sub, right, hot){ return '<div class="qrow" tabindex="0" data-qc="' + esc(candId) + '" data-qj="' + esc(jobId) + '"><div style="min-width:0"><div class="who">' + main + '</div><div class="sub">' + sub + '</div></div><div class="acts">' + right + '</div></div>'; }
 function qCard(id, icon, title, why, items, tone){
   var n = items.length, open = S.qOpen && S.qOpen[id], shown = open ? items : items.slice(0, 6);
+  // extra rows ride along hidden; the layout shows as many as fit the column height (26 Nov)
+  if(!open) shown = shown.concat(items.slice(6, 46).map(function(h){ return h.replace(/^<div class="qrow/, '<div class="qrow qx'); }));
   return '<section class="qcard2' + (n ? '' : ' none') + '" id="q-' + id + '" style="--c:' + tone + '"><div class="qh"><h3>' + icon + ' ' + esc(title) + ' <span class="qn">' + n + '</span></h3><span class="hint">' + esc(why) + '</span></div>' +
     (n ? shown.join('') + (n > 6 ? '<button class="btn sm" data-qmore="' + id + '" style="margin-top:6px">' + (open ? 'Show fewer' : 'Show all ' + n) + '</button>' : '') : '<div class="yay"><span>🎉</span>All clear here. Nice work!</div>') + '</section>';
 }
@@ -1916,9 +1919,11 @@ render();
   function natural(c){ var r = c.getBoundingClientRect(), l = c.lastElementChild, cs = getComputedStyle(c);
     var h = l ? l.getBoundingClientRect().bottom - r.top + parseFloat(cs.paddingBottom) + parseFloat(cs.borderBottomWidth) + parseFloat(getComputedStyle(l).marginBottom || 0) : r.height;
     return Math.max(1, Math.ceil((h + GAP) / ROW)); }
+  function fillRows(c, n){ var hid = c.querySelectorAll('.qx'); for(var i = 0; i < hid.length; i++){ hid[i].classList.add('qshow'); if(natural(c) > n){ hid[i].classList.remove('qshow'); break; } } }
   function setSpan(c, n){ var v = 'span ' + n; if(c.style.gridRowEnd !== v) c.style.gridRowEnd = v; }
   function balance(g){
     var cs = Array.prototype.filter.call(g.children, function(c){ return c.offsetParent !== null; }); if(!cs.length) return;
+    Array.prototype.forEach.call(g.querySelectorAll('.qshow'), function(x){ x.classList.remove('qshow'); });
     var nat = cs.map(natural);
     cs.forEach(function(c, i){ setSpan(c, nat[i]); });
     var gt = g.getBoundingClientRect().top, cols = {}, maxEnd = 0;
@@ -1926,7 +1931,8 @@ render();
       if(en > maxEnd) maxEnd = en; if(!cols[k] || st > cols[k].st) cols[k] = { c: c, st: st, i: i }; });
     var many = Object.keys(cols).length > 1;
     cs.forEach(function(c){ c.classList.remove('mfill'); });
-    if(many) Object.keys(cols).forEach(function(k){ var x = cols[k], n = maxEnd - x.st; if(n > nat[x.i]){ setSpan(x.c, n); x.c.classList.add('mfill'); } });
+    if(many) Object.keys(cols).forEach(function(k){ var x = cols[k], n = maxEnd - x.st; if(n > nat[x.i]){ fillRows(x.c, n); setSpan(x.c, n); x.c.classList.add('mfill'); } });
+    cs.forEach(function(c){ var b = c.querySelector('[data-qmore]'); if(b && !/fewer/i.test(b.textContent)){ var rest = c.querySelectorAll('.qx:not(.qshow)').length, all = +(c.querySelector('.qn') || {}).textContent || 0, vis = c.querySelectorAll('.qrow:not(.qx),.qx.qshow').length; b.hidden = !rest && vis >= all; } });
   }
   function queue(g){ if(pend.indexOf(g) < 0) pend.push(g); if(pend.length === 1) requestAnimationFrame(function(){ var l = pend; pend = []; l.forEach(function(x){ if(document.contains(x)) balance(x); }); }); }
   var ro = new ResizeObserver(function(es){ es.forEach(function(e){ var g = e.target.parentNode; if(isGrid(g)) queue(g); }); });
