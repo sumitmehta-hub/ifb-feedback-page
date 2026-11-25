@@ -133,7 +133,8 @@ a{color:var(--brand-d);font-weight:600;text-decoration:none}a:hover{text-decorat
 .nxnote{font-size:12.5px;color:var(--ink2);background:var(--panel);border-radius:10px;padding:8px 10px}
 .spin.sm{width:12px;height:12px;border-width:2px;vertical-align:-2px;margin-right:4px}
 .trow{grid-template-columns:128px minmax(0,1fr) auto}.trow .tm2 .who{white-space:normal}.trow .acts{grid-column:2/-1;justify-content:flex-start}.trow .acts:empty{display:none}
-.skipf{display:grid;gap:8px;padding:10px 12px 12px 140px;background:var(--panel);border-bottom:1px solid var(--line)}.skipf label{display:grid;gap:4px;font-size:12.5px;font-weight:700;color:var(--ink2)}.skipf textarea{font:inherit;font-weight:500;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px}
+.qrow{flex-wrap:wrap}.qrow>div:first-child{flex:1 1 240px}.qrow .who{white-space:normal}.qrow .acts{margin-left:auto}
+.skipf{display:grid;gap:8px;padding:10px 12px 12px;background:var(--panel);border-bottom:1px solid var(--line)}.skipf label{display:grid;gap:4px;font-size:12.5px;font-weight:700;color:var(--ink2)}.skipf textarea{font:inherit;font-weight:500;border:1.5px solid var(--line);border-radius:10px;padding:8px 10px}
 .btn.ghostb{background:none;border-color:transparent;color:var(--ink2)}.btn.ghostb:hover{border-color:var(--line)}
 @media (max-width:980px){.skipf{padding-left:12px}}
 .ldbar{height:6px;background:var(--brand-ll);border-radius:99px;margin-top:12px;overflow:hidden}.ldbar i{display:block;height:100%;background:var(--brand);border-radius:99px;transition:width .3s}
@@ -901,7 +902,7 @@ function buildSum(){
     today: ivs.filter(function(v){ return dayKey(v.start) === new Date().toDateString(); }).sort(function(a, b){ return a.s - b.s; }),
     offers: rows.filter(function(r){ return OFFER_ST.test(r.st) && r.age <= 90; }) };
 }
-function rowHtml(it){
+function rowHtml(it, parts){
   var K = KIND[it.k], v = it.v, rl = v ? String(v.round || '').replace(/ Interview$/, '') : '';
   var what = '', btn = '';
   if(it.k === 'evalmiss'){
@@ -913,47 +914,54 @@ function rowHtml(it){
   if(it.k === 'rejected'){ what = rl + ': <b class="tbad">' + esc(v.status) + '</b> · status still ' + esc(it.r.status); btn = '<span class="btn sm bad">Close as rejected →</span>'; }
   if(it.k === 'sched'){ what = esc(it.r.status) + ' · nothing booked'; btn = '<span class="btn sm primary">Schedule ' + esc(it.next) + '</span>'; }
   if(it.k === 'cold'){ what = esc(it.r.status) + ' · no change and nothing booked'; btn = '<span class="btn sm">Open</span>'; }
+  if(parts) return { what: what, btn: btn, age: it.k === 'evalmiss' ? (it.age ? it.age + 'd since interview' : 'today') : it.k === 'passed' || it.k === 'rejected' ? (it.age ? it.age + 'd since evaluation' : 'today') : (it.age ? it.age + 'd in this status' : 'moved today') };
   var ageTxt = it.k === 'evalmiss' ? (it.age ? it.age + 'd since interview' : 'today') : it.k === 'passed' || it.k === 'rejected' ? (it.age ? it.age + 'd since evaluation' : 'today') : (it.age ? it.age + 'd in this status' : 'moved today');
   return '<div class="trow" tabindex="0" data-qc="' + esc(it.candId) + '" data-qj="' + esc(it.jobId) + '" style="--c:' + K[2] + '"><span class="tk">' + K[0] + ' ' + esc(K[1]) + '</span>' +
     '<div class="tm2"><div class="who">' + esc(it.name) + ' <span class="hint">· ' + esc(it.job) + '</span></div><div class="sub">' + what + '</div></div>' +
     '<span class="age' + (it.age >= (it.k === 'evalmiss' ? 3 : 7) ? ' hot' : '') + '">' + esc(ageTxt) + '</span><div class="acts">' + btn + '</div></div>';
 }
+// My work, focused card layout (Sumit 25 Nov: "earlier My work was much better focused"): a one-line summary with jump
+// chips, then one card per queue (6 rows each, Show all). Queue logic is the interview-evidence version above.
+function qRow(candId, jobId, main, sub, right, hot){ return '<div class="qrow" tabindex="0" data-qc="' + esc(candId) + '" data-qj="' + esc(jobId) + '"><div style="min-width:0"><div class="who">' + main + '</div><div class="sub">' + sub + '</div></div><div class="acts">' + right + '</div></div>'; }
+function qCard(id, icon, title, why, items, tone){
+  var n = items.length, open = S.qOpen && S.qOpen[id], shown = open ? items : items.slice(0, 6);
+  return '<section class="qcard2' + (n ? '' : ' none') + '" id="q-' + id + '" style="--c:' + tone + '"><div class="qh"><h3>' + icon + ' ' + esc(title) + ' <span class="qn">' + n + '</span></h3><span class="hint">' + esc(why) + '</span></div>' +
+    (n ? shown.join('') + (n > 6 ? '<button class="btn sm" data-qmore="' + id + '" style="margin-top:6px">' + (open ? 'Show fewer' : 'Show all ' + n) + '</button>' : '') : '<div class="hint" style="padding:6px 2px">Nothing here. 🎉</div>') + '</section>';
+}
 function viewWork(){
   var main = document.getElementById('main'); if(!main || S.page !== 'work') return;
-  var D = buildSum(), first = String((S.me && S.me.name) || '').split(' ')[0], f = S.wf || 'all';
-  var counts = {}; Object.keys(KIND).forEach(function(k){ counts[k] = D.todo.filter(function(x){ return x.k === k; }).length; });
-  var list = D.todo.filter(function(x){ return f === 'all' || x.k === f; }), shown = S.wAll ? list : list.slice(0, 25);
-  var needs = D.todo.filter(function(x){ return x.k !== 'cold'; }).length;
-  // my roles: active pipeline + what is waiting, per role
-  var roles = D.jobs.map(function(x){ return { x: x, act: D.active.filter(function(r){ return r.jobId === x.id; }).length, wait: D.todo.filter(function(t){ return t.jobId === x.id && t.k !== 'cold'; }).length,
-    iv7: D.ivs.filter(function(v){ return v.jobId === x.id && v.s > D.now - 7 * DAY && v.s <= D.now; }).length }; }).sort(function(a, b){ return (b.wait - a.wait) || (b.act - a.act); });
-  main.innerHTML = jobSelect() +
-    '<div class="whead"><div><h1>' + (first ? 'Good ' + (new Date().getHours() < 12 ? 'morning' : new Date().getHours() < 17 ? 'afternoon' : 'evening') + ', ' + esc(first) : 'My work') + '</h1>' +
-    '<div class="hint">' + (needs ? '<b>' + needs + '</b> thing' + (needs === 1 ? '' : 's') + ' need you' : 'You are all caught up') + ' · ' + D.today.length + ' interview' + (D.today.length === 1 ? '' : 's') + ' today · ' + (S.onlyMine ? 'your' : 'all') + ' ' + D.jobs.length + ' open roles</div></div>' +
-    '<div class="acts">' + sumHint() + '<button class="btn sm" id="wrf">↻ Refresh</button>' + (isHead() ? '<button class="btn sm" id="wdash">📊 Hiring overview</button>' : '') + '</div></div>' +
-    (S.sumErr ? '<div class="hint" style="color:var(--warn)">' + esc(S.sumErr) + '</div>' : '') +
-    (D.today.length ? '<div class="today">' + D.today.map(function(v){ var past = v.e < D.now, live = v.s <= D.now && !past, fbs = D.fbBy[v.id] || [];
-      return '<button class="tcard' + (past ? ' past' : live ? ' live' : '') + '" data-qc="' + esc(v.candId) + '" data-qj="' + esc(v.jobId) + '"><b>' + esc(timeOf(v.start)) + (live ? ' · now' : '') + '</b><span class="who">' + esc(v.cand) + '</span><span class="hint">' + esc(String(v.round).replace(/ Interview$/, '')) + ' · ' + esc(v.job) + '</span>' +
-        (past && fbs.length ? '<span class="chip ' + (fbs.every(function(x){ return x.st !== 'Pending'; }) ? 'ok' : 'pend') + '">' + fbs.filter(function(x){ return x.st !== 'Pending'; }).length + '/' + fbs.length + ' feedback</span>' : v.url && !past ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener" data-stop="1">Join ↗</a>' : '') + '</button>'; }).join('') + '</div>' : '') +
-    '<div class="wgrid"><section class="panel2"><div class="ftabs" role="tablist"><button role="tab" data-wf="all" aria-selected="' + (f === 'all') + '">All <b>' + D.todo.length + '</b></button>' +
-      Object.keys(KIND).map(function(k){ return '<button role="tab" data-wf="' + k + '" aria-selected="' + (f === k) + '" style="--c:' + KIND[k][2] + '">' + KIND[k][0] + ' ' + esc(KIND[k][1]) + ' <b>' + counts[k] + '</b></button>'; }).join('') + '</div>' +
-      (shown.length ? shown.map(rowHtml).join('') : '<div class="empty" style="margin-top:10px">Nothing here. 🎉</div>') +
-      (list.length > shown.length ? '<button class="btn sm" id="wmore" style="margin-top:8px">Show all ' + list.length + '</button>' : '') +
-      '<div class="hint" style="margin-top:10px;font-size:12px">Missing evaluations count for ' + EVAL_DAYS + ' days and pass decisions for ' + PASS_DAYS + ' days (' + D.oldEval + ' older missing evaluations and ' + D.oldPass + ' older passes are not listed). Candidates count for ' + ACTIVE_DAYS + ' days: <b>' + D.dormant.length + '</b> candidate' + (D.dormant.length === 1 ? ' is' : 's are') + ' dormant (' + ACTIVE_DAYS + '–' + HIDE_DAYS + ' days untouched); ' + D.hidden + ' older than ' + HIDE_DAYS + ' days are left out' + (D.dormant.length ? ' · <a href="#" id="wdorm">' + (S.wDorm ? 'hide' : 'see them') + '</a>' : '') + '.</div>' +
-      (S.wDorm ? '<div style="margin-top:8px">' + D.dormant.sort(function(a, b){ return a.age - b.age; }).slice(0, 200).map(function(r){ return '<div class="trow" tabindex="0" data-qc="' + esc(r.id) + '" data-qj="' + esc(r.jobId) + '" style="--c:#b9b3c9"><span class="tk">💤 Dormant</span><div class="tm2"><div class="who">' + esc(r.name) + ' <span class="hint">· ' + esc(r.job) + '</span></div><div class="sub">' + esc(r.status) + '</div></div><span class="age">' + (r.age > 365 ? Math.floor(r.age / 365) + 'y+' : r.age + 'd') + '</span><div class="acts"></div></div>'; }).join('') + '</div>' : '') +
-    '</section><aside class="panel2"><h3 class="h3">My roles</h3>' + (roles.length ? roles.map(function(o){ return '<button class="rolerow" data-dj="' + esc(o.x.id) + '"><span class="t">' + esc(o.x.title) + '</span><span class="n"><b>' + o.act + '</b> active</span><span class="n' + (o.wait ? ' w' : '') + '"><b>' + o.wait + '</b> waiting</span><span class="n"><b>' + o.iv7 + '</b> interviews 7d</span></button>'; }).join('') : '<div class="hint">No open roles where you are the recruiter. Switch to “All jobs”.</div>') + '</aside></div>';
+  var D = buildSum(), first = String((S.me && S.me.name) || '').split(' ')[0];
+  var nm2 = function(name, job){ return esc(name) + ' <span class="hint" style="font-weight:600">· ' + esc(job) + '</span>'; };
+  var item = function(it){ var p = rowHtml(it, true); return qRow(it.candId, it.jobId, nm2(it.name, it.job), p.what + ' · <span class="age' + (it.age >= (it.k === 'evalmiss' ? 3 : 7) ? ' hot' : '') + '">' + esc(p.age) + '</span>', p.btn); };
+  var by = function(k){ return D.todo.filter(function(t){ return t.k === k; }).map(item); };
+  var today = D.today.map(function(v){ var f = D.fbBy[v.id] || [], past = v.e < D.now;
+    return qRow(v.candId, v.jobId, '<b>' + esc(timeOf(v.start)) + '</b> ' + nm2(v.cand, v.job), esc(String(v.round).replace(/ Interview$/, '')) + (v.panel.length ? ' · <b class="pn">' + esc(v.panel.join(', ')) + '</b>' : ' · <span style="color:var(--warn)">no interviewer set</span>'),
+      (past && f.length ? '<span class="chip ' + (f.every(function(x){ return x.st !== 'Pending'; }) ? 'ok' : 'pend') + '">' + f.filter(function(x){ return x.st !== 'Pending'; }).length + ' of ' + f.length + ' feedback</span>' : '') + (v.url && !past ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener" data-stop="1">Join ↗</a>' : '')); });
+  var cards = [['today','🗓','Interviews today','Who you are meeting and the join links',today,'#8644f0'],
+    ['evalmiss','📝','Evaluation missing','Held in the last ' + EVAL_DAYS + ' days, no evaluation in Recruit',by('evalmiss'),'#c8102e'],
+    ['passed','✅','Passed, book next round','Evaluation says move on, nothing booked',by('passed'),'#2f7d00'],
+    ['rejected','✖️','Rejected, still open','Close them so the pipeline is honest',by('rejected'),'#8a1b2e'],
+    ['sched','📅','To schedule','Selected or no-show, nothing booked',by('sched'),'#1d4ed8'],
+    ['cold','🧊','Going cold','No change for 10+ days, nothing booked',by('cold'),'#6b6385']];
+  var needs = cards.slice(1, 5).reduce(function(a, k){ return a + k[4].length; }, 0);
+  main.innerHTML = jobSelect() + '<div class="hero"><div style="display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap"><div style="flex:1;min-width:240px"><h1>' + (first ? 'Hi ' + esc(first) + ' 👋' : 'My work') + '</h1><div class="hint" style="margin-top:4px">' +
+    (needs ? '<b>' + needs + ' thing' + (needs === 1 ? '' : 's') + '</b> need you' : 'Nothing is waiting on you') + ' across ' + (S.onlyMine ? 'your ' : 'all ') + D.jobs.length + ' open role' + (D.jobs.length === 1 ? '' : 's') + '. Interviews today: ' + D.today.length + '.</div></div>' +
+    '<div style="display:flex;gap:6px;align-items:center">' + sumHint() + '<button class="btn sm" id="wrf">↻ Refresh</button>' + (isHead() ? '<button class="btn sm" id="wdash">📊 Hiring overview</button>' : '') + '</div></div>' +
+    '<div class="qjump">' + cards.map(function(k){ return '<a href="#q-' + k[0] + '" data-jump="' + k[0] + '" class="chip' + (k[4].length ? '' : ' dim') + '">' + k[1] + ' ' + esc(k[2]) + ' <b>' + k[4].length + '</b></a>'; }).join('') + '</div>' +
+    (S.sumErr ? '<div class="hint" style="color:var(--warn);margin-top:6px">' + esc(S.sumErr) + '</div>' : '') + '</div>' +
+    '<div class="qgrid">' + cards.map(function(k){ return qCard(k[0], k[1], k[2], k[3], k[4], k[5]); }).join('') + '</div>' +
+    '<div class="hint" style="margin:12px 2px;font-size:12px">Older work is left out: ' + D.oldEval + ' missing evaluations over ' + EVAL_DAYS + ' days, ' + D.oldPass + ' passes over ' + PASS_DAYS + ' days, ' + D.dormant.length + ' candidates untouched ' + ACTIVE_DAYS + '–' + HIDE_DAYS + ' days, ' + D.hidden + ' older than ' + HIDE_DAYS + ' days.</div>';
   bindJobSelect();
   document.getElementById('wrf').onclick = function(){ loadSum(true, viewWork); };
   var wd = document.getElementById('wdash'); if(wd) wd.onclick = function(){ goDash(); };
-  var wm = document.getElementById('wmore'); if(wm) wm.onclick = function(){ S.wAll = true; viewWork(); };
-  var dm = document.getElementById('wdorm'); if(dm) dm.onclick = function(e){ e.preventDefault(); S.wDorm = !S.wDorm; viewWork(); };
-  main.querySelectorAll('[data-wf]').forEach(function(b){ b.onclick = function(){ S.wf = b.dataset.wf; S.wAll = false; viewWork(); }; });
-  main.querySelectorAll('.rolerow').forEach(function(b){ b.onclick = function(){ openJob(b.dataset.dj); }; });
+  main.querySelectorAll('[data-jump]').forEach(function(a){ a.onclick = function(e){ e.preventDefault(); var el = document.getElementById('q-' + a.dataset.jump); if(el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }; });
+  main.querySelectorAll('[data-qmore]').forEach(function(b){ b.onclick = function(){ S.qOpen = S.qOpen || {}; S.qOpen[b.dataset.qmore] = !S.qOpen[b.dataset.qmore]; viewWork(); }; });
+  if(S.wf && S.wf !== 'all'){ var el = document.getElementById('q-' + S.wf); S.wf = ''; if(el) setTimeout(function(){ el.scrollIntoView({ block: 'start' }); }, 50); }
   bindQRows(main); bindQActions(main);
 }
 function bindQActions(main){
   main.querySelectorAll('[data-qskip]').forEach(function(b){ b.onclick = function(e){ e.stopPropagation();
-    var row = b.closest('.trow'), id = b.dataset.qskip; if(row.nextElementSibling && row.nextElementSibling.classList.contains('skipf')){ row.nextElementSibling.remove(); return; }
+    var row = b.closest('.trow,.qrow'), id = b.dataset.qskip; if(row.nextElementSibling && row.nextElementSibling.classList.contains('skipf')){ row.nextElementSibling.remove(); return; }
     var f = document.createElement('div'); f.className = 'skipf';
     f.innerHTML = '<label>Why skip this evaluation? <span class="hint">(required, 10+ characters; saved on the candidate as Evaluation Bypass Reason, and pending panel reminders stop)</span><textarea rows="2" placeholder="e.g. Candidate already accepted the offer; R1 evaluation not needed"></textarea></label><div style="display:flex;gap:8px"><button class="btn sm bad" type="button">Skip evaluation</button><button class="btn sm" type="button">Cancel</button></div>';
     row.after(f); var ta = f.querySelector('textarea'), bs = f.querySelectorAll('button'); ta.focus();
