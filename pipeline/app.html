@@ -227,7 +227,7 @@ body.previewing [data-qremind],body.previewing [data-qfile],body.previewing [dat
 @media (max-width:560px){.wprow{grid-template-columns:1fr}}
 .bl{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}.bl summary{cursor:pointer;font-weight:700;color:var(--brand)}.bl-b{display:grid;gap:8px;margin-top:8px}.bl-b>label{display:grid;gap:4px;font-size:12.5px;font-weight:600;color:var(--ink2)}
 .bl-b input[type=email],.bl-b textarea,.bl-b input[type=text]{font:inherit;font-size:13.5px;padding:7px 10px;border-radius:10px;border:1px solid var(--line);background:#fff;color:var(--ink)}.bl-b input[readonly]{background:var(--panel)}
-.bl-who{display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--ink2)}.bl-who>span{width:100%;font-weight:600}.bl-ck{display:flex;gap:6px;align-items:center;color:var(--ink);font-size:13.5px}.bl-ck input{accent-color:var(--brand)}
+.bl-who{display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center;font-size:12.5px;color:var(--ink2)}.bl-who>span{width:100%;font-weight:600}.bl-b .bl-ck{display:flex!important;font-weight:500;gap:6px;align-items:center;color:var(--ink);font-size:13.5px}.bl-ck input{accent-color:var(--brand)}
 .nx-slots{margin:10px 0;padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:#fbfaff}.sl-head{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:6px}
 .sl-p{padding:6px 0;border-top:1px solid var(--line)}.sl-p:first-of-type{border-top:0}.sl-ph{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;margin-bottom:4px}.sl-warn{color:var(--warn);font-size:12.5px;font-weight:600}
 .sl-day{display:grid;grid-template-columns:96px minmax(0,1fr);gap:8px;align-items:center;padding:3px 0}.sl-dl{font-size:12.5px;font-weight:700;color:var(--ink)}.sl-ch{display:flex;gap:6px;flex-wrap:wrap}
@@ -1155,7 +1155,7 @@ function nxForm(st, f){
     var d = new Date(Date.now() + 86400000);
     var v = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2) + 'T11:00';
     h += '' + whenPick('nxwhen', v, 'nxmin', 45) + '<div class="nx-slots" id="nxSlots" data-ids="' + esc(st.panelId || '') + '" data-c="' + esc(f.candId + '|' + st.k) + '"></div>' +
-      '<div class="nxnote">Interviewer: ' + (st.panel ? '<b>' + esc(st.panel) + '</b> (from the job’s interview panel)' : '<b style="color:var(--warn)">none set on the job</b>, so add one on the interview in Recruit') + '. Recruit’s usual scheduling automations run, and the interviewer gets the heads-up card on Cliq. Once it is booked, the interview card opens so you can add people and send the Google Meet invite.</div>';
+      '<div class="nxnote">Interviewer: ' + (st.panel ? '<b>' + esc(st.panel) + '</b> (from the job’s interview panel)' : '<b style="color:var(--warn)">none set on the job</b>, so add someone in Panel availability above (the first person you add becomes the interviewer)') + '. Recruit’s usual scheduling automations run, and the interviewer gets the heads-up card on Cliq. Once it is booked, the interview card opens so you can add people and send the Google Meet invite.</div>';
   }
   if(st.reason) h += '<label>' + (st.reason === 'withdrawal' ? 'Withdrawal reason' : 'Rejection reason') + ' (required)<textarea id="nxreason" placeholder="Why? Saved on the candidate and as a note with the stage, e.g. Rejected after R2."></textarea></label>';
   if(locked) h += '<label>Reason to skip the evaluation (required, 10+ characters)<textarea id="nxbypass" placeholder="The evaluation is not filed yet. Saved as Evaluation Bypass Reason."></textarea></label>';
@@ -1166,7 +1166,7 @@ function nxForm(st, f){
 function doStep(k){
   var f = S.nx, st = f && f.steps.filter(function(x){ return x.k === k; })[0]; if(!st) return;
   var g = function(id){ var el = document.getElementById(id); return el ? el.value : ''; };
-  var body = { candId: f.candId, jobId: f.jobId, step: k, expect: f.status, reason: g('nxreason'), bypass: g('nxbypass'), note: g('nxnote'), start: g('nxwhen'), minutes: g('nxmin') };
+  var body = { candId: f.candId, jobId: f.jobId, step: k, expect: f.status, reason: g('nxreason'), bypass: g('nxbypass'), note: g('nxnote'), start: g('nxwhen'), minutes: g('nxmin'), ivEmail: (SL.extra || [])[0] || '' };
   if(st.reason && body.reason.trim().length < 5){ toastMsg('Please give a reason'); return; }
   if(st.gate && !st.gateOk && body.bypass.trim().length < 10){ toastMsg('Give a reason to skip the evaluation (10+ characters)'); return; }
   if(st.kind === 'schedule' && !body.start){ toastMsg('Pick the date and time'); return; }
