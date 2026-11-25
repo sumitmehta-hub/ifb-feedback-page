@@ -2301,7 +2301,6 @@ function openHelp(){
     ov.querySelector('.hp-none').hidden = any; };
 }
 document.addEventListener('click', function(e){ if(e.target.closest && e.target.closest('#helpBtn')){ e.preventDefault(); openHelp(); } });
-new MutationObserver(function(){ var hb = document.getElementById('helpBtn'), mb = document.getElementById('meBox'); if(hb && mb) hb.hidden = mb.hidden; }).observe(document.body, { attributes: true, subtree: true, attributeFilter: ['hidden'] });
 document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && document.querySelector('#mdl #hpQ')) closeDrill(); });
 })();
 </script>
