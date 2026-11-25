@@ -808,11 +808,7 @@ function viewInterviews(){
       '<div class="sub">' + esc(v.job) + (v.panel.length ? ' · Panel: <b class="pn">' + esc(v.panel.join(', ')) + '</b>' : ' · <span style="color:var(--warn)">no interviewer set</span>') + (v.owner ? ' · Owner: <b class="pn">' + esc(v.owner) + '</b>' : '') + '</div></div>' +
       '<div class="acts">' + fb + (v.url && !/cancel/i.test(v.status || '') && !isPast ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener" data-stop="1">Join ↗</a>' : '') + (isPast && v.fb && v.fb.done < v.fb.total ? '<a class="btn sm" href="' + FB_TAB + '" target="_top" data-stop="1">Give feedback</a>' : '') + '<button class="btn sm" data-ivcard="' + esc(v.id) + '" data-stop="1">⚙ Manage</button><a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener" data-stop="1">Recruit ↗</a></div></div>';
   };
-  var groupBy = function(arr, isPast){ var gs = [], last = null; arr.forEach(function(v){ var k = dayKey(v.start); if(k !== last){ gs.push({ l: dayLabel(v.start), r: [] }); last = k; } gs[gs.length - 1].r.push(row(v, isPast)); });
-    // day cards line up per row like My work: 6 rows show, more fill in to match the tallest day in the row, "Show all" opens the rest (26 Nov)
-    return '<div class="ivgrid rowsal">' + gs.map(function(g){ var key = (isPast ? 'p' : 'u') + g.l, open = S.ivOpen && S.ivOpen[key], n = g.r.length;
-      var rows = open ? g.r : g.r.slice(0, 6).concat(g.r.slice(6).map(function(h){ return h.replace(/^<div class="ivrow/, '<div class="ivrow qx'); }));
-      return '<section class="ivgroup"><div class="ivday">' + esc(g.l) + ' <b>' + n + '</b></div>' + rows.join('') + (n > 6 ? '<button class="btn sm" data-qmore="' + esc(key) + '" data-n="' + n + '" style="margin:2px 0 8px">' + (open ? 'Show fewer' : 'Show all ' + n) + '</button>' : '') + '</section>'; }).join('') + '</div>'; };
+  var groupBy = function(arr, isPast){ var out = '', last = null; arr.forEach(function(v){ var k = dayKey(v.start); if(k !== last){ out += '<div class="ivday">' + esc(dayLabel(v.start)) + '</div>'; last = k; } out += row(v, isPast); }); return out; };
   main.innerHTML = jobSelect() +
     '<div class="jh"><div><h1>Interviews</h1><div class="meta"><span>' + (S.onlyMine ? '' + (S.viewAs ? esc(S.viewAs.split(' ')[0]) + '’s' : 'Your') + ' jobs' : 'All jobs') + ' · last 2 days and next 7 days</span></div></div><div class="acts"><span class="hint">Updated ' + esc(ago(new Date(S.ivAt).toISOString()) || 'now') + '</span><button class="btn sm" id="ivrf">↻ Refresh</button></div></div>' +
     '<div class="tiles"><div class="tile" style="--c:#8644f0"><small>Today</small><b>' + today + '</b></div><div class="tile" style="--c:#0f766e"><small>Coming up</small><b>' + upcoming.length + '</b></div><div class="tile" style="--c:#f29a1f"><small>Feedback pending</small><b>' + pendingFb + '</b></div><div class="tile" style="--c:#8a849c"><small>Last 2 days</small><b>' + past.length + '</b></div></div>' +
@@ -823,7 +819,6 @@ function viewInterviews(){
   bindJobSelect();
   document.getElementById('ivrf').onclick = function(){ S.ivFresh = true; goInterviews(); };
   var iq = document.getElementById('ivq'); iq.oninput = function(){ S.ivq = this.value; var pos = this.selectionStart; viewInterviews(); var n = document.getElementById('ivq'); n.focus(); try{ n.setSelectionRange(pos, pos); }catch(e){} };
-  main.querySelectorAll('[data-qmore]').forEach(function(b){ b.onclick = function(){ S.ivOpen = S.ivOpen || {}; S.ivOpen[b.dataset.qmore] = !S.ivOpen[b.dataset.qmore]; viewInterviews(); }; });
   main.querySelectorAll('.ivrow').forEach(function(r){ r.onclick = function(e){ if(e.target.closest('[data-stop]')) return; if(r.dataset.c){ S.focusJob = r.dataset.j; openCandidate(r.dataset.c); } }; r.onkeydown = function(e){ if(e.key === 'Enter' && r.dataset.c) openCandidate(r.dataset.c); }; });
 }
 // row colour + chip: upcoming / in progress / done with feedback in / pending / overdue (24 h after the end) / no feedback rows
