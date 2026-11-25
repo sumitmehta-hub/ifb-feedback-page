@@ -581,6 +581,7 @@ function stageOf(st){ var s = String(st || '').toLowerCase().trim(); if(!s || NO
 function stageMeta(k){ for(var i = 0; i < STAGES.length; i++) if(STAGES[i][0] === k) return STAGES[i]; return STAGES[STAGES.length-1]; }
 
 function post(action, body){
+  if(/^(move|skipeval|fileeval|remind|blink|iv(meet|resched|cancel|add|remove|rec))$/.test(action)) CAND_PF = {};
   return fetch(API + action, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=UTF-8' }, body: JSON.stringify(Object.assign({}, body || {}, { _t: S.token })) })
     .then(function(r){ return r.json().catch(function(){ return { ok:false, error:'Bad reply (' + r.status + ')' }; }); })
     .then(function(j){ if(j && j.code === 'auth'){ signOut(); throw new Error('Please sign in again.'); } return j; });
@@ -1031,13 +1032,20 @@ document.addEventListener('keydown', function(e){
   if(!dr.hidden && (e.key === 'k' || e.key === 'ArrowUp')){ e.preventDefault(); step(-1); }
 });
 var candTab = 'over';
+// candidate data: hovering a card or row starts loading it; reused for 60 s, cleared after any change
+var CAND_PF = {};
+function candFetch(id){ var c = CAND_PF[id]; if(c && c.at > Date.now() - 60000) return c.p; var p = post('candidate', { id: id }); CAND_PF[id] = { at: Date.now(), p: p }; p.then(function(j){ if(!j || !j.ok) delete CAND_PF[id]; }, function(){ delete CAND_PF[id]; }); return p; }
+document.addEventListener('mouseover', function(e){ var el = e.target.closest && e.target.closest('[data-c],[data-qc],[data-mc]'); if(!el || el._pf) return; var id = el.dataset.c || el.dataset.qc || el.dataset.mc; if(!id || !/^\d+$/.test(id)) return; el._pf = 1;
+  var t = setTimeout(function(){ if(S.token && S.ta) candFetch(id); }, 150); el.addEventListener('mouseleave', function(){ clearTimeout(t); el._pf = 0; }, { once: true }); });
 function openCandidate(id, fromRoute){
   S.candId = id; if(!fromRoute) writeHash(S.jobId, id); markCurrent();
   dr.hidden = false; document.body.style.overflow = 'hidden';
   var row = (S.rows || []).filter(function(r){ return r.id === id; })[0];
   drawer.innerHTML = navBar() + '<div class="dh"><span class="cav" aria-hidden="true" style="--jc:' + hueOf(row ? row.Full_Name : '') + '">' + esc(initials(row ? row.Full_Name : '')) + '</span><div><h3 id="dTitle">' + esc(row ? row.Full_Name : 'Candidate') + '</h3><div class="hint">' + esc(row ? row.Candidate_Status : '') + '</div></div></div><div class="db">' + loading('Loading candidate…') + '</div>';
   bindNav();
-  post('candidate', { id: id }).then(function(j){ if(S.candId !== id) return; if(!j.ok){ drawer.innerHTML = navBar() + '<div class="db"><div class="card err">' + esc(j.error) + '</div></div>'; bindNav(); return; } S.cj = j; viewCandidate(); })
+  // speed (26 Nov): the Next step request starts at the same time when the job is already known
+  var fj = S.nxJob || S.jobId || S.focusJob; if(S.ta && fj && /^\d+$/.test(String(fj))) S.flowPre = { c: id, j: String(fj), at: Date.now(), p: post('flow', { candId: id, jobId: String(fj) }) };
+  candFetch(id).then(function(j){ if(S.candId !== id) return; if(!j.ok){ drawer.innerHTML = navBar() + '<div class="db"><div class="card err">' + esc(j.error) + '</div></div>'; bindNav(); return; } S.cj = j; viewCandidate(); })
     .catch(function(e){ drawer.innerHTML = navBar() + '<div class="db"><div class="card err">' + esc(e.message) + '</div></div>'; bindNav(); });
 }
 function navBar(){ var i = S.visible.indexOf(S.candId), n = S.visible.length;
@@ -1187,7 +1195,8 @@ function loadNext(){
   var jr = jobs.filter(function(x){ return String(x.id) === String(want); })[0] || jobs[0]; S.nxJob = String(jr.id);
   var cid = j.candidate.id;
   box.innerHTML = '<div class="nx"><span class="hint">Loading next steps…</span></div>';
-  post('flow', { candId: cid, jobId: S.nxJob }).then(function(f){ if(!S.cj || S.cj.candidate.id !== cid) return; S.nx = f; drawNext(); })
+  var pre = S.flowPre && S.flowPre.c === cid && S.flowPre.j === String(S.nxJob) && S.flowPre.at > Date.now() - 60000 ? S.flowPre.p : null; S.flowPre = null;
+  (pre || post('flow', { candId: cid, jobId: S.nxJob })).then(function(f){ if(!S.cj || S.cj.candidate.id !== cid) return; S.nx = f; drawNext(); })
     .catch(function(e){ box.innerHTML = '<div class="nx"><span class="hint">' + esc(e.message) + '</span></div>'; });
 }
 // ---------- interview guide (Sumit 26 Nov, from the Blitz vs R1 research) ----------
