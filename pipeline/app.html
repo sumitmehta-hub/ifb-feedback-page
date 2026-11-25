@@ -550,7 +550,7 @@ body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden
 .ht .who{display:inline-block;margin-left:6px;font-size:11px;font-weight:700;color:var(--brand-d,#5b2bb5);background:var(--brand-l);border-radius:999px;padding:1px 8px;vertical-align:1px}
 .hp-tabs{display:flex;gap:6px;padding:0 18px 10px}.hp-tabs button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 14px;font:600 13px inherit;color:var(--ink2);cursor:pointer}.hp-tabs button[aria-selected=true]{background:var(--brand-dd);border-color:var(--brand-dd);color:#fff}
 body.ivonly .ht[data-ta]{display:none}
-.hpth{position:fixed;inset:0;z-index:200;background:rgba(14,6,30,.94);display:flex;flex-direction:column;animation:fadeIn .15s ease}
+.mdl .mpn.hpmax{height:90vh}.hpth{position:absolute;inset:0;z-index:5;border-radius:inherit;overflow:hidden;background:rgba(14,6,30,.96);display:flex;flex-direction:column;animation:fadeIn .15s ease}
 .hpth-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;color:#fff;font-size:15px}.hpth-bar b{font-weight:700}
 .hpth-v{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;padding:0 12px 12px}.hpth-v video{max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain;border-radius:8px;background:#000}
 
@@ -2319,19 +2319,19 @@ var HOWTO = [
 ];
 function howHtml(){
   return '<div class="hp-how">' + HOWTO.map(function(t){
-    return '<article class="ht hp-i2"' + (t.ta ? ' data-ta' : '') + '><div class="vw" data-hv="' + t.v + '" role="button" tabindex="0" aria-label="Play: ' + esc(t.h) + '"><video muted loop playsinline preload="metadata" src="help/' + t.v + '.mp4#t=0.6"></video><div class="pl"><span>▶</span></div><button class="fs" type="button" data-hfs title="Full screen" aria-label="Play full screen">⛶</button></div>' +
+    return '<article class="ht hp-i2"' + (t.ta ? ' data-ta' : '') + '><div class="vw" data-hv="' + t.v + '" role="button" tabindex="0" aria-label="Play: ' + esc(t.h) + '"><video muted loop playsinline preload="metadata" src="help/' + t.v + '.mp4#t=0.6"></video><div class="pl"><span>▶</span></div><button class="fs" type="button" data-hfs title="Maximize" aria-label="Maximize the clip">⛶</button></div>' +
       '<div class="tx"><h5>' + esc(t.h) + (t.ta ? '' : '<span class="who">Interviewers</span>') + '</h5><ol>' + t.steps.map(function(x){ return '<li>' + esc(x) + '</li>'; }).join('') + '</ol></div></article>';
   }).join('') + '</div>';
 }
-// full-size player drawn by the page itself: Recruit shows the pipeline in a frame that does not allow browser full screen
+// maximize: the clip fills the Help pop-up (Recruit's frame does not allow browser full screen anyway)
 function fullClip(vw){ var v = vw.querySelector('video'), card = vw.closest('.ht'); if(!v) return;
   var t = v.currentTime || 0; if(!v.paused) toggleClip(vw);
   var th = document.createElement('div'); th.className = 'hpth'; th.setAttribute('role', 'dialog'); th.setAttribute('aria-modal', 'true'); th.setAttribute('aria-label', card.querySelector('h5').firstChild.textContent);
-  th.innerHTML = '<div class="hpth-bar"><b>' + esc(card.querySelector('h5').firstChild.textContent) + '</b><button class="btn sm" type="button" data-thx aria-label="Close full screen">✕ Close</button></div>' +
+  th.innerHTML = '<div class="hpth-bar"><b>' + esc(card.querySelector('h5').firstChild.textContent) + '</b><button class="btn sm" type="button" data-thx aria-label="Back to Help">✕ Back to Help</button></div>' +
     '<div class="hpth-v"><video muted loop playsinline controls src="' + v.getAttribute('src').split('#')[0] + '"></video></div>';
-  document.body.appendChild(th);
+  var box = vw.closest('.mpn') || document.body; box.classList.add('hpmax'); box.appendChild(th);
   var nv = th.querySelector('video'); nv.addEventListener('loadedmetadata', function(){ try{ nv.currentTime = t; }catch(e){} }, { once: true }); nv.play().catch(function(){});
-  var close = function(){ nv.pause(); th.remove(); document.removeEventListener('keydown', key, true); };
+  var close = function(){ nv.pause(); th.remove(); box.classList.remove('hpmax'); document.removeEventListener('keydown', key, true); };
   var key = function(e){ if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); close(); } };
   document.addEventListener('keydown', key, true);
   th.onclick = function(e){ if(e.target.closest('[data-thx]') || e.target === th || e.target.classList.contains('hpth-v')) close(); };
