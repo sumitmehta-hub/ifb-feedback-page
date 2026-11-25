@@ -581,20 +581,32 @@ function goMine(fromRoute){ SPL.done();
       '<div class="mi-kpis"><div class="mi-k' + (j.pending.length ? ' warn' : ' ok') + '"><b>' + j.pending.length + '</b><span>evaluations to fill</span></div><div class="mi-k"><b>' + j.upcoming.length + '</b><span>coming up</span></div><div class="mi-k ok"><b>' + j.done + '</b><span>evaluations filed</span></div></div>';
     h += '<section class="card mi-sec"><h3>✍️ Evaluations to fill <span class="qn">' + j.pending.length + '</span></h3>' + (j.pending.length ? '<div class="hint" style="margin:-4px 0 8px">Open the interview in Recruit and submit the evaluation: scores, comments and your recommendation. The TA team picks the outcome.</div>' + j.pending.map(function(v){ return row(v, 'due'); }).join('') : '<div class="empty-ok">All clear 🎉 No evaluations pending.</div>') + '</section>';
     h += '<section class="card mi-sec"><h3>🗓 Coming up <span class="qn">' + j.upcoming.length + '</span></h3>' + (j.upcoming.length ? j.upcoming.map(function(v){ return row(v, 'up'); }).join('') : '<div class="hint">No interviews booked for you in the next 3 weeks.</div>') + '</section>';
-    if(S.ta) h += '<section class="card mi-sec" id="recbox"><h3>⏺ Google Meet recording</h3><div class="hint" style="margin:-4px 0 10px">Meets you create from an interview card switch on recording and the transcript by themselves. Reconnect Google once so the page is allowed to do that, then run the check: it makes a 15-minute test event only you are invited to, switches recording on, and deletes it.</div>' +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><button class="gbtn" id="recConn">' + GLOGO + 'Connect / reconnect Google</button><button class="btn primary" id="recTest">Check auto-recording</button><span id="recOut" class="hint" role="status"></span></div></section>';
+    if(S.ta) h += '<section class="card mi-sec" id="recbox"><h3>⏺ Google Meet recording</h3><div id="recBody" class="hint">Checking your Google connection…</div></section>';
     main.innerHTML = h; bindJobSelect();
-    var rcn = document.getElementById('recConn'), rct = document.getElementById('recTest'), out = document.getElementById('recOut');
-    var say = function(t, ok){ if(out){ out.textContent = t; out.style.color = ok === true ? 'var(--ok)' : ok === false ? 'var(--bad)' : ''; out.style.fontWeight = ok === undefined ? '' : '700'; } };
-    if(rcn) rcn.onclick = function(){ post('gconnect', {}).then(function(r){ if(!r.ok){ say(r.error || 'Could not start Google sign-in', false); return; }
-      var w = window.open(r.url, 'hire_g', 'width=520,height=680'); if(!w){ say('Your browser blocked the Google window. Allow pop-ups for this page and try again.', false); return; } say('Finish in the Google window…');
-      var on = function(e){ if(!e.data || e.data.type !== 'hire-gauth') return; window.removeEventListener('message', on); if(e.data.ok) say('✅ Google connected. Now run the check.', true); else say(e.data.error || 'Google sign-in did not complete', false); }; window.addEventListener('message', on); }); };
-    if(rct) rct.onclick = function(){ rct.disabled = true; var l = rct.textContent; rct.textContent = 'Checking…'; say('');
-      post('grectest', {}).then(function(r){ rct.disabled = false; rct.textContent = l;
-        if(!r.ok){ say(r.code === 'gconnect' ? 'Connect Google first.' : (r.error || 'Check failed'), false); return; }
-        say(r.rec === 'on' ? '✅ Works: recording' + (r.transcript === 'on' ? ' and transcript were' : ' was') + ' switched on for a test Meet' + (r.transcript === 'on' ? '' : ' (transcripts are not allowed for your Google account)') + (r.deleted ? ', and the test event was deleted.' : '. Please delete the test event from your calendar.') : r.rec === 'reconnect' ? 'Reconnect Google first (the button on the left), then check again.' : '⚠ Not working yet: ' + (r.why || r.rec) + (r.deleted ? '' : '. Please delete the test event from your calendar.'), r.rec === 'on'); })
-        .catch(function(e){ rct.disabled = false; rct.textContent = l; say(e.message, false); }); };
+    if(S.ta) drawRecBox();
   }).catch(function(e){ main.innerHTML = jobSelect() + '<div class="card err">' + esc(e.message) + '</div>'; bindJobSelect(); });
+}
+// Google box on My interviews (TA): like the CRM Meetings widget, connect once; the button only shows when it's needed.
+function drawRecBox(){ var el = document.getElementById('recBody'); if(!el) return;
+  post('grecstatus', {}).then(function(g){ if(!document.getElementById('recBody')) return;
+    var row = function(cls, txt, btn){ return '<div class="ivc-g ' + cls + '" style="margin:0">' + txt + btn + '</div>'; };
+    var check = '<button class="btn sm" id="recTest" style="margin-left:auto">Run a test</button><span id="recOut" class="hint" role="status" style="flex-basis:100%"></span>';
+    if(g.connected && g.rec) el.innerHTML = row('on', '<span class="gdot"></span><b>Google connected</b><span>' + esc((S.me && S.me.email) || '') + ' · recording and transcript switch on by themselves for Meets you create from an interview card</span>', check);
+    else el.innerHTML = row('off', '<div class="gtx"><b>' + (g.connected ? 'One more step for auto-recording' : g.expired ? 'Your Google connection has expired' : 'Connect your Google account') + '</b><span>' + (g.connected ? 'Reconnect once and allow Google Meet settings, so your interview Meets record and transcribe by themselves.' : 'Needed once to send interview invites with a Meet link that records by itself.') + '</span></div>', '<button class="gbtn" id="recConn">' + GLOGO + (g.connected ? 'Reconnect Google' : 'Connect with Google') + '</button>');
+    var rcn = document.getElementById('recConn'), rct = document.getElementById('recTest'), out = document.getElementById('recOut');
+    var say = function(t, ok){ if(out){ out.textContent = t; out.style.color = ok === true ? 'var(--ok)' : ok === false ? 'var(--bad)' : ''; out.style.fontWeight = ok === undefined ? '' : '700'; } else if(t) toastMsg(t); };
+    if(rcn) rcn.onclick = function(){ post('gconnect', {}).then(function(r){ if(!r.ok){ toastMsg(r.error || 'Could not start Google sign-in'); return; }
+      var w = window.open(r.url, 'hire_g', 'width=520,height=680'); if(!w){ toastMsg('Your browser blocked the Google window. Allow pop-ups for this page and try again.'); return; }
+      rcn.disabled = true; rcn.innerHTML = GLOGO + 'Finish in the Google window…';
+      var tk = setInterval(function(){ if(w.closed){ clearInterval(tk); setTimeout(function(){ window.removeEventListener('message', on); drawRecBox(); }, 900); } }, 600);
+      var on = function(e){ if(!e.data || e.data.type !== 'hire-gauth') return; window.removeEventListener('message', on); if(e.data.ok) toastMsg('✅ Google connected'); else toastMsg(e.data.error || 'Google sign-in did not complete'); clearInterval(tk); drawRecBox(); }; window.addEventListener('message', on); }); };
+    if(rct) rct.onclick = function(){ rct.disabled = true; var l = rct.textContent; rct.textContent = 'Testing…'; say('');
+      post('grectest', {}).then(function(r){ rct.disabled = false; rct.textContent = l;
+        if(!r.ok){ say(r.code === 'gconnect' ? 'Connect Google first.' : (r.error || 'Test failed'), false); return; }
+        if(r.rec === 'reconnect'){ drawRecBox(); return; }
+        say(r.rec === 'on' ? '✅ Works: a test Meet got recording' + (r.transcript === 'on' ? ' and transcript' : '') + ' switched on' + (r.transcript === 'on' ? '' : ' (transcripts are not allowed for your Google account)') + (r.deleted ? ', and the test event was deleted.' : '. Please delete the test event from your calendar.') : '⚠ Not working yet: ' + (r.why || r.rec) + (r.deleted ? '' : '. Please delete the test event from your calendar.'), r.rec === 'on'); })
+        .catch(function(e){ rct.disabled = false; rct.textContent = l; say(e.message, false); }); };
+  }).catch(function(e){ el.textContent = e.message; });
 }
 function goInterviews(fromRoute){ SPL.done();
   S.page = 'iv'; S.jobId = ''; if(fromRoute !== true) writeHash('', ''); closeDrawer(true); drawSide();
