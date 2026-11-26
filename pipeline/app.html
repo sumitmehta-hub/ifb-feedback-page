@@ -530,6 +530,15 @@ body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden
 .me{color:var(--ink)}.me .av{background:var(--brand-l);border:1px solid var(--brand-line);color:var(--brand-d)}#mePr{color:var(--muted);opacity:1!important}
 .sidet{border:1px solid var(--line);background:#fff;color:var(--ink2)}.sidet:hover{background:var(--brand-l);color:var(--brand-d);border-color:var(--brand-line)}.sidet:focus-visible{outline:2px solid var(--brand)}
 @media (max-width:600px){.tsep{display:none}.lglogo{height:18px}}
+/* Tooltips (26 Nov): one styled tooltip instead of the browser's grey box; name lists get a row per person */
+.htip{position:fixed;z-index:400;max-width:300px;padding:8px 11px;border-radius:11px;background:#1c1530;color:#fff;font-size:12.5px;line-height:1.45;font-weight:500;box-shadow:0 10px 30px rgba(6,0,59,.28);pointer-events:none;opacity:0;transform:translateY(3px);transition:opacity .12s,transform .12s}
+.htip.on{opacity:1;transform:none}
+.htip:after{content:"";position:absolute;left:var(--ax,50%);width:10px;height:10px;background:#1c1530;transform:translateX(-50%) rotate(45deg);border-radius:2px}
+.htip.up:after{bottom:-4px}.htip.down:after{top:-4px}
+.htip .htl{display:grid;gap:5px}.htip .htl div{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.htip .htl i{flex:none;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-size:9.5px;font-weight:800;background:rgba(255,255,255,.16);color:#fff}
+.htip .th{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:rgba(255,255,255,.65);margin-bottom:6px;font-weight:700}
+@media (prefers-reduced-motion:reduce){.htip{transition:none}}
 .hp-guide{margin-left:auto;align-self:center;font-size:13px;font-weight:700;color:var(--brand-d);text-decoration:none;border:1px solid var(--brand-line);background:var(--brand-ll);border-radius:999px;padding:5px 12px}.hp-guide:hover{background:var(--brand-l)}
 .hp-gfoot{margin-top:14px;padding:10px 14px;border-radius:12px;background:var(--brand-ll);border:1px solid var(--brand-line);font-size:13px;color:var(--ink2)}
 @media (max-width:600px){.hp-tabs{flex-wrap:wrap}.hp-guide{margin-left:0}}
@@ -2654,6 +2663,42 @@ window.addEventListener('message', function(e){ if(e.data && e.data.type === 'hi
 window.HPGC = { go: go, state: function(){ return st; }, check: check, box: null };
 var started = false; setInterval(function(){ if(!started && window.HP && HP.signedIn && HP.signedIn() && HP.isTa){ started = true; setTimeout(check, 2500); } if(started && !(HP.signedIn())){ started = false; st = null; paint(); } }, 1000);
 setInterval(function(){ if(st && !(st.connected && (st.rec || !ta()))) check(); }, 10 * 60000);
+})();
+
+// ---------- Tooltips (26 Nov): every title="" in the page shows as a styled tooltip ----------
+(function(){
+var tip = null, cur = null, t = 0;
+var esc = function(x){ return String(x).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); };
+var ini = function(n){ var p = String(n).trim().split(/\s+/); return ((p[0] || '')[0] || '').toUpperCase() + ((p.length > 1 ? p[p.length - 1][0] : '') || '').toUpperCase(); };
+function body(text){
+  var parts = text.split(/\s*,\s*/).filter(Boolean);
+  // a list of people (e.g. recruiters): one row each with initials
+  if(parts.length >= 2 && parts.every(function(x){ return /^[A-Z][A-Za-z.'-]*(\s+[A-Z][A-Za-z.'-]*){0,3}$/.test(x) && x.length < 40; }))
+    return '<div class="th">' + parts.length + ' people</div><div class="htl">' + parts.map(function(n){ return '<div><i>' + esc(ini(n)) + '</i>' + esc(n) + '</div>'; }).join('') + '</div>';
+  return esc(text);
+}
+function hide(){ clearTimeout(t); cur = null; if(tip) tip.classList.remove('on'); }
+function show(el){
+  var text = el.getAttribute('data-tip'); if(!text) return;
+  if(!tip){ tip = document.createElement('div'); tip.className = 'htip'; tip.setAttribute('role', 'tooltip'); document.body.appendChild(tip); }
+  tip.innerHTML = body(text); tip.classList.remove('on', 'up', 'down');
+  var r = el.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight, gap = 9;
+  var up = r.top - h - gap > 8, top = up ? r.top - h - gap : r.bottom + gap;
+  var left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2));
+  tip.style.left = left + 'px'; tip.style.top = top + 'px'; tip.style.setProperty('--ax', Math.max(12, Math.min(w - 12, r.left + r.width / 2 - left)) + 'px');
+  tip.classList.add(up ? 'up' : 'down'); requestAnimationFrame(function(){ if(cur === el) tip.classList.add('on'); });
+}
+function take(el){ // move title to data-tip so the browser's own box never shows
+  var tt = el.getAttribute('title'); if(tt){ el.setAttribute('data-tip', tt); el.removeAttribute('title'); if(!el.getAttribute('aria-label') && !el.textContent.trim()) el.setAttribute('aria-label', tt); }
+}
+document.addEventListener('mouseover', function(e){
+  var el = e.target.closest && e.target.closest('[title],[data-tip]'); if(!el || el.matches('input,select,textarea,iframe,option')) { if(cur && !(el && el === cur)) hide(); return; }
+  take(el); if(el === cur) return; hide(); cur = el; t = setTimeout(function(){ if(cur === el) show(el); }, 220);
+}, true);
+document.addEventListener('mouseout', function(e){ if(cur && (!e.relatedTarget || !cur.contains(e.relatedTarget))) hide(); }, true);
+document.addEventListener('focusin', function(e){ var el = e.target.closest && e.target.closest('[title],[data-tip]'); if(!el || el.matches('input,select,textarea')) return; take(el); hide(); cur = el; show(el); });
+document.addEventListener('focusout', hide);
+['scroll', 'wheel', 'pointerdown', 'keydown'].forEach(function(ev){ window.addEventListener(ev, function(e){ if(ev === 'keydown' && e.key !== 'Escape' && e.key !== 'Tab') return; hide(); }, true); });
 })();
 </script>
 </body>
