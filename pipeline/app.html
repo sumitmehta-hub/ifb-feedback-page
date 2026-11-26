@@ -975,8 +975,8 @@ function confirmLeave(){ return window.confirm('You have unsaved availability ch
 // 26 Nov: interviewers connect a read-only Google Calendar, so the TA team sees when they are busy (a warning only)
 function drawCalBox(){ var el = document.getElementById('gcalBody'); if(!el) return;
   post('gstatus', {}).then(function(g){ if(!document.getElementById('gcalBody')) return;
-    el.className = ''; el.innerHTML = g.connected ? '<div class="ivc-g on" style="margin:0"><span class="gdot"></span><b>Google connected</b><span>' + esc((S.me && S.me.email) || '') + ' · the TA team sees when you are busy before booking you. Read-only, event names stay private.</span></div>'
-      : '<div class="ivc-g off" style="margin:0"><div class="gtx"><b>Connect your Google account</b><span>So the TA team sees when you are busy before booking you. Read-only: nothing is changed in your calendar and event names stay private. Your hours below still decide.</span></div><button class="gbtn" id="gcalConn">' + GLOGO + 'Connect Google</button></div>';
+    el.className = ''; el.innerHTML = g.connected ? '<div class="ivc-g on" style="margin:0"><span class="gdot"></span><b>Google connected</b><span>' + esc((S.me && S.me.email) || '') + ' · the TA team sees when you are busy before booking you. Event names stay private.</span></div>'
+      : '<div class="ivc-g off" style="margin:0"><div class="gtx"><b>Connect your Google account</b><span>So the TA team sees when you are busy before booking you. Nothing is changed in your calendar and event names stay private. Your hours below still decide.</span></div><button class="gbtn" id="gcalConn">' + GLOGO + 'Connect Google</button></div>';
     var b = document.getElementById('gcalConn'); if(b) b.onclick = function(){ if(window.HPGC) HPGC.go(); }; }).catch(function(){}); }
 if(typeof window !== 'undefined') setTimeout(function(){ if(window.HPGC) HPGC.box = drawCalBox; }, 0);
 function drawRecBox(){ var el = document.getElementById('recBody'); if(!el) return;
@@ -2544,7 +2544,7 @@ var IV = [
    bul: ['The Cliq heads-up card has the same links'] },
  TA[6],
  { id: 'gcal', ic: '📅', name: 'Connect Google', isNew: true, where: 'Top bar → Connect Google, or My interviews → Google account', go: 'mine', spot: function(){ return document.getElementById('gcalbox') || document.getElementById('gcBtn'); },
-   text: 'Connect once so the TA team sees when you are busy in Google Calendar before booking you. Read-only: nothing is changed in your calendar and event names stay private.',
+   text: 'Connect once so the TA team sees when you are busy in Google Calendar before booking you. Nothing is changed in your calendar and event names stay private.',
    bul: ['Your hours in My availability still decide when you can be booked', 'Busy is only a warning for the TA team'] },
  TA[7]
 ];
@@ -2614,7 +2614,7 @@ function closePop(){ var p = document.getElementById('gcPop'); if(p) p.remove();
 function pop(){ closePop(); var b = btn(); if(!b || b.hidden) return; var r = b.getBoundingClientRect();
   var p = document.createElement('div'); p.className = 'gc-pop'; p.id = 'gcPop'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', 'Connect Google');
   p.innerHTML = '<div class="gh"><span class="gci">' + HP.glogo + '</span><b>' + (!ta() ? 'Connect your Google account once' : st && st.connected && !st.rec ? 'One more step for auto-recording' : st && st.expired ? 'Your Google connection has expired' : 'Connect your Google account once') + '</b></div>' +
-    (ta() ? '<ul><li>Interview invites go out with a Google Meet link</li><li>Recording and transcript switch on by themselves</li><li>Booking links to candidates go from your Gmail</li></ul>' : '<ul><li>The TA team sees when you are busy in Google Calendar before booking you</li><li>Read-only: nothing is changed in your calendar, and event names stay private</li><li>Your hours in My availability still decide when you can be booked</li></ul>') +
+    (ta() ? '<ul><li>Interview invites go out with a Google Meet link</li><li>Recording and transcript switch on by themselves</li><li>Booking links to candidates go from your Gmail</li></ul>' : '<ul><li>The TA team sees when you are busy in Google Calendar before booking you</li><li>Nothing is changed in your calendar, and event names stay private</li><li>Your hours in My availability still decide when you can be booked</li></ul>') +
     '<div class="ga"><button class="btn primary sm" type="button" data-gcgo>' + label() + '</button><button class="btn sm" type="button" data-gclater>Later</button><span class="hint">Takes 30 seconds</span></div>';
   document.body.appendChild(p);
   var w = p.offsetWidth, left = Math.max(12, Math.min(window.innerWidth - w - 12, r.right - w + 20)); p.style.left = left + 'px'; p.style.top = (r.bottom + 12) + 'px'; p.style.setProperty('--ar', Math.max(14, Math.min(w - 28, r.left + r.width / 2 - left - 7)) + 'px');
