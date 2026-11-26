@@ -544,6 +544,12 @@ body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden
 .myfb-form{margin:2px 0 12px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--brand-ll,#faf7ff)}.myfb-form .fbform{display:flex;flex-direction:column;gap:10px}.myfb-form h4{margin:6px 0 0;font-size:13px}.myfb-form label{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:13px}.myfb-form select,.myfb-form textarea,.myfb-form input[type=text]{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fff}
 .myfb-q{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line)}.myfb-qt{font-size:13px}.myfb-q .myfb-qc{grid-column:1/-1}.myfb-late{padding:10px 12px;border-radius:10px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:13px}
 @media (max-width:520px){.myfb-q{grid-template-columns:1fr}}
+.us-k{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}.us-cat{margin:14px 0 4px;font-size:13px}.us-row{cursor:pointer}.us-row:hover td{background:var(--brand-ll,#f6f2ff)}.us-row.none td{color:var(--ink3,#9a94ab)}.us-up{color:#15803d;font-weight:700;font-size:12px}.us-dn{color:#b42318;font-weight:700;font-size:12px}.us-det td{background:#fbfaff}.us-dl{display:grid;gap:6px}.us-dl div{display:flex;gap:8px;flex-wrap:wrap;align-items:baseline}.us-dl span{color:var(--ink2);font-size:12.5px}
+.us-days{display:flex;gap:3px;align-items:flex-end;height:150px;overflow-x:auto;padding-bottom:2px}.us-d{flex:1 0 18px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:2px}.us-d i{display:block;width:100%;max-width:26px;min-height:2px;background:#8644f0;border-radius:4px 4px 0 0}.us-d.we i{background:#c9b5f7}.us-d .us-n{font-size:11px;font-weight:700;color:var(--ink)}.us-d small{font-size:10px;color:#0f766e;min-height:12px}.us-d em{font-style:normal;font-size:10px;color:var(--ink2)}
+.us-hrs{display:flex;gap:4px;align-items:flex-end;height:100px}.us-h{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}.us-h i{display:block;width:100%;max-width:28px;min-height:2px;background:#b45309;border-radius:4px 4px 0 0}.us-h em{font-style:normal;font-size:10px;color:var(--ink2)}
+.us-ad{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}.us-a{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}.us-a b{font-size:22px}.us-a span{font-weight:700;font-size:13px}.us-a small{color:var(--ink2);font-size:12px}
+.us-strip{display:flex;gap:2px;margin:4px 0 8px;flex-wrap:wrap}.us-strip i{width:12px;height:12px;border-radius:3px;background:#ece8f5}.us-strip i.on{background:#8644f0}.us-pf{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px}
+.us-bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:4px 0 12px}.us-bar select{font:inherit;padding:6px 10px;border:1px solid var(--line);border-radius:10px;margin-left:6px}.us-tw{overflow-x:auto}.us-t{width:100%;border-collapse:collapse;font-size:13px}.us-t th{text-align:left;font-size:12px;color:var(--ink2);font-weight:700;padding:6px 8px;border-bottom:1px solid var(--line)}.us-t td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}.us-t .chip{margin:2px 2px 2px 0}
 .fbf2{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px}
 .fbstars{display:flex;gap:6px}.fbstars button{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;font-weight:800;cursor:pointer;color:var(--ink2)}
 .fbstars button[aria-checked="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
@@ -754,6 +760,11 @@ var NOT_IN = /^(associated|unqualified|junk candidate|duplicate profile|not look
 function stageOf(st){ var s = String(st || '').toLowerCase().trim(); if(!s || NOT_IN.test(s)) return 'out'; for(var i = 0; i < STAGES.length - 1; i++){ if(STAGES[i][3].test(s)) return STAGES[i][0]; } return 'out'; }
 function stageMeta(k){ for(var i = 0; i < STAGES.length; i++) if(STAGES[i][0] === k) return STAGES[i]; return STAGES[STAGES.length-1]; }
 
+// usage (26 Nov, Sumit): the page reports which view was opened, once per view per day; the server keeps who + what + day
+var HIT = {};
+function hit(v){ var k = v + '|' + new Date().toDateString(); if(HIT[k] || !S.token) return; HIT[k] = 1; try{ post('hit', { v: v }).catch(function(){}); }catch(e){} }
+var USAGE_ME = 'sumit.mehta@leegality.com';
+function isUsageAdmin(){ return !!(S.me && String(S.me.email || '').toLowerCase() === USAGE_ME); }
 function post(action, body){
   if(/^(move|skipeval|fileeval|fbedit|remind|blink|iv(meet|resched|cancel|add|remove|rec))$/.test(action)) CAND_PF = {};
   return fetch(API + action, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=UTF-8' }, body: JSON.stringify(Object.assign({}, body || {}, { _t: S.token })) })
@@ -811,7 +822,7 @@ function drawSide(){ var qm = document.getElementById('main'); if(qm){ qm.classL
   if(!S.ta && !S.admin){ document.getElementById('sideTitle').textContent = 'Interviews'; el.innerHTML = '<button class="home-link" id="myi" aria-current="true">🎤 My interviews</button><div class="hint" style="padding:10px 12px;font-size:12.5px">Your interviews, the evaluations you owe and your availability. The pipeline and dashboard are for the TA team.</div>';
     document.getElementById('myi').onclick = function(){ goMine(); }; return; }
   var mine = list.filter(function(x){ return x.mine; }), rest = list.filter(function(x){ return !x.mine; });
-  el.innerHTML = '<button class="home-link" id="wk" aria-current="' + (S.page === 'work') + '">✅ My work</button><button class="home-link" id="dsb" aria-current="' + (S.page === 'dash') + '">📊 Hiring overview</button><button class="home-link" id="hm" aria-current="' + (S.page === 'home') + '">⌂ All jobs</button><button class="home-link" id="ivl" aria-current="' + (S.page === 'iv') + '">🗓 Interviews</button><button class="home-link" id="myi" aria-current="' + (S.page === 'mine') + '">🎤 My interviews</button>' + (list.length ? (!S.onlyMine && mine.length && rest.length ? '<div class="grp">My jobs</div>' + mine.map(item).join('') + '<div class="grp">Other jobs</div>' + rest.map(item).join('') : list.map(item).join(''))
+  el.innerHTML = '<button class="home-link" id="wk" aria-current="' + (S.page === 'work') + '">✅ My work</button><button class="home-link" id="dsb" aria-current="' + (S.page === 'dash') + '">📊 Hiring overview</button><button class="home-link" id="hm" aria-current="' + (S.page === 'home') + '">⌂ All jobs</button><button class="home-link" id="ivl" aria-current="' + (S.page === 'iv') + '">🗓 Interviews</button><button class="home-link" id="myi" aria-current="' + (S.page === 'mine') + '">🎤 My interviews</button>' + (isUsageAdmin() ? '<button class="home-link" id="usl" aria-current="' + (S.page === 'usage') + '">📈 Usage</button>' : '') + (list.length ? (!S.onlyMine && mine.length && rest.length ? '<div class="grp">My jobs</div>' + mine.map(item).join('') + '<div class="grp">Other jobs</div>' + rest.map(item).join('') : list.map(item).join(''))
     : '<div class="hint" style="padding:12px">' + (S.jq ? 'No jobs match.' : S.onlyMine ? 'No ' + (S.jstat === 'open' ? 'open' : S.jstat === 'hold' ? 'on-hold' : 'closed') + ' jobs where you are the recruiter or hiring manager. Try “All jobs”.' : 'No jobs here.') + '</div>');
   el.querySelectorAll('[data-j]').forEach(function(b){ b.onclick = function(){ openJob(b.dataset.j); }; var ht; b.onmouseenter = function(){ ht = setTimeout(function(){ prefetchJob(b.dataset.j); }, 120); }; b.onmouseleave = function(){ clearTimeout(ht); }; });
   if(realAdmin()){ var ppl = viewAsPeople(); if(ppl.length){ var va = document.createElement('div'); va.className = 'vas'; va.innerHTML = '<label for="vasel">🔎 Recruiter</label><select id="vasel" aria-label="Filter by recruiter"><option value="">Everyone</option>' + ppl.map(function(n){ return '<option' + (n === S.viewAs ? ' selected' : '') + '>' + esc(n) + '</option>'; }).join('') + '</select>';
@@ -821,6 +832,7 @@ function drawSide(){ var qm = document.getElementById('main'); if(qm){ qm.classL
   var myb = document.getElementById('myi'); if(myb) myb.onclick = function(){ goMine(); };
   var dsb = document.getElementById('dsb'); if(dsb) dsb.onclick = function(){ goDash(); };
   document.getElementById('ivl').onclick = goInterviews;
+  var usl = document.getElementById('usl'); if(usl) usl.onclick = function(){ goUsage(); };
 }
 // ---------- Recruiter filter (25 Nov, Tabir: "filter, not View as"): admins narrow jobs, My work, Interviews and the
 // overview to one recruiter's roles. Nothing changes on the server and the admin's own buttons keep working.
@@ -852,6 +864,7 @@ function route(first){
   // interviewers and hiring managers outside the TA team only get My interviews (Sumit 26 Nov); the server refuses the rest
   if(!S.ta && !S.admin){ S.jobId = ''; closeDrawer(true); if(S.page !== 'mine' || first) goMine(true); return; }
   if(location.hash.indexOf('view=mine') >= 0 || (first && !job && !S.ta && !S.admin && !S.jobs.some(function(x){ return x.mine; }))){ S.jobId = ''; goMine(true); return; }
+  if(location.hash.indexOf('view=usage') >= 0 && isUsageAdmin()){ S.jobId = ''; if(S.page !== 'usage' || first) goUsage(true); return; }
   if(location.hash.indexOf('view=iv') >= 0){ S.jobId = ''; if(S.page !== 'iv' || !S.ivs) goInterviews(true); if(h.c && h.c !== S.candId) openCandidate(h.c, true); else if(!h.c) closeDrawer(true); return; }
   var vw = (location.hash.match(/view=(work|dash)/) || [])[1];
   if(vw || (first && !job)){ S.jobId = ''; if(first && !vw && !h.c) history.replaceState(null, '', location.pathname + location.search + '#view=' + (S.admin ? 'dash' : 'work')); if(S.page !== vw || first){ if(vw === 'dash' || (!vw && S.admin)) goDash(true); else goWork(true); } if(h.c && h.c !== S.candId) openCandidate(h.c, true); else if(!h.c) closeDrawer(true); return; }
@@ -862,7 +875,7 @@ function route(first){
     else if(!h.c) closeDrawer(true);
   } else { S.jobId = ''; S.page = 'home'; drawSide(); viewHome(); closeDrawer(true); }
 }
-function goHome(){ SPL.done(); S.jobId = ''; S.page = 'home'; store('hire_job', null); writeHash('', ''); closeDrawer(true); drawSide(); viewHome(); }
+function goHome(){ hit('home'); SPL.done(); S.jobId = ''; S.page = 'home'; store('hire_job', null); writeHash('', ''); closeDrawer(true); drawSide(); viewHome(); }
 
 function viewHome(){
   var main = document.getElementById('main'); if(!main) return;
@@ -899,7 +912,7 @@ function bindGSearch(){ var q = document.getElementById('gq'), box = document.ge
     else if(e.key === 'Escape'){ q.value = ''; box.innerHTML = ''; q.blur(); } };
   document.addEventListener('keydown', function(e){ if(e.key === '/' && !/^(INPUT|TEXTAREA|SELECT)$/.test((document.activeElement || {}).tagName || '')){ e.preventDefault(); q.focus(); } });
 }
-function goMine(fromRoute){ SPL.done();
+function goMine(fromRoute){ hit('mine'); SPL.done();
   S.page = 'mine'; S.jobId = ''; if(fromRoute !== true) history.replaceState(null, '', location.pathname + location.search + '#view=mine'); closeDrawer(true); drawSide();
   var main = document.getElementById('main'); main.innerHTML = jobSelect() + loading('Loading your interviews…'); bindJobSelect();
   post('myiv').then(function(j){ if(S.page !== 'mine') return; if(!j.ok){ main.innerHTML = jobSelect() + '<div class="card err">' + esc(j.error || 'Could not load your interviews.') + '</div>'; bindJobSelect(); return; }
@@ -989,6 +1002,87 @@ document.addEventListener('click', function(e){ var b = e.target.closest && e.ta
         .catch(function(er){ sv.disabled = false; sv.textContent = 'Save'; bad(er.message); }); };
   }).catch(function(er){ box.innerHTML = '<div class="hint" style="color:var(--bad)">' + esc(er.message) + '</div>'; });
 });
+// usage: team guide link and how-to clips (26 Nov)
+document.addEventListener('click', function(e){ var t = e.target.closest && e.target.closest('a[href*="N7FLptPDC7R5KVaocSrNDM"], [data-hv]'); if(!t || !window.HP || !HP.hit) return; HP.hit(t.hasAttribute('data-hv') ? 'clip' : 'guide'); }, true);
+// ---------- 📈 Usage (26 Nov, Sumit only): who uses what in the Hiring Pipeline ----------
+var US = { days: 28, data: null };
+var US_LABEL = { open: 'Opened the Pipeline', 'view:work': 'My work', 'view:dash': 'Hiring overview', 'view:home': 'All jobs', 'view:job': 'Job board', 'view:cand': 'Candidate panel',
+  'view:iv': 'Interviews', 'view:mine': 'My interviews', 'view:help': 'Help', 'view:clip': 'How-to clip', 'view:guide': 'Team guide', 'view:whatsnew': "What's new", 'view:ivcard': 'Interview card', 'view:usage': 'Usage',
+  move: 'Moved a candidate', booklink: 'Sent a booking link', book: 'Booked a round', slots: 'Checked free slots', fileeval: 'Filed an evaluation', skipeval: 'Skipped an evaluation',
+  remind: 'Feedback reminder', remindeval: 'Evaluation reminder', fbedit: 'TA corrected feedback', myfbopen: 'Opened own feedback', myfbsave: 'Saved / corrected own feedback',
+  availsave: 'Saved availability', gconnect: 'Connect Google', search: 'Search', ivadd: 'Added an interviewer', ivremove: 'Removed an interviewer', ivresched: 'Rescheduled', ivcancel: 'Cancelled an interview', ivrec: 'Turned on recording' };
+var US_DO = ['move', 'booklink', 'book', 'fileeval', 'skipeval', 'remind', 'remindeval', 'fbedit', 'myfbsave', 'availsave', 'gconnect', 'ivadd', 'ivremove', 'ivresched', 'ivcancel', 'ivrec'];
+function usLabel(a){ return US_LABEL[a] || a; }
+function goUsage(fromRoute){ if(!isUsageAdmin()) return goWork(); hit('usage'); SPL.done();
+  S.page = 'usage'; S.jobId = ''; if(fromRoute !== true) history.replaceState(null, '', location.pathname + location.search + '#view=usage'); closeDrawer(true); drawSide();
+  var main = document.getElementById('main'); main.innerHTML = loading('Loading usage…');
+  post('usage', { days: US.days }).then(function(j){ if(S.page !== 'usage') return; if(!j.ok){ main.innerHTML = '<div class="card err">' + esc(j.error || 'Could not load usage') + '</div>'; return; } US.data = j; drawUsage(); })
+    .catch(function(e){ main.innerHTML = '<div class="card err">' + esc(e.message) + '</div>'; });
+}
+var US_CAT = [['👁 Looking around', ['open', 'view:work', 'view:dash', 'view:home', 'view:job', 'view:cand', 'view:iv', 'view:ivcard', 'search']],
+  ['📅 Booking', ['slots', 'book', 'booklink', 'ivadd', 'ivremove', 'ivresched', 'ivcancel', 'ivrec']],
+  ['➡️ Moving candidates', ['move']],
+  ['📝 Evaluations and feedback', ['fileeval', 'skipeval', 'remind', 'remindeval', 'fbedit', 'myfbopen', 'myfbsave']],
+  ['🎤 Interviewers', ['view:mine', 'availsave', 'gconnect']],
+  ['❓ Help and news', ['view:help', 'view:clip', 'view:guide', 'view:whatsnew']]];
+US.open = US.open || {};
+function usHour(r){ var a = String(r.at || ''); if(!a) return -1; if(a.indexOf('T') > 0){ var d = new Date(a); return isNaN(d) ? -1 : (d.getUTCHours() + 5 + (d.getUTCMinutes() >= 30 ? 1 : 0)) % 24; } var h = parseInt(a.slice(11, 13), 10); return isNaN(h) ? -1 : h; }
+function drawUsage(){ var main = document.getElementById('main'), j = US.data; if(!main || !j) return;
+  var rows = j.rows || [], ta = (j.ta || []).map(function(e){ return String(e).toLowerCase(); }), ppl = {}, feat = {}, byDay = {}, hours = [];
+  for(var hh = 0; hh < 24; hh++) hours.push(0);
+  var weekAgo = new Date(new Date(j.today + 'T12:00:00+05:30').getTime() - 6 * 864e5).toISOString().slice(0, 10), twoAgo = new Date(new Date(j.today + 'T12:00:00+05:30').getTime() - 13 * 864e5).toISOString().slice(0, 10);
+  rows.forEach(function(r){ var p = ppl[r.email] = ppl[r.email] || { email: r.email, name: r.uname || r.email, days: {}, acts: {}, actDays: {}, last: '', first: '9999', uses: 0 };
+    p.days[r.day] = 1; p.acts[r.act] = (p.acts[r.act] || 0) + 1; (p.actDays[r.act] = p.actDays[r.act] || {})[r.day] = 1; if(r.day > p.last) p.last = r.day; if(r.day < p.first) p.first = r.day; if(r.uname) p.name = r.uname; if(US_DO.indexOf(r.act) >= 0) p.uses++;
+    var f = feat[r.act] = feat[r.act] || { act: r.act, people: {}, uses: 0, pd: {}, last: '', wk: 0, pwk: 0 }; f.people[r.email] = (f.people[r.email] || 0) + 1; f.uses++; f.pd[r.email + r.day] = 1; if(r.day > f.last) f.last = r.day;
+    if(r.day >= weekAgo) f.wk++; else if(r.day >= twoAgo) f.pwk++;
+    var d = byDay[r.day] = byDay[r.day] || { ppl: {}, acts: 0 }; d.ppl[r.email] = 1; if(US_DO.indexOf(r.act) >= 0) d.acts++;
+    var hr = usHour(r); if(hr >= 0 && US_DO.indexOf(r.act) >= 0) hours[hr]++; });
+  var list = Object.keys(ppl).map(function(k){ var p = ppl[k]; p.nd = Object.keys(p.days).length; p.isTa = ta.indexOf(k) >= 0; return p; }).sort(function(a, b){ return b.last.localeCompare(a.last) || b.nd - a.nd; });
+  var nTa = list.filter(function(p){ return p.isTa; }).length, notSeen = ta.filter(function(e){ return !ppl[e]; }), totActs = list.reduce(function(a, p){ return a + p.uses; }, 0);
+  var dd = function(d){ var x = new Date(d + 'T12:00:00+05:30'); return x.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }) + (d === j.today ? ' (today)' : ''); };
+  var ago = function(d){ var n = Math.round((new Date(j.today + 'T12:00:00+05:30') - new Date(d + 'T12:00:00+05:30')) / 864e5); return n <= 0 ? 'today' : n === 1 ? 'yesterday' : n + ' days ago'; };
+  var first = function(n){ return String(n || '').split(' ')[0]; };
+  // days in the period, oldest first
+  var days = []; for(var t = new Date(j.since + 'T12:00:00+05:30').getTime(); t <= new Date(j.today + 'T12:00:00+05:30').getTime(); t += 864e5) days.push(new Date(t + 330 * 60000).toISOString().slice(0, 10));
+  var h = '<div class="hero"><h1>📈 Usage</h1><div class="hint" style="margin-top:4px">Who used the Hiring Pipeline and how, since ' + esc(dd(j.since)) + '. Pages count once per person a day; actions (⚡) count every time. Only you see this page; nothing typed is recorded.</div></div>' +
+    '<div class="us-bar"><label>Period <select id="usDays">' + [7, 14, 28, 60, 90].map(function(n){ return '<option value="' + n + '"' + (n === US.days ? ' selected' : '') + '>Last ' + n + ' days</option>'; }).join('') + '</select></label><button class="btn sm" id="usCsv" type="button">⬇ Excel (CSV)</button><button class="btn sm" id="usRef" type="button">↻ Refresh</button></div>' +
+    '<div class="mi-kpis us-k"><div class="mi-k ok"><b>' + list.length + '</b><span>people used it</span></div><div class="mi-k' + (nTa < ta.length ? ' warn' : ' ok') + '"><b>' + nTa + ' / ' + ta.length + '</b><span>TA team active</span></div><div class="mi-k"><b>' + (list.length - nTa) + '</b><span>others (not TA)</span></div><div class="mi-k"><b>' + totActs + '</b><span>actions done (⚡)</span></div><div class="mi-k"><b>' + (list.length ? (list.reduce(function(a, p){ return a + p.nd; }, 0) / list.length).toFixed(1) : '0') + '</b><span>avg days active</span></div></div>';
+  // daily trend
+  var maxP = Math.max.apply(null, days.map(function(d){ return byDay[d] ? Object.keys(byDay[d].ppl).length : 0; }).concat([1]));
+  h += '<section class="card mi-sec" style="--c:#8644f0"><h3><span class="ci">📆</span>Every day</h3><div class="hint" style="margin:-4px 0 10px">Bar = people who used it that day. Number under it = actions done. Hover for details.</div><div class="us-days" role="img" aria-label="People active per day">' +
+    days.map(function(d){ var b = byDay[d], n = b ? Object.keys(b.ppl).length : 0, wk = new Date(d + 'T12:00:00+05:30').getDay(), names = b ? Object.keys(b.ppl).map(function(e){ return first(ppl[e].name); }).join(', ') : '';
+      return '<div class="us-d' + (wk === 0 || wk === 6 ? ' we' : '') + '" data-tip="' + esc(dd(d) + ': ' + n + ' people' + (b ? ', ' + b.acts + ' actions · ' + names : '')) + '"><span class="us-n">' + (n || '') + '</span><i style="height:' + Math.round(n / maxP * 100) + '%"></i><small>' + (b && b.acts ? b.acts : '') + '</small><em>' + new Date(d + 'T12:00:00+05:30').getDate() + '</em></div>'; }).join('') + '</div></section>';
+  // features by area, with drill-down
+  h += '<section class="card mi-sec" style="--c:#0f766e"><h3><span class="ci">🧩</span>Features</h3><div class="hint" style="margin:-4px 0 8px">Click a feature to see who uses it. “This week” is the last 7 days against the 7 before.</div>';
+  US_CAT.forEach(function(c){ var fs = c[1].map(function(a){ return feat[a] || { act: a, people: {}, uses: 0, pd: {}, last: '', wk: 0, pwk: 0, none: true }; });
+    h += '<h4 class="us-cat">' + esc(c[0]) + '</h4><div class="us-tw"><table class="us-t"><thead><tr><th>Feature</th><th>People</th><th>Uses</th><th>This week</th><th>Last used</th><th>Top users</th></tr></thead><tbody>' +
+      fs.map(function(f){ var who = Object.keys(f.people).sort(function(a, b){ return f.people[b] - f.people[a]; }), open = US.open['f:' + f.act], tr = f.wk - f.pwk;
+        var row = '<tr class="us-row' + (f.none ? ' none' : '') + '" data-usf="' + esc(f.act) + '" tabindex="0" aria-expanded="' + !!open + '"><td>' + (US_DO.indexOf(f.act) >= 0 ? '⚡ ' : '') + esc(usLabel(f.act)) + '</td><td><b>' + who.length + '</b></td><td>' + f.uses + '</td><td>' + (f.none ? '—' : f.wk + (tr > 0 ? ' <span class="us-up">▲' + tr + '</span>' : tr < 0 ? ' <span class="us-dn">▼' + (-tr) + '</span>' : '')) + '</td><td>' + (f.last ? esc(ago(f.last)) : '<span class="hint">never</span>') + '</td><td class="hint">' + esc(who.slice(0, 4).map(function(e){ return first(ppl[e].name) + ' ' + f.people[e]; }).join(', ') + (who.length > 4 ? ' +' + (who.length - 4) : '')) + '</td></tr>';
+        if(open && !f.none) row += '<tr class="us-det"><td colspan="6"><div class="us-dl">' + who.map(function(e){ var p = ppl[e], dz = Object.keys(p.actDays[f.act] || {}).sort(); return '<div><b>' + esc(p.name) + '</b>' + (p.isTa ? ' <span class="chip br">TA</span>' : '') + '<span>' + f.people[e] + ' use' + (f.people[e] === 1 ? '' : 's') + ' on ' + dz.length + ' day' + (dz.length === 1 ? '' : 's') + ' · first ' + esc(dd(dz[0])) + ' · last ' + esc(ago(dz[dz.length - 1])) + '</span></div>'; }).join('') + '</div></td></tr>';
+        return row; }).join('') + '</tbody></table></div>'; });
+  h += '</section>';
+  // setup adoption
+  var setup = [['gconnect', 'Connected Google'], ['availsave', 'Saved availability'], ['view:mine', 'Opened My interviews'], ['myfbsave', 'Saved or corrected own feedback']];
+  h += '<section class="card mi-sec" style="--c:#1d4ed8"><h3><span class="ci">⚙️</span>Setup and adoption</h3><div class="us-ad">' + setup.map(function(x){ var f = feat[x[0]], who = f ? Object.keys(f.people) : [];
+    return '<div class="us-a"><b>' + who.length + '</b><span>' + esc(x[1]) + '</span><small>' + (who.length ? esc(who.map(function(e){ return first(ppl[e].name); }).join(', ')) : 'nobody yet') + '</small></div>'; }).join('') + '</div></section>';
+  // busiest hours
+  var maxH = Math.max.apply(null, hours.concat([1])), anyH = hours.some(function(x){ return x > 0; });
+  if(anyH) h += '<section class="card mi-sec" style="--c:#b45309"><h3><span class="ci">🕘</span>When actions happen (IST)</h3><div class="us-hrs" role="img" aria-label="Actions by hour of day">' + hours.map(function(n, i){ return i < 8 || i > 21 ? '' : '<div class="us-h" data-tip="' + esc((i % 12 || 12) + (i < 12 ? ' am' : ' pm') + ': ' + n + ' actions') + '"><i style="height:' + Math.round(n / maxH * 100) + '%"></i><em>' + (i % 12 || 12) + '</em></div>'; }).join('') + '</div><div class="hint" style="margin-top:6px">8 am to 9 pm. Only actions (⚡), not page opens.</div></section>';
+  // people with drill-down
+  h += '<section class="card mi-sec" style="--c:#8644f0"><h3><span class="ci">👥</span>People <span class="qn">' + list.length + '</span></h3>' + (list.length ? '<div class="hint" style="margin:-4px 0 8px">Click a person to see every feature they used and their active days.</div><div class="us-tw"><table class="us-t"><thead><tr><th>Person</th><th>Last seen</th><th>Days active</th><th>Actions</th><th>First seen</th><th>What they use most</th></tr></thead><tbody>' +
+    list.map(function(p){ var open = US.open['p:' + p.email];
+      var row = '<tr class="us-row" data-usp="' + esc(p.email) + '" tabindex="0" aria-expanded="' + !!open + '"><td><b>' + esc(p.name) + '</b>' + (p.isTa ? ' <span class="chip br">TA</span>' : '') + '</td><td>' + esc(ago(p.last)) + '</td><td><b>' + p.nd + '</b></td><td>' + p.uses + '</td><td>' + esc(dd(p.first)) + '</td><td>' + Object.keys(p.acts).filter(function(a){ return a !== 'open'; }).sort(function(a, b){ return p.acts[b] - p.acts[a]; }).slice(0, 4).map(function(a){ return '<span class="chip' + (US_DO.indexOf(a) >= 0 ? ' br' : '') + '">' + esc(usLabel(a)) + ' · ' + p.acts[a] + '</span>'; }).join(' ') + '</td></tr>';
+      if(open) row += '<tr class="us-det"><td colspan="6"><div class="us-strip" aria-label="Active days">' + days.map(function(d){ return '<i class="' + (p.days[d] ? 'on' : '') + '" data-tip="' + esc(dd(d) + (p.days[d] ? ': active' : ': not seen')) + '"></i>'; }).join('') + '</div><div class="us-pf">' +
+        Object.keys(p.acts).sort(function(a, b){ return p.acts[b] - p.acts[a]; }).map(function(a){ return '<span class="chip' + (US_DO.indexOf(a) >= 0 ? ' br' : '') + '">' + esc(usLabel(a)) + ' · ' + p.acts[a] + ' (' + Object.keys(p.actDays[a]).length + ' d)</span>'; }).join(' ') + '</div><div class="hint">' + esc(p.email) + '</div></td></tr>';
+      return row; }).join('') + '</tbody></table></div>' : '<div class="hint">No usage recorded yet. Counting started when this went live.</div>') + '</section>';
+  if(notSeen.length) h += '<section class="card mi-sec" style="--c:#b45309"><h3><span class="ci">🕑</span>TA team not seen in this period</h3><div>' + notSeen.map(function(e){ return '<span class="chip">' + esc(e) + '</span>'; }).join(' ') + '</div></section>';
+  main.innerHTML = h;
+  main.querySelectorAll('[data-usf],[data-usp]').forEach(function(tr){ var go = function(){ var k = tr.dataset.usf ? 'f:' + tr.dataset.usf : 'p:' + tr.dataset.usp; US.open[k] = !US.open[k]; drawUsage(); }; tr.onclick = go; tr.onkeydown = function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); go(); } }; });
+  document.getElementById('usDays').onchange = function(){ US.days = parseInt(this.value, 10) || 28; goUsage(true); };
+  document.getElementById('usRef').onclick = function(){ goUsage(true); };
+  document.getElementById('usCsv').onclick = function(){ var csv = 'Day,Time,Name,Email,Feature,Type\n' + rows.slice().sort(function(a, b){ return (b.day + b.at).localeCompare(a.day + a.at); }).map(function(r){ return [r.day, r.at, r.uname, r.email, usLabel(r.act), US_DO.indexOf(r.act) >= 0 ? 'action' : 'page'].map(function(v){ return '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' })); a.download = 'hiring-pipeline-usage-' + j.today + '.csv'; document.body.appendChild(a); a.click(); a.remove(); };
+}
 // Google box on My interviews (TA): like the CRM Meetings widget, connect once; the button only shows when it's needed.
 // ---------- Interview availability (Tabir, 25 Nov): interviewers say when they're free; TAs pick the time and the length.
 // Weekly 30-minute blocks (7 am to 10 pm IST), a daily cap, notice, days off and a note. No Google Calendar sync.
@@ -1095,7 +1189,7 @@ function drawRecBox(){ var el = document.getElementById('recBody'); if(!el) retu
         .catch(function(e){ rct.disabled = false; rct.textContent = l; say(e.message, false); }); };
   }).catch(function(e){ el.textContent = e.message; });
 }
-function goInterviews(fromRoute){ SPL.done();
+function goInterviews(fromRoute){ hit('iv'); SPL.done();
   S.page = 'iv'; S.jobId = ''; if(fromRoute !== true) writeHash('', ''); closeDrawer(true); drawSide();
   var main = document.getElementById('main');
   if(S.ivs && !S.ivFresh){ viewInterviews(); return; }
@@ -1165,7 +1259,7 @@ function dayLabel(iso){ var d = new Date(iso); if(isNaN(d)) return ''; var t = n
 function timeOf(iso){ var d = new Date(iso); return isNaN(d) ? '' : d.toLocaleTimeString('en-IN', { hour:'numeric', minute:'2-digit' }); }
 
 // job view
-function openJob(id, fresh, fromRoute, candToOpen){ SPL.done();
+function openJob(id, fresh, fromRoute, candToOpen){ hit('job'); SPL.done();
   var changed = id !== S.jobId;
   S.page = 'job'; S.jobId = id; S.job = S.jobs.filter(function(x){ return x.id === id; })[0] || { id: id, title: 'Job' };
   if(S.job.group && S.job.group !== S.jstat){ S.jstat = S.job.group; }
@@ -1286,7 +1380,7 @@ var CAND_PF = {};
 function candFetch(id){ var c = CAND_PF[id]; if(c && c.at > Date.now() - 60000) return c.p; var p = post('candidate', { id: id }); CAND_PF[id] = { at: Date.now(), p: p }; p.then(function(j){ if(!j || !j.ok) delete CAND_PF[id]; }, function(){ delete CAND_PF[id]; }); return p; }
 document.addEventListener('mouseover', function(e){ var el = e.target.closest && e.target.closest('[data-c],[data-qc],[data-mc]'); if(!el || el._pf) return; var id = el.dataset.c || el.dataset.qc || el.dataset.mc; if(!id || !/^\d+$/.test(id)) return; el._pf = 1;
   var t = setTimeout(function(){ if(S.token && S.ta) candFetch(id); }, 150); el.addEventListener('mouseleave', function(){ clearTimeout(t); el._pf = 0; }, { once: true }); });
-function openCandidate(id, fromRoute){
+function openCandidate(id, fromRoute){ hit('cand');
   if(String(id) !== String(S.candId)) candTab = 'over';   // another candidate always opens on Overview (Sumit 26 Nov)
   S.candId = id; if(!fromRoute) writeHash(S.jobId, id); markCurrent();
   dr.hidden = false; document.body.style.overflow = 'hidden';
@@ -1702,8 +1796,8 @@ var NEXT = { blitz: 'R1', r1: 'R2', r2: 'R3', r3: 'Vibe check', vibe: 'reference
 S.jr = S.jr || {};
 function isHead(){ return !!S.admin; }
 function scopeJobs(){ return (S.jobs || []).filter(function(x){ return x.group === 'open' && (!S.onlyMine || x.mine); }); }
-function goWork(fromRoute){ S.page = 'work'; S.jobId = ''; if(fromRoute !== true) writeHash('', ''); closeDrawer(true); drawSide(); loadSum(false, viewWork); }
-function goDash(fromRoute){ S.page = 'dash'; S.jobId = ''; if(fromRoute !== true) writeHash('', ''); closeDrawer(true); drawSide(); loadSum(false, viewDash); }
+function goWork(fromRoute){ hit('work'); S.page = 'work'; S.jobId = ''; if(fromRoute !== true) writeHash('', ''); closeDrawer(true); drawSide(); loadSum(false, viewWork); }
+function goDash(fromRoute){ hit('dash'); S.page = 'dash'; S.jobId = ''; if(fromRoute !== true) writeHash('', ''); closeDrawer(true); drawSide(); loadSum(false, viewDash); }
 // Fast loading (25 Nov): 1) the last result is kept in this browser (per user, 12 h) and drawn at once; 2) fresh data
 // streams in behind it, 4 roles at a time, redrawing as it arrives; interviews (one call) come first, so today's
 // interviews and missing evaluations show within a second even on a first visit. No blocking loader after the first draw.
@@ -2352,7 +2446,7 @@ function render(){
 }
 render();
 // the few helpers the add-ons below this scope use (remind button, logo home)
-window.HP = { post: post, toast: toastMsg, glogo: GLOGO, recRefresh: function(){ if(typeof drawRecBox === 'function') drawRecBox(); }, go: { work: function(){ goWork(); }, dash: function(){ goDash(); }, mine: function(){ goMine(); }, iv: function(){ goInterviews(); } }, isTa: function(){ return S.ta !== false; }, signedIn: function(){ return !!S.token; }, candOpen: function(){ return !!S.candId; }, home: function(){ if(!S.token) return; if(S.ta === false) goMine(); else if(S.admin) goDash(); else goWork(); } };
+window.HP = { hit: hit, post: post, toast: toastMsg, glogo: GLOGO, recRefresh: function(){ if(typeof drawRecBox === 'function') drawRecBox(); }, go: { work: function(){ goWork(); }, dash: function(){ goDash(); }, mine: function(){ goMine(); }, iv: function(){ goInterviews(); } }, isTa: function(){ return S.ta !== false; }, signedIn: function(){ return !!S.token; }, candOpen: function(){ return !!S.candId; }, home: function(){ if(!S.token) return; if(S.ta === false) goMine(); else if(S.admin) goDash(); else goWork(); } };
 })();
 
 /* ---- custom dropdowns (26 Nov) ---- */
@@ -2610,7 +2704,7 @@ function toggleClip(vw){ var v = vw.querySelector('video'), card = vw.closest('.
   if(v.paused){ document.querySelectorAll('.ht.on video').forEach(function(o){ if(o !== v){ o.pause(); o.closest('.ht').classList.remove('on'); o.closest('.ht').querySelector('.pl span').textContent = '▶'; } });
     v.play().catch(function(){}); card.classList.add('on'); vw.querySelector('.pl span').textContent = '❚❚'; setTimeout(function(){ card.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, 50); }
   else { v.pause(); card.classList.remove('on'); vw.querySelector('.pl span').textContent = '▶'; } }
-function openHelp(){
+function openHelp(){ hit('help');
   closeDrill(true);
   var ov = document.createElement('div'); ov.className = 'mdl'; ov.id = 'mdl';
   var body = HELP.map(function(sec, k){ return '<section class="hp-sec"><h4>' + esc(sec.h) + '</h4><dl>' + sec.items.map(function(it){ return '<div class="hp-i"><dt>' + esc(it[0]) + '</dt><dd>' + esc(it[1]) + '</dd></div>'; }).join('') + '</dl></section>'; }).join('');
@@ -2715,6 +2809,7 @@ function showMe(){ var f = LIST[idx]; close(true); try{ if(f.go && window.HP && 
     el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.classList.add('wn-spot'); setTimeout(function(){ el.classList.remove('wn-spot'); }, 2600); })(); }
 function open(auto){
   var st = state(); if(auto){ st.shows++; save(st); }
+  if(window.HP && HP.hit) HP.hit('whatsnew');
   LIST = (window.HP && HP.isTa && !HP.isTa()) ? IV : TA;
   idx = 0; play = !matchMedia('(prefers-reduced-motion: reduce)').matches; ret = document.activeElement;
   ov = document.createElement('div'); ov.className = 'wn-ov'; ov.id = 'wnOv';
