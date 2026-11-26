@@ -530,6 +530,13 @@ body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden
 .me{color:var(--ink)}.me .av{background:var(--brand-l);border:1px solid var(--brand-line);color:var(--brand-d)}#mePr{color:var(--muted);opacity:1!important}
 .sidet{border:1px solid var(--line);background:#fff;color:var(--ink2)}.sidet:hover{background:var(--brand-l);color:var(--brand-d);border-color:var(--brand-line)}.sidet:focus-visible{outline:2px solid var(--brand)}
 @media (max-width:600px){.tsep{display:none}.lglogo{height:18px}}
+@media (max-width:600px){.top .me .av{display:none}.top .me{gap:0}.top .gs{min-width:84px}}
+/* Interviews and job tiles (26 Nov): coloured top edge like the overview, day headings stay in view while scrolling */
+.tile:before{right:0;bottom:auto;width:auto;height:4px}.tile{padding:14px 16px 12px}.tile b{font-size:26px}
+.btn .bi{vertical-align:-2px;margin-right:1px}
+.ivday{position:sticky;top:0;z-index:4;display:flex;align-items:center;gap:10px;margin:14px -4px 8px;padding:7px 6px;background:var(--bg)}.ivday:after{content:"";flex:1;height:1px;background:var(--line)}
+
+#main.quiet *,#main.quiet *:before,#main.quiet *:after{animation:none!important}
 .mgrp{display:flex;align-items:center;gap:8px;padding:10px 6px 4px;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);position:sticky;top:0;background:#fff;z-index:1}.mgrp b{font-size:11px;background:var(--brand-l);color:var(--brand-d);border-radius:999px;padding:1px 8px}.mgrp span{font-weight:500;text-transform:none;letter-spacing:0;color:var(--muted)}
 .qmine{display:inline-block;margin-left:4px;font-size:12px;font-weight:700;color:#7a4a00;background:#fff4d6;border:1px solid #f0d48a;border-radius:999px;padding:1px 9px;vertical-align:2px}
 /* What's new (26 Nov, same pattern as the Cliq Message Center widget) */
@@ -734,7 +741,7 @@ function visibleJobs(){ var q = S.jq.trim().toLowerCase(); return scoped().filte
 var GROUPS = [['open','Open'],['hold','On hold'],['closed','Closed']];
 function statusBadge(x){ return '<span class="sbadge ' + esc(x.group) + '">' + esc(x.group === 'open' ? 'Open' : x.status || (x.group === 'hold' ? 'On hold' : 'Closed')) + '</span>'; }
 function jobInitials(t){ return String(t || '').replace(/\(.*?\)/g, '').split(/[\s\-–\/]+/).filter(Boolean).slice(0, 2).map(function(w){ return w[0]; }).join('').toUpperCase(); }
-function drawSide(){
+function drawSide(){ var qm = document.getElementById('main'); if(qm){ qm.classList.remove('quiet'); delete qm.dataset.drawn; }
   var el = document.getElementById('jl'); if(!el) return;
   var list = visibleJobs();
   var nMine = S.jobs.filter(function(x){ return x.mine; }).length;
@@ -995,7 +1002,7 @@ function viewInterviews(){
     return '<div class="ivrow st-' + st.k + (isPast ? ' past' : '') + '" tabindex="0" data-c="' + esc(v.candId) + '" data-j="' + esc(v.jobId) + '"><div class="tm">' + esc(timeOf(v.start)) + '<small>' + esc(dayLabel(v.start)) + '</small></div>' +
       '<div style="min-width:0"><div class="who">' + esc(v.cand) + ' <span class="chip br" style="margin-left:4px">' + esc(String(v.round).replace(/ Interview$/,'')) + '</span>' + (v.status ? ' <span class="chip">' + esc(v.status) + '</span>' : '') + '</div>' +
       '<div class="sub">' + esc(v.job) + (v.panel.length ? ' · Panel: <b class="pn">' + esc(v.panel.join(', ')) + '</b>' : ' · <span style="color:var(--warn)">no interviewer set</span>') + (v.owner ? ' · Owner: <b class="pn">' + esc(v.owner) + '</b>' : '') + '</div></div>' +
-      '<div class="acts">' + fb + (v.url && !/cancel/i.test(v.status || '') && !isPast ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener" data-stop="1">Join ↗</a>' : '') + (isPast && v.fb && v.fb.done < v.fb.total ? '<a class="btn sm" href="' + FB_TAB + '" target="_top" data-stop="1">Give feedback</a>' : '') + '<button class="btn sm" data-ivcard="' + esc(v.id) + '" data-stop="1">⚙ Manage</button><a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener" data-stop="1">Recruit ↗</a></div></div>';
+      '<div class="acts">' + fb + (v.url && !/cancel/i.test(v.status || '') && !isPast ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener" data-stop="1">Join ↗</a>' : '') + (isPast && v.fb && v.fb.done < v.fb.total ? '<a class="btn sm" href="' + FB_TAB + '" target="_top" data-stop="1">Give feedback</a>' : '') + '<button class="btn sm" data-ivcard="' + esc(v.id) + '" data-stop="1"><svg class="bi" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg> Manage</button><a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener" data-stop="1">Recruit ↗</a></div></div>';
   };
   var groupBy = function(arr, isPast){ var out = '', last = null; arr.forEach(function(v){ var k = dayKey(v.start); if(k !== last){ out += '<div class="ivday">' + esc(dayLabel(v.start)) + '</div>'; last = k; } out += row(v, isPast); }); return out; };
   main.innerHTML = jobSelect() +
@@ -1278,7 +1285,7 @@ function viewCandidate(){
       var cur = S.rtab[v.id]; if(!tabs.some(function(t){ return t.k === cur; })){ var sub = tabs.filter(function(t){ return t.f && t.f.status === 'Submitted'; })[0]; cur = (tabs[0] && tabs[0].k === 'eval') ? 'eval' : sub ? sub.k : (tabs[0] && tabs[0].k); }
       h += '<div class="round" data-iv="' + esc(v.id) + '"><div class="rh"><b style="font-size:15.5px">' + esc(v.name || v.round || 'Interview') + '</b>' + (v.status ? '<span class="chip">' + esc(v.status) + '</span>' : '') + '<span class="hint" style="margin-left:auto">' + esc(dt(v.start, true)) + '</span></div>' +
         '<div class="hint">' + [esc(v.job), v.interviewers.length ? 'Panel: <b class="pn">' + esc(v.interviewers.join(', ')) + '</b>' : '', v.owner ? 'Owner: <b class="pn">' + esc(v.owner) + '</b>' : ''].filter(Boolean).join(' · ') + '</div>' +
-        '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">' + (v.url && !/cancel/i.test(v.status || '') && new Date(v.end || v.start) >= Date.now() ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener">Join ↗</a>' : '') + (fb.some(function(f){ return f.status === 'Pending'; }) ? '<a class="btn sm" href="' + FB_TAB + '" target="_top">Give feedback</a>' : '') + (!v.evaluation && !/cancel/i.test(v.status || '') && new Date(v.end || v.start) < Date.now() ? '<button class="btn sm primary" data-remeval="' + esc(v.id) + '">🔔 Remind to fill evaluation</button>' : '') + '<button class="btn sm" data-ivcard="' + esc(v.id) + '">⚙ Manage interview</button><a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener">Interview in Recruit ↗</a></div>';
+        '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">' + (v.url && !/cancel/i.test(v.status || '') && new Date(v.end || v.start) >= Date.now() ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener">Join ↗</a>' : '') + (fb.some(function(f){ return f.status === 'Pending'; }) ? '<a class="btn sm" href="' + FB_TAB + '" target="_top">Give feedback</a>' : '') + (!v.evaluation && !/cancel/i.test(v.status || '') && new Date(v.end || v.start) < Date.now() ? '<button class="btn sm primary" data-remeval="' + esc(v.id) + '">🔔 Remind to fill evaluation</button>' : '') + '<button class="btn sm" data-ivcard="' + esc(v.id) + '"><svg class="bi" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg> Manage interview</button><a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener">Interview in Recruit ↗</a></div>';
       if(!tabs.length){ h += '<div class="hint" style="margin-top:12px">No feedback or evaluation yet for this round.</div></div>'; return; }
       h += '<div class="rtabs" role="tablist">' + tabs.map(function(t){ return '<button class="rtab" role="tab" data-iv="' + esc(v.id) + '" data-k="' + esc(t.k) + '" aria-selected="' + (t.k === cur) + '" style="--c:' + t.c + '"><i></i>' + esc(t.label) + '</button>'; }).join('') + '</div>';
       var at = tabs.filter(function(t){ return t.k === cur; })[0];
@@ -1532,13 +1539,15 @@ function loadSum(fresh, then){
   var need = jobs.filter(function(x){ var c = S.jr[x.id]; return fresh || !c || c.at < Date.now() - 10 * 60000; });
   var actOk = S.act && !fresh && S.actAt > Date.now() - 5 * 60000;
   var have = !!S.act || jobs.some(function(x){ return S.jr[x.id]; });
-  var draw = function(){ if(S.page === page) then(); };
+  // 26 Nov: the first draw animates; redraws while data streams in are quiet (no bars re-growing, no blink) and keep the scroll
+  var draw = function(){ if(S.page !== page) return; var m = document.getElementById('main'); if(m){ if(m.dataset.drawn === page) m.classList.add('quiet'); else m.classList.remove('quiet'); }
+    var y = window.scrollY, my = m ? m.scrollTop : 0; then(); if(m){ m.dataset.drawn = page; if(m.classList.contains('quiet')){ if(my) m.scrollTop = my; if(y) window.scrollTo(0, y); } } };
   if(!need.length && actOk){ S.sumProg = ''; draw(); SPL.done(); return; }
   if(S.sumBusy){ if(have) draw(); return; }   // a refresh is already streaming in; it redraws when parts land
   S.sumBusy = true;
   var done = 0, errs = 0, t = 0;
   var prog = function(){ S.sumProg = need.length ? done + ' of ' + need.length + ' roles' : 'interviews'; if(SPL.active()){ SPL.step(55 + Math.round(40 * done / Math.max(1, need.length)), done && (done === need.length || done % 5 === 0) ? 'Roles read: ' + done + ' of ' + need.length : null, 'cands', 'run'); } };
-  var soon = function(){ clearTimeout(t); t = setTimeout(draw, 350); };
+  var soon = function(){ clearTimeout(t); t = setTimeout(draw, 1200); };
   prog();
   if(have){ draw(); SPL.step(70, 'Showing your last view, refreshing in the background', 'cands', 'run'); SPL.done(); }
   else SPL.step(40, 'Reading interviews (9 weeks) and ' + need.length + ' open roles', 'iv', 'run');
@@ -1634,7 +1643,7 @@ function viewWork(){
   var by = function(k){ return D.todo.filter(function(t){ return t.k === k; }).map(item); };
   var today = D.today.map(function(v){ var f = D.fbBy[v.id] || [], past = v.e < D.now;
     return qRow(v.candId, v.jobId, '<b>' + esc(timeOf(v.start)) + '</b> ' + nm2(v.cand, v.job), esc(String(v.round).replace(/ Interview$/, '')) + (v.panel.length ? ' · <b class="pn">' + esc(v.panel.join(', ')) + '</b>' : ' · <span style="color:var(--warn)">no interviewer set</span>'),
-      (past && f.length ? '<span class="chip ' + (f.every(function(x){ return x.st !== 'Pending'; }) ? 'ok' : 'pend') + '">' + f.filter(function(x){ return x.st !== 'Pending'; }).length + ' of ' + f.length + ' feedback</span>' : '') + (v.url && !past ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener" data-stop="1">Join ↗</a>' : '') + '<button class="btn sm" data-ivcard="' + esc(v.id) + '" data-stop="1">⚙ Manage</button>'); });
+      (past && f.length ? '<span class="chip ' + (f.every(function(x){ return x.st !== 'Pending'; }) ? 'ok' : 'pend') + '">' + f.filter(function(x){ return x.st !== 'Pending'; }).length + ' of ' + f.length + ' feedback</span>' : '') + (v.url && !past ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener" data-stop="1">Join ↗</a>' : '') + '<button class="btn sm" data-ivcard="' + esc(v.id) + '" data-stop="1"><svg class="bi" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg> Manage</button>'); });
   var cards = [['today','🗓','Interviews today','Who you are meeting and the join links',today,'#8644f0'],
     ['evalmiss','📝','Evaluation missing','Held in the last ' + EVAL_DAYS + ' days, no evaluation in Recruit',by('evalmiss'),'#c8102e'],
     ['passed','✅','Passed, book next round','Evaluation says move on, nothing booked',by('passed'),'#2f7d00'],
