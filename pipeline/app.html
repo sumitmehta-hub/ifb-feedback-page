@@ -630,6 +630,8 @@ body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden
 .mi-sec h3{font-size:15.5px;margin:0 0 12px}.mi-sec h3 .ci{width:28px;height:28px;border-radius:8px;display:grid;place-items:center;font-size:14px;background:color-mix(in srgb,var(--c,var(--brand)) 14%,#fff)}
 .mi-sec .yay,.mi-sec>.hint{padding:6px 2px}.mi-kpis{margin:14px 0 16px}.mi-k{box-shadow:var(--shadow)}
 .mi-two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:14px;align-items:stretch;margin-bottom:14px}.mi-two>.mi-sec{margin:0}
+/* 26 Nov: in the side-by-side cards the buttons go under the details, so names and roles get the full width */
+.mi-two .mi-row{grid-template-columns:104px minmax(0,1fr);align-items:start;gap:6px 12px}.mi-two .mi-acts{grid-column:2;justify-content:flex-start}.mi-two .mi-main span{white-space:normal}
 .helpb{background:#fff4d6;border:1.5px solid #e0a800;color:#6b4a00;font-weight:800;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;font-size:13px}.helpb span{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#7a5300;color:#fff;font-size:12px}.helpb:hover{background:#ffe8a8;border-color:#b98a00}
 .hp{padding:4px 18px 18px}.hp-sec{margin-bottom:16px}.hp-sec h4{font-size:13px;font-weight:800;color:var(--ink);margin:0 0 6px;padding-bottom:4px;border-bottom:1px solid var(--line)}
 .hp-sec dl{margin:0}.hp-i{display:grid;grid-template-columns:minmax(150px,240px) 1fr;gap:6px 14px;padding:7px 0;border-bottom:1px dashed #ece9f5;align-items:start}.hp-i dt{margin:0;font-weight:700;font-size:13px}.hp-i dd{margin:0;font-size:13px;line-height:1.45;color:var(--ink2)}
@@ -885,7 +887,7 @@ function goMine(fromRoute){ SPL.done();
     h += '<section class="card mi-sec" style="--c:#8644f0"><h3><span class="ci">🗓</span>Coming up <span class="qn">' + j.upcoming.length + '</span></h3>' + (j.upcoming.length ? j.upcoming.map(function(v){ return row(v, 'up'); }).join('') : '<div class="hint">No interviews booked for you in the next 3 weeks.</div>') + '</section>';
     h += '</div>';
     h += '<section class="card mi-sec" id="avbox" style="--c:#0f766e"><div class="hint">Loading your availability…</div></section>';
-    if(!S.ta) h += '<section class="card mi-sec" id="gcalbox" style="--c:#1d4ed8"><h3><span class="ci">📅</span>Google Calendar</h3><div id="gcalBody" class="hint">Checking your Google connection…</div></section>';
+    if(!S.ta) h += '<section class="card mi-sec" id="gcalbox" style="--c:#1d4ed8"><h3><span class="ci">📅</span>Google account</h3><div id="gcalBody" class="hint">Checking your Google connection…</div></section>';
     if(S.ta) h += '<section class="card mi-sec" id="recbox" style="--c:#1d4ed8"><h3><span class="ci">🎥</span>Google Meet recording</h3><div id="recBody" class="hint">Checking your Google connection…</div></section>';
     main.innerHTML = h; bindJobSelect(); bindDrills(main);
     if(S.ta) drawRecBox(); else drawCalBox();
@@ -973,8 +975,8 @@ function confirmLeave(){ return window.confirm('You have unsaved availability ch
 // 26 Nov: interviewers connect a read-only Google Calendar, so the TA team sees when they are busy (a warning only)
 function drawCalBox(){ var el = document.getElementById('gcalBody'); if(!el) return;
   post('gstatus', {}).then(function(g){ if(!document.getElementById('gcalBody')) return;
-    el.className = ''; el.innerHTML = g.connected ? '<div class="ivc-g on" style="margin:0"><span class="gdot"></span><b>Google Calendar connected</b><span>' + esc((S.me && S.me.email) || '') + ' · the TA team sees when you are busy before booking you. Read-only, event names stay private.</span></div>'
-      : '<div class="ivc-g off" style="margin:0"><div class="gtx"><b>Connect your Google Calendar</b><span>So the TA team sees when you are busy before booking you. Read-only: nothing is changed in your calendar and event names stay private. Your hours below still decide.</span></div><button class="gbtn" id="gcalConn">' + GLOGO + 'Connect Google Calendar</button></div>';
+    el.className = ''; el.innerHTML = g.connected ? '<div class="ivc-g on" style="margin:0"><span class="gdot"></span><b>Google connected</b><span>' + esc((S.me && S.me.email) || '') + ' · the TA team sees when you are busy before booking you. Read-only, event names stay private.</span></div>'
+      : '<div class="ivc-g off" style="margin:0"><div class="gtx"><b>Connect your Google account</b><span>So the TA team sees when you are busy before booking you. Read-only: nothing is changed in your calendar and event names stay private. Your hours below still decide.</span></div><button class="gbtn" id="gcalConn">' + GLOGO + 'Connect Google</button></div>';
     var b = document.getElementById('gcalConn'); if(b) b.onclick = function(){ if(window.HPGC) HPGC.go(); }; }).catch(function(){}); }
 if(typeof window !== 'undefined') setTimeout(function(){ if(window.HPGC) HPGC.box = drawCalBox; }, 0);
 function drawRecBox(){ var el = document.getElementById('recBody'); if(!el) return;
@@ -2541,7 +2543,7 @@ var IV = [
    text: 'Your interviews from the last 30 days and the next 3 weeks, and the evaluations you still need to fill, with a link to each one.',
    bul: ['The Cliq heads-up card has the same links'] },
  TA[6],
- { id: 'gcal', ic: '📅', name: 'Connect your Google Calendar', isNew: true, where: 'Top bar → Connect Google Calendar, or My interviews → Google Calendar', go: 'mine', spot: function(){ return document.getElementById('gcalbox') || document.getElementById('gcBtn'); },
+ { id: 'gcal', ic: '📅', name: 'Connect Google', isNew: true, where: 'Top bar → Connect Google, or My interviews → Google account', go: 'mine', spot: function(){ return document.getElementById('gcalbox') || document.getElementById('gcBtn'); },
    text: 'Connect once so the TA team sees when you are busy in Google Calendar before booking you. Read-only: nothing is changed in your calendar and event names stay private.',
    bul: ['Your hours in My availability still decide when you can be booked', 'Busy is only a warning for the TA team'] },
  TA[7]
@@ -2603,7 +2605,7 @@ setInterval(function(){ dot(); if(tried || !(window.HP && HP.signedIn && HP.sign
 var DAY = 864e5, KEY = 'hp_gc_seen', st = null, busy = false;
 var btn = function(){ return document.getElementById('gcBtn'); };
 var ta = function(){ return !!(window.HP && HP.isTa()); };
-function label(){ return !ta() ? 'Connect Google Calendar' : st && st.connected && !st.rec ? 'Allow Meet recording' : st && st.expired ? 'Reconnect Google' : 'Connect Google'; }
+function label(){ return !ta() ? 'Connect Google' : st && st.connected && !st.rec ? 'Allow Meet recording' : st && st.expired ? 'Reconnect Google' : 'Connect Google'; }
 function paint(){ var b = btn(); if(!b) return; var need = !!(window.HP && HP.signedIn() && st && !(st.connected && (st.rec || !ta())));
   b.hidden = !need; if(need){ b.querySelector('.gci').innerHTML = HP.glogo; b.querySelector('.gcl').textContent = label(); } }
 function check(force){ if(busy || !(window.HP && HP.signedIn())) return; busy = true;
@@ -2611,7 +2613,7 @@ function check(force){ if(busy || !(window.HP && HP.signedIn())) return; busy = 
 function closePop(){ var p = document.getElementById('gcPop'); if(p) p.remove(); }
 function pop(){ closePop(); var b = btn(); if(!b || b.hidden) return; var r = b.getBoundingClientRect();
   var p = document.createElement('div'); p.className = 'gc-pop'; p.id = 'gcPop'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-label', 'Connect Google');
-  p.innerHTML = '<div class="gh"><span class="gci">' + HP.glogo + '</span><b>' + (!ta() ? 'Connect your Google Calendar once' : st && st.connected && !st.rec ? 'One more step for auto-recording' : st && st.expired ? 'Your Google connection has expired' : 'Connect your Google account once') + '</b></div>' +
+  p.innerHTML = '<div class="gh"><span class="gci">' + HP.glogo + '</span><b>' + (!ta() ? 'Connect your Google account once' : st && st.connected && !st.rec ? 'One more step for auto-recording' : st && st.expired ? 'Your Google connection has expired' : 'Connect your Google account once') + '</b></div>' +
     (ta() ? '<ul><li>Interview invites go out with a Google Meet link</li><li>Recording and transcript switch on by themselves</li><li>Booking links to candidates go from your Gmail</li></ul>' : '<ul><li>The TA team sees when you are busy in Google Calendar before booking you</li><li>Read-only: nothing is changed in your calendar, and event names stay private</li><li>Your hours in My availability still decide when you can be booked</li></ul>') +
     '<div class="ga"><button class="btn primary sm" type="button" data-gcgo>' + label() + '</button><button class="btn sm" type="button" data-gclater>Later</button><span class="hint">Takes 30 seconds</span></div>';
   document.body.appendChild(p);
