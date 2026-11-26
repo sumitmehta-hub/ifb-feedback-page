@@ -530,6 +530,7 @@ body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden
 .me{color:var(--ink)}.me .av{background:var(--brand-l);border:1px solid var(--brand-line);color:var(--brand-d)}#mePr{color:var(--muted);opacity:1!important}
 .sidet{border:1px solid var(--line);background:#fff;color:var(--ink2)}.sidet:hover{background:var(--brand-l);color:var(--brand-d);border-color:var(--brand-line)}.sidet:focus-visible{outline:2px solid var(--brand)}
 @media (max-width:600px){.tsep{display:none}.lglogo{height:18px}}
+.bl-n{font-size:13px;padding:8px 12px;border-radius:10px;background:var(--brand-ll);border:1px solid var(--brand-line);color:var(--ink2);margin:4px 0 8px;display:flex;gap:8px;align-items:center}.bl-n.ok{background:#eef8e8;border-color:#bfe3ad;color:#1f6b00;font-weight:600}.bl-n.bad{background:#fff1dc;border-color:#f2d3a2;color:#8a4b00;font-weight:600}
 /* Rounds tab (26 Nov): colour edge by state, outcome chips in colour, Recruit Bot note as a tag */
 .round{border-left:4px solid var(--rc,var(--line))!important}
 .chip.rok{background:#e7f6df;color:#1f6b00;border-color:#bfe3ad}.chip.rbad{background:#ffe8ec;color:#a30d26;border-color:#f5b8c3}.chip.rwarn{background:#fff1dc;color:#8a4b00;border-color:#f2d3a2}.chip.rup{background:var(--brand-l);color:var(--brand-d);border-color:var(--brand-line)}
@@ -1440,18 +1441,33 @@ function drawSlots(){ var box = document.getElementById('nxSlots'), j = SL.data;
       '<div class="bl-who"><span>Offer times when these people are all free</span>' + withHours.map(function(p, i){ return '<label class="bl-ck"><input type="checkbox" data-blw="' + esc(p.email) + '"' + (i === 0 || SL.extra.indexOf(p.email) < 0 ? ' checked' : '') + '> ' + esc(p.name) + '</label>'; }).join('') + '</div>' +
       '<div class="av-set"><label>Show the next<select id="blDays"><option value="5">5 days</option><option value="7" selected>7 days</option><option value="10">10 days</option><option value="14">14 days</option></select></label><label>Length<input id="blLen" type="text" readonly value=""></label></div>' +
       '<label>Message (optional)<textarea id="blMsg" rows="2" placeholder="e.g. This round is with our engineering lead and covers system design."></textarea></label>' +
-      '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn primary" type="button" id="blGo">📩 Send booking link</button><span class="hint" id="blOut" role="status"></span></div>'
+      '<div class="bl-n" id="blN" role="status"><span class="spin sm" aria-hidden="true"></span> Checking how many times the candidate would see…</div>' +
+      '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><button class="btn primary" type="button" id="blGo" disabled>📩 Send booking link</button><span class="hint" id="blOut" role="status"></span></div>'
     : '<div class="hint">Nobody on this round has set their availability yet, so there are no times to offer. Ask them to fill My interviews → availability, or add someone above.</div>') + '</div></details>';
   box.innerHTML = h;
   var blD = box.querySelector('.bl'); if(blD) blD.ontoggle = function(){ SL.blOpen = blD.open; };
   var syncLen = function(){ var l = document.getElementById('blLen'); if(l) l.value = ((document.getElementById('nxmin') || {}).value || 45) + ' min (set above)'; }; syncLen();
-  var wpL = document.querySelector('.wp[data-w="nxwhen"]'); if(wpL) wpL.addEventListener('click', function(){ setTimeout(syncLen, 0); });
+  var wpL = document.querySelector('.wp[data-w="nxwhen"]'); if(wpL) wpL.addEventListener('click', function(e){ setTimeout(syncLen, 0); if(e.target.closest && e.target.closest('.durp')) setTimeout(function(){ blCount(); }, 50); });
+  // 26 Nov: count the times the candidate would see; Send stays off when there are none (the server refuses too)
+  var blSeq = 0, blCount = function(){ var bgx = document.getElementById('blGo'), nEl = document.getElementById('blN'); if(!bgx || !nEl) return;
+    var who = [].map.call(box.querySelectorAll('[data-blw]:checked'), function(x){ return x.dataset.blw; }), my = ++blSeq;
+    if(!who.length){ nEl.className = 'bl-n bad'; nEl.textContent = 'Tick at least one person whose free time the candidate can book.'; bgx.disabled = true; return; }
+    nEl.className = 'bl-n'; nEl.innerHTML = '<span class="spin sm" aria-hidden="true"></span> Checking how many times the candidate would see…'; bgx.disabled = true;
+    post('bltimes', { emails: who, minutes: (document.getElementById('nxmin') || {}).value || 45, days: document.getElementById('blDays').value }).then(function(r){ if(my !== blSeq) return;
+      if(!r.ok){ nEl.className = 'bl-n bad'; nEl.textContent = r.error || 'Could not check free times.'; bgx.disabled = true; return; }
+      if(!r.n){ nEl.className = 'bl-n bad'; nEl.textContent = '⛔ No time when ' + (who.length > 1 ? 'all of them are' : 'they are') + ' free in the next ' + document.getElementById('blDays').value + ' days, so the candidate could not pick anything. Untick someone, show more days, or book a time yourself above.'; bgx.disabled = true; return; }
+      nEl.className = 'bl-n ok'; nEl.textContent = '✅ The candidate will see ' + r.n + ' time' + (r.n === 1 ? '' : 's') + ' over ' + r.days + ' day' + (r.days === 1 ? '' : 's') + (r.n < 4 ? ' (only a few: consider adding days)' : '') + '.'; bgx.disabled = false; })
+      .catch(function(e){ if(my !== blSeq) return; nEl.className = 'bl-n bad'; nEl.textContent = e.message; bgx.disabled = true; }); };
+  box.querySelectorAll('[data-blw]').forEach(function(x){ x.onchange = blCount; }); var bdy = document.getElementById('blDays'); if(bdy) bdy.onchange = blCount;
+  var nxm = document.getElementById('nxmin'); if(nxm) nxm.addEventListener('change', blCount);
+  if(blD){ if(blD.open) blCount(); blD.addEventListener('toggle', function(){ if(blD.open) blCount(); }); }
   var bg = document.getElementById('blGo'); if(bg) bg.onclick = function(){ var out = document.getElementById('blOut'), parts = (box.dataset.c || '').split('|');
     var who = [].map.call(box.querySelectorAll('[data-blw]:checked'), function(x){ return x.dataset.blw; }), to = document.getElementById('blTo').value.trim();
     if(!who.length){ out.textContent = 'Tick at least one person.'; return; } if(!to){ out.textContent = 'Enter the candidate’s email.'; return; }
     bg.disabled = true; bg.textContent = 'Sending…'; out.textContent = '';
     post('blink', { candId: S.nx.candId, jobId: S.nx.jobId, step: parts[1], expect: S.nx.status, to: to, emails: who, minutes: (document.getElementById('nxmin') || {}).value || 45, days: document.getElementById('blDays').value, message: document.getElementById('blMsg').value }).then(function(r){
       bg.disabled = false; bg.textContent = '📩 Send booking link';
+      if(!r.ok && r.notimes) blCount();
       if(!r.ok){ out.style.color = 'var(--bad)'; out.textContent = r.code === 'gconnect' ? r.error + ' Open My interviews to connect Google.' : (r.error || 'Could not send'); return; }
       out.style.color = 'var(--ok)'; out.innerHTML = '✅ Sent to ' + esc(to) + '. Works until ' + esc(r.until) + '. <button type="button" class="btn sm" id="blCopy">⧉ Copy link</button>'; toastMsg('📩 Booking link sent'); confetti();
       var cp = document.getElementById('blCopy'); if(cp) cp.onclick = function(){ try{ navigator.clipboard.writeText(r.url).then(function(){ cp.textContent = '✓ Copied'; }); }catch(e){ prompt('Copy the link', r.url); } }; })
