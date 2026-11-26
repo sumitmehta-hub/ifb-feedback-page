@@ -541,6 +541,9 @@ body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden
 .fbedit-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 10px}.fbedit-row .hint{font-size:12px}
 .fbform{display:grid;gap:10px}.fbform h4{margin:0;font-size:15px}.fbform label{display:grid;gap:5px;font-size:12.5px;font-weight:700;color:var(--ink2)}
 .fbform select,.fbform textarea,.fbform input{font:inherit;font-size:14px;font-weight:500;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff;color:var(--ink)}
+.myfb-form{margin:2px 0 12px;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--brand-ll,#faf7ff)}.myfb-form .fbform{display:flex;flex-direction:column;gap:10px}.myfb-form h4{margin:6px 0 0;font-size:13px}.myfb-form label{display:flex;flex-direction:column;gap:4px;font-weight:600;font-size:13px}.myfb-form select,.myfb-form textarea,.myfb-form input[type=text]{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:#fff}
+.myfb-q{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line)}.myfb-qt{font-size:13px}.myfb-q .myfb-qc{grid-column:1/-1}.myfb-late{padding:10px 12px;border-radius:10px;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;font-size:13px}
+@media (max-width:520px){.myfb-q{grid-template-columns:1fr}}
 .fbf2{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px}
 .fbstars{display:flex;gap:6px}.fbstars button{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;font-weight:800;cursor:pointer;color:var(--ink2)}
 .fbstars button[aria-checked="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
@@ -914,14 +917,78 @@ function goMine(fromRoute){ SPL.done();
     h += '<section class="card mi-sec" style="--c:#b45309"><h3><span class="ci">✍️</span>Evaluations to fill <span class="qn">' + j.pending.length + '</span></h3>' + (j.pending.length ? '<div class="hint" style="margin:-4px 0 8px">Open the interview in Recruit and submit the evaluation: scores, comments and your recommendation. The TA team picks the outcome.</div>' + j.pending.map(function(v){ return row(v, 'due'); }).join('') : '<div class="empty-ok">All clear 🎉 No evaluations pending.</div>') + '</section>';
     h += '<section class="card mi-sec" style="--c:#8644f0"><h3><span class="ci">🗓</span>Coming up <span class="qn">' + j.upcoming.length + '</span></h3>' + (j.upcoming.length ? j.upcoming.map(function(v){ return row(v, 'up'); }).join('') : '<div class="hint">No interviews booked for you in the next 3 weeks.</div>') + '</section>';
     h += '</div>';
+    h += '<section class="card mi-sec" id="myfbbox" style="--c:#15803d"><h3><span class="ci">📝</span>My feedback <span class="qn" id="myfbN">…</span></h3><div id="myfbBody" class="hint">Loading your feedback…</div></section>';
     h += '<section class="card mi-sec" id="avbox" style="--c:#0f766e"><div class="hint">Loading your availability…</div></section>';
     if(!S.ta) h += '<section class="card mi-sec" id="gcalbox" style="--c:#1d4ed8"><h3><span class="ci">📅</span>Google account</h3><div id="gcalBody" class="hint">Checking your Google connection…</div></section>';
     if(S.ta) h += '<section class="card mi-sec" id="recbox" style="--c:#1d4ed8"><h3><span class="ci">🎥</span>Google Meet recording</h3><div id="recBody" class="hint">Checking your Google connection…</div></section>';
     main.innerHTML = h; bindJobSelect(); bindDrills(main);
     if(S.ta) drawRecBox(); else drawCalBox();
+    drawMyFb();
     AV.who = (S.me && S.me.email) || ''; loadAvail();
   }).catch(function(e){ main.innerHTML = jobSelect() + '<div class="card err">' + esc(e.message) + '</div>'; bindJobSelect(); });
 }
+// ---------- My feedback (26 Nov, Tabir: "Interviewer should be able to correct their feedback later") ----------
+// Every interviewer sees their own feedback here (last 45 days) and can open it, fill it, or correct it after the
+// evaluation is filed, without hunting for the old Cliq card. A correction asks why; the server adds an [Edited …] line,
+// a note on the candidate and a "Feedback corrected after filing" card to the TA.
+var MYFB = { rows: [], open: '' };
+var MYFB_RECS = ['Strong Hire', 'Move to next round', 'On-Hold', 'Rejected', 'Strong Reject'];
+function myfbStat(r){ return r.status === 'Pending' ? '<span class="chip br rwarn">To fill</span>' : r.status === 'Filed in Recruit' ? '<span class="chip br">Filled in Recruit</span>' : '<span class="chip br rok">Submitted</span>'; }
+function drawMyFb(){ var body = document.getElementById('myfbBody'), n = document.getElementById('myfbN'); if(!body) return;
+  post('myfb').then(function(j){ if(!document.getElementById('myfbBody')) return;
+    if(!j.ok){ n.textContent = '–'; body.innerHTML = esc(j.error || 'Could not load your feedback.'); return; }
+    MYFB.rows = (j.rows || []).sort(function(a, b){ return String(b.end || '').localeCompare(String(a.end || '')); }); n.textContent = MYFB.rows.length;
+    if(!MYFB.rows.length){ body.innerHTML = 'No feedback from you in the last 45 days.'; return; }
+    body.className = ''; body.innerHTML = '<div class="hint" style="margin:-4px 0 8px">Your feedback from the last 45 days. Spotted a mistake? Open it and correct it, even after the evaluation is filed. You\'ll be asked why; the TA team sees the change.</div>' +
+      MYFB.rows.map(function(r){ var d = r.end ? new Date(r.end) : null;
+        return '<div class="mi-row myfb" data-myfbrow="' + esc(r.rowId) + '"><div class="mi-when"><b>' + (d ? esc(d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })) : '—') + '</b><span>' + (d ? esc(timeOf(r.end)) : '') + '</span></div>' +
+          '<div class="mi-main"><b>' + esc(r.candidate || 'Candidate') + '</b><span>' + esc(String(r.round || '').replace(/ Interview$/, '')) + (r.rec ? ' · ' + esc(r.rec) : '') + (r.rating ? ' · ' + esc(r.rating) + '/5' : '') + '</span></div>' +
+          '<div class="mi-acts">' + myfbStat(r) + '<button class="btn sm' + (r.status === 'Pending' ? ' primary' : '') + '" type="button" data-myfb="' + esc(r.rowId) + '">' + (r.status === 'Pending' ? '✍️ Give feedback' : '✏️ Open / correct') + '</button></div></div><div class="myfb-form" id="myfbf' + esc(r.rowId) + '" hidden></div>'; }).join('');
+  }).catch(function(e){ body.textContent = e.message; });
+}
+document.addEventListener('click', function(e){ var b = e.target.closest && e.target.closest('[data-myfb]'); if(!b) return; e.preventDefault();
+  var id = b.dataset.myfb, box = document.getElementById('myfbf' + id); if(!box) return;
+  if(!box.hidden){ box.hidden = true; box.innerHTML = ''; return; }
+  document.querySelectorAll('.myfb-form').forEach(function(x){ x.hidden = true; x.innerHTML = ''; });
+  box.hidden = false; box.innerHTML = '<div class="hint">Opening your feedback…</div>';
+  post('myfbform', { rowId: id }).then(function(f){
+    if(!f.ok){ box.innerHTML = '<div class="hint" style="color:var(--bad)">' + esc(f.error || 'Could not open it.') + '</div>'; return; }
+    if(!f.canEdit){ box.innerHTML = '<div class="hint">This feedback can\'t be changed (the interview was cancelled or you were removed from it).</div>'; return; }
+    var qs = []; (f.sections || []).forEach(function(sec){ (sec.questions || []).forEach(function(q){ qs.push({ sec: sec.title, q: q }); }); });
+    var h = '<div class="fbform">' + (f.lateEdit ? '<div class="myfb-late">🔒 The evaluation is already filed in Recruit. You can still correct your feedback: say why, and the TA team gets the change and it\'s noted on the candidate.</div>' : '');
+    var lastSec = '';
+    qs.forEach(function(x, i){ var q = x.q, mx = parseInt(q.max, 10) || 5;
+      if(x.sec !== lastSec){ h += '<h4>' + esc(x.sec) + '</h4>'; lastSec = x.sec; }
+      h += '<div class="myfb-q" data-qi="' + i + '"><div class="myfb-qt">' + esc(q.text) + '</div><div class="fbstars" role="radiogroup" aria-label="Score">' +
+        Array.apply(null, { length: mx }).map(function(_, k){ var v = k + 1; return '<button type="button" role="radio" data-qs="' + v + '" aria-checked="' + (String(v) === String(q.score)) + '">' + v + '</button>'; }).join('') +
+        '</div><input type="text" class="myfb-qc" maxlength="1500" placeholder="Comment (optional)" value="' + esc(q.comment || '') + '"></div>'; });
+    h += '<div class="fbf2"><label>Recommendation<select class="myfb-rec"><option value="">Pick one</option>' + MYFB_RECS.map(function(r){ return '<option' + (r === f.rec ? ' selected' : '') + '>' + r + '</option>'; }).join('') + '</select></label>' +
+      '<label>Overall rating' + (qs.length ? ' <span class="hint">(optional, else the average)</span>' : '') + '<div class="fbstars myfb-ov" role="radiogroup" aria-label="Overall rating">' + [1,2,3,4,5].map(function(v){ return '<button type="button" role="radio" data-ov="' + v + '" aria-checked="' + (String(v) === String(f.rating)) + '">' + v + '</button>'; }).join('') + '</div></label></div>' +
+      '<label>Overall comments<textarea class="myfb-com" rows="4">' + esc(f.comments || '') + '</textarea></label>' +
+      (f.lateEdit ? '<label>Why are you changing it? <span class="hint">(required, the TA team sees it)</span><input type="text" class="myfb-why" maxlength="300" placeholder="e.g. I entered the rating wrongly"></label>' : '') +
+      ((f.edits || []).length ? '<div class="fbedits">' + f.edits.map(function(x){ return '<div>✏️ ' + esc(x) + '</div>'; }).join('') + '</div>' : '') +
+      '<div class="fbact"><button class="btn primary myfb-save" type="button">' + (f.lateEdit ? 'Save correction' : f.status === 'Pending' ? 'Submit feedback' : 'Save changes') + '</button><button class="btn myfb-cancel" type="button">Cancel</button><span class="hint myfb-out" role="status"></span></div></div>';
+    box.innerHTML = h;
+    var ov = '';
+    box.querySelectorAll('.myfb-q').forEach(function(qd){ qd.querySelectorAll('[data-qs]').forEach(function(x){ x.onclick = function(){ qd.querySelectorAll('[data-qs]').forEach(function(y){ y.setAttribute('aria-checked', y === x); }); }; }); });
+    box.querySelectorAll('[data-ov]').forEach(function(x){ x.onclick = function(){ var on = x.getAttribute('aria-checked') !== 'true'; box.querySelectorAll('[data-ov]').forEach(function(y){ y.setAttribute('aria-checked', on && y === x); }); ov = on ? x.dataset.ov : ''; }; });
+    box.querySelector('.myfb-cancel').onclick = function(){ box.hidden = true; box.innerHTML = ''; };
+    box.querySelector('.myfb-save').onclick = function(){ var sv = this, out = box.querySelector('.myfb-out'), bad = function(m, el){ out.style.color = 'var(--bad)'; out.textContent = m; if(el) el.focus(); };
+      var answers = qs.map(function(x, i){ var qd = box.querySelector('[data-qi="' + i + '"]'), on = qd.querySelector('[data-qs][aria-checked="true"]');
+        return { question: x.q.id, section: x.sec, text: x.q.text, score: on ? on.dataset.qs : '', max: x.q.max || 5, comment: qd.querySelector('.myfb-qc').value.trim() }; });
+      var miss = answers.filter(function(a){ return a.score === ''; }).length; if(miss) return bad('Score every question (' + miss + ' left).');
+      var com = box.querySelector('.myfb-com').value.trim(); if(!com) return bad('Add your overall comments.', box.querySelector('.myfb-com'));
+      var rec = box.querySelector('.myfb-rec').value; if(!rec) return bad('Pick a recommendation.', box.querySelector('.myfb-rec'));
+      var whyEl = box.querySelector('.myfb-why'), why = whyEl ? whyEl.value.trim() : ''; if(whyEl && why.length < 5) return bad('Write why you are changing it.', whyEl);
+      var ovPick = (box.querySelector('[data-ov][aria-checked="true"]') || {}).dataset; ov = ovPick ? ovPick.ov : '';
+      if(!qs.length && !ov) return bad('Pick an overall rating.');
+      sv.disabled = true; sv.textContent = 'Saving…'; out.textContent = '';
+      post('myfbsave', { rowId: id, answers: answers, comments: com, overall: ov, rec: rec, assessmentId: f.assessmentId || '', why: why, late: !!f.lateEdit }).then(function(r){
+        if(!r.ok){ sv.disabled = false; sv.textContent = f.lateEdit ? 'Save correction' : 'Save'; return bad(r.error || 'Could not save.'); }
+        toastMsg(r.late ? '✏️ Correction saved. The TA team can see it' + (r.noted ? ', and it\'s noted on the candidate' : '') : '✅ Feedback saved in Recruit'); drawMyFb(); })
+        .catch(function(er){ sv.disabled = false; sv.textContent = 'Save'; bad(er.message); }); };
+  }).catch(function(er){ box.innerHTML = '<div class="hint" style="color:var(--bad)">' + esc(er.message) + '</div>'; });
+});
 // Google box on My interviews (TA): like the CRM Meetings widget, connect once; the button only shows when it's needed.
 // ---------- Interview availability (Tabir, 25 Nov): interviewers say when they're free; TAs pick the time and the length.
 // Weekly 30-minute blocks (7 am to 10 pm IST), a daily cap, notice, days off and a note. No Google Calendar sync.
@@ -2481,6 +2548,9 @@ var HELP = [
   ['Rejected, still open', 'The evaluation says reject but the candidate status is still open. Close as rejected opens the rejection form.'],
   ['To schedule', 'Selected or no-show, and nothing booked.'],
   ['Going cold', 'No change and nothing booked for ' + COLD_DAYS + '+ days.']]},
+ { h: 'My feedback', items: [
+  ['My feedback', 'My interviews → My feedback lists everything you gave in the last 45 days. Open one to fill it or correct it.'],
+  ['Correct feedback after filing', 'Recruit can\'t change a filed evaluation, so your correction is saved on your feedback with a dated Edited line and your reason, added as a note on the candidate, and the TA team gets a Cliq card. Works from My feedback here or from Give feedback on the old Recruit Bot card.']]},
  { h: 'Candidate panel', items: [
   ['Next step', 'Only the moves the hiring process allows from the current status. Every move updates Recruit the same way as Change Status, with an optional comment saved as a note.'],
   ['Evaluation gate', 'Moving on after a round needs its evaluation filed in Recruit, or a written reason (10+ characters) to skip it.'],
@@ -2576,7 +2646,7 @@ document.addEventListener('keydown', function(e){ if(e.key === 'Escape' && docum
 // once more after 3 days, never more than twice and never after WN_END. After closing, the ✨ button keeps a red dot for 7 days.
 // Per browser (localStorage hp_whatsnew). To announce something new: change WN_VERSION and the lists below.
 (function(){
-var WN_VERSION = '2026-11-26', WN_KEY = 'hp_whatsnew', WN_END = Date.parse('2027-01-15T23:59:59+05:30'), DAY = 864e5, AUTO_MS = 6000;
+var WN_VERSION = '2026-11-26b', WN_KEY = 'hp_whatsnew', WN_END = Date.parse('2027-01-15T23:59:59+05:30'), DAY = 864e5, AUTO_MS = 6000;
 var esc = function(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); };
 var byHead = function(txt){ var h = [].slice.call(document.querySelectorAll('main h2, main h3, #main h2, #main h3, .card h3')).filter(function(x){ return x.textContent.indexOf(txt) >= 0; })[0]; return h ? (h.closest('section, .card') || h) : null; };
 var TA = [
@@ -2612,6 +2682,9 @@ var IV = [
  { id: 'mine', ic: '🎤', name: 'My interviews', isNew: true, where: 'This page', go: 'mine', spot: function(){ return document.querySelector('.mi-kpis'); },
    text: 'Your interviews from the last 30 days and the next 3 weeks, and the evaluations you still need to fill, with a link to each one.',
    bul: ['The Cliq heads-up card has the same links'] },
+ { id: 'myfb', ic: '📝', name: 'Correct your feedback', isNew: true, where: 'My interviews → My feedback', go: 'mine', spot: function(){ return document.getElementById('myfbbox'); },
+   text: 'All your feedback from the last 45 days in one list. Open any of it to fill it or fix a mistake, even after the evaluation is filed. No need to find the old Cliq card.',
+   bul: ['After filing, you add a short reason', 'The TA team gets a card and it is noted on the candidate'] },
  TA[6],
  { id: 'gcal', ic: '📅', name: 'Connect Google', isNew: true, where: 'Top bar → Connect Google, or My interviews → Google account', go: 'mine', spot: function(){ return document.getElementById('gcalbox') || document.getElementById('gcBtn'); },
    text: 'Connect once so the TA team sees when you are busy in Google Calendar before booking you. Nothing is changed in your calendar and event names stay private.',
