@@ -530,6 +530,11 @@ body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden
 .me{color:var(--ink)}.me .av{background:var(--brand-l);border:1px solid var(--brand-line);color:var(--brand-d)}#mePr{color:var(--muted);opacity:1!important}
 .sidet{border:1px solid var(--line);background:#fff;color:var(--ink2)}.sidet:hover{background:var(--brand-l);color:var(--brand-d);border-color:var(--brand-line)}.sidet:focus-visible{outline:2px solid var(--brand)}
 @media (max-width:600px){.tsep{display:none}.lglogo{height:18px}}
+/* Job page (26 Nov): labelled facts with people as chips; the board's columns share the width so every stage is in view */
+.jh .meta{gap:8px 16px;margin-top:6px}.jf{display:inline-flex;align-items:center;gap:5px;flex-wrap:wrap}.jf i{font-style:normal;font-size:11.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+.jf b{color:var(--ink);font-weight:700}.pc{display:inline-block;padding:2px 9px;border-radius:999px;background:#fff;border:1px solid var(--line);color:var(--ink);font-size:12.5px;font-weight:600}
+.jh .panel{margin-top:8px}
+@media (min-width:861px){.col{flex:1 1 0;min-width:185px;max-width:none}}
 @media (max-width:600px){.top .me .av{display:none}.top .me{gap:0}.top .gs{min-width:84px}}
 /* Interviews and job tiles (26 Nov): coloured top edge like the overview, day headings stay in view while scrolling */
 .tile:before{right:0;bottom:auto;width:auto;height:4px}.tile{padding:14px 16px 12px}.tile b{font-size:26px}
@@ -1072,7 +1077,7 @@ function viewJob(){
   var sum = function(ks){ return ks.reduce(function(s,k){ return s + (counts[k] || 0); }, 0); };
   var tiles = [['In process', sum(['screen','assess','blitz','r1','r2','r3','vibe','offer','hold']), '#8644f0'], ['Interviewing', sum(['blitz','r1','r2','r3','vibe']), '#0f766e'], ['Offer', sum(['offer']), '#2f7d00'], ['Hired', sum(['hired']), '#15803d'], ['Closed', S.scopeLoaded === 'all' ? sum(['closed']) : '—', '#c8102e'], ['All associated', S.scopeLoaded === 'all' ? rows.length : (job.candidates || rows.length), '#8a849c']];
   main.innerHTML = jobSelect() +
-    '<div class="jh"><div style="min-width:0"><h1>' + esc(job.title) + '</h1><div class="meta">' + (job.group ? statusBadge(job) : '') + (job.dept ? '<span class="tag">' + esc(job.dept) + '</span>' : '') + (job.manager ? '<span>Hiring manager: ' + esc(job.manager) + '</span>' : '') + (job.recruiters && job.recruiters.length ? '<span>Recruiters: ' + esc(job.recruiters.join(', ')) + '</span>' : '') + (job.opened ? '<span>Opened ' + esc(dt(job.opened)) + '</span>' : '') + '</div>' +
+    '<div class="jh"><div style="min-width:0"><h1>' + esc(job.title) + '</h1><div class="meta">' + (job.group ? statusBadge(job) : '') + (job.dept ? '<span class="tag">' + esc(job.dept) + '</span>' : '') + (job.manager ? '<span class="jf"><i>Hiring manager</i><span class="pc">' + esc(job.manager) + '</span></span>' : '') + (job.recruiters && job.recruiters.length ? '<span class="jf"><i>Recruiters</i>' + job.recruiters.map(function(r){ return '<span class="pc">' + esc(r) + '</span>'; }).join('') + '</span>' : '') + (job.opened ? '<span class="jf"><i>Opened</i><b>' + esc(dt(job.opened)) + '</b></span>' : '') + '</div>' +
       '<div class="panel"><span class="hint">Interview panel:</span>' + ((job.panel || []).length ? job.panel.map(function(p){ return '<span class="pr"><b>' + esc(p.round) + '</b> ' + esc(p.who) + '</span>'; }).join('') : '<span class="hint">not set on this job in Recruit</span>') + '</div></div>' +
     '<div class="acts"><span class="hint">Updated ' + esc(ago(S.cachedAt) || 'now') + '</span><button class="btn sm" id="rf">↻ Refresh</button><a class="btn sm" href="' + RC + 'JobOpenings&id=' + esc(job.id) + '" target="_blank" rel="noopener">Open in Recruit ↗</a></div></div>' +
     '<div class="tiles">' + tiles.map(function(t, ti){ var ks = [['screen','assess','blitz','r1','r2','r3','vibe','offer','hold'], ['blitz','r1','r2','r3','vibe'], ['offer'], ['hired'], ['closed'], null][ti];
