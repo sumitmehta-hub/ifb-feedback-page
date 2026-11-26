@@ -490,7 +490,7 @@ body.ivonly .side .search,body.ivonly .side .segs,body.ivonly .vas,body.ivonly #
 .sidet{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:#fff;cursor:pointer;flex:0 0 auto;margin-right:-4px}
 .sidet:hover{background:rgba(255,255,255,.2)}.sidet:focus-visible{outline:2px solid #fff;outline-offset:2px}
 .side{position:relative}.sdrag{position:absolute;top:0;right:-4px;width:8px;height:100%;cursor:col-resize;z-index:5;touch-action:none}
-.sdrag::after{content:'';position:absolute;top:0;bottom:0;left:3px;width:2px;background:transparent;transition:background .12s}.sdrag:hover::after,body.sdragging .sdrag::after{background:var(--brand)}
+.sdrag::after{content:'';position:absolute;top:0;bottom:0;left:3px;width:2px;background:transparent;transition:background .12s}.sdrag:hover::after,body.sdragging .sdrag::after,.sdrag:focus-visible::after{background:var(--brand)}.sdrag:focus{outline:none}
 body.sdragging{cursor:col-resize;user-select:none}body.sdragging iframe{pointer-events:none}
 body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden;overflow:hidden;border:0}
 .shell{transition:grid-template-columns .18s ease}body.sdragging .shell{transition:none}
@@ -2353,7 +2353,9 @@ window.HP = { post: post, toast: toastMsg, glogo: GLOGO, recRefresh: function(){
   var root = document.documentElement, MIN = 200, MAX = 520;
   var store = function(k, v){ try{ if(v === undefined) return localStorage.getItem(k); if(v === null) localStorage.removeItem(k); else localStorage.setItem(k, v); }catch(e){ return null; } };
   var curW = 0;
-  function setW(w){ if(w){ curW = Math.max(MIN, Math.min(MAX, Math.round(w))); root.style.setProperty('--side', curW + 'px'); } else { curW = 0; root.style.removeProperty('--side'); } }
+  // 26 Nov: never wider than 40% of the window, so the main area keeps room
+  var maxW = function(){ return Math.max(MIN, Math.min(MAX, Math.round(window.innerWidth * 0.4))); };
+  function setW(w){ if(w){ curW = Math.max(MIN, Math.min(maxW(), Math.round(w))); root.style.setProperty('--side', curW + 'px'); } else { curW = 0; root.style.removeProperty('--side'); } }
   function setC(c){ document.body.classList.toggle('sidec', c);
     var sh = document.getElementById('sideShow'); if(!sh){ sh = document.createElement('button'); sh.type = 'button'; sh.id = 'sideShow'; sh.className = 'sideshow'; sh.title = 'Show sidebar (Ctrl+B)'; sh.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M13 17l5-5-5-5M6 17l5-5-5-5"/></svg><span>Jobs</span>'; sh.onclick = function(){ setC(false); store('hire_side_c', '0'); }; document.body.appendChild(sh); }
     sh.hidden = !c || !document.querySelector('.side'); var b = document.getElementById('sideT'); if(b){ b.setAttribute('aria-pressed', c); b.setAttribute('aria-label', c ? 'Show sidebar' : 'Hide sidebar'); b.title = (c ? 'Show sidebar' : 'Hide sidebar') + ' (Ctrl+B)'; } }
@@ -2365,11 +2367,18 @@ window.HP = { post: post, toast: toastMsg, glogo: GLOGO, recRefresh: function(){
     var shw = document.getElementById('sideShow'); if(shw) shw.hidden = !side || !document.body.classList.contains('sidec');
     var hd = side && side.querySelector('.hd'); if(hd && !hd.querySelector('.sidex')){ var x = document.createElement('button'); x.type = 'button'; x.className = 'sidex'; x.setAttribute('aria-label', 'Hide sidebar'); x.title = 'Hide sidebar (Ctrl+B)'; x.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M11 17l-5-5 5-5M18 17l-5-5 5-5"/></svg><span>Hide</span>'; x.onclick = toggle; hd.insertBefore(x, hd.firstChild); }
     if(!side || side.querySelector('.sdrag')) return;
-    var h = document.createElement('div'); h.className = 'sdrag'; h.setAttribute('role', 'separator'); h.setAttribute('aria-orientation', 'vertical'); h.setAttribute('aria-label', 'Resize sidebar'); h.tabIndex = 0; h.title = 'Drag to resize · double-click to reset';
+    var h = document.createElement('div'); h.className = 'sdrag'; h.setAttribute('role', 'separator'); h.setAttribute('aria-orientation', 'vertical'); h.setAttribute('aria-label', 'Resize sidebar'); h.tabIndex = 0;
     side.appendChild(h);
-    h.addEventListener('pointerdown', function(e){ e.preventDefault(); try{ h.setPointerCapture(e.pointerId); }catch(er){} document.body.classList.add('sdragging'); var left = side.getBoundingClientRect().left;
-      var mv = function(ev){ setW(ev.clientX - left); }, up = function(){ h.removeEventListener('pointermove', mv); h.removeEventListener('pointerup', up); document.body.classList.remove('sdragging'); if(curW) store('hire_side_w', String(curW)); };
-      h.addEventListener('pointermove', mv); h.addEventListener('pointerup', up); });
+    // 26 Nov: the page sits inside Recruit's frame, so a release outside it never arrives as pointerup. End the drag on
+    // pointerup, pointercancel, lost capture, leaving the window, the window losing focus, or a move with no button held.
+    h.addEventListener('pointerdown', function(e){ if(e.button !== 0) return; e.preventDefault(); try{ h.setPointerCapture(e.pointerId); }catch(er){} document.body.classList.add('sdragging'); var left = side.getBoundingClientRect().left, done = false;
+      var mv = function(ev){ if(!(ev.buttons & 1)){ up(); return; } setW(ev.clientX - left); };
+      var up = function(){ if(done) return; done = true; h.removeEventListener('pointermove', mv); ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function(t){ h.removeEventListener(t, up); });
+        document.removeEventListener('pointerleave', up); window.removeEventListener('blur', up); document.documentElement.removeEventListener('mouseleave', up);
+        try{ h.releasePointerCapture(e.pointerId); }catch(er){} document.body.classList.remove('sdragging'); h.blur(); if(curW) store('hire_side_w', String(curW)); };
+      h.addEventListener('pointermove', mv); ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(function(t){ h.addEventListener(t, up); });
+      window.addEventListener('blur', up); document.documentElement.addEventListener('mouseleave', up); });
+    window.addEventListener('resize', function(){ if(curW && curW > maxW()) setW(curW); });
     h.addEventListener('dblclick', function(){ setW(0); store('hire_side_w', null); });
     h.addEventListener('keydown', function(e){ if(e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return; e.preventDefault(); setW((curW || side.getBoundingClientRect().width) + (e.key === 'ArrowRight' ? 20 : -20)); store('hire_side_w', String(curW)); });
   }
