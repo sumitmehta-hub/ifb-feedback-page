@@ -530,6 +530,22 @@ body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden
 .me{color:var(--ink)}.me .av{background:var(--brand-l);border:1px solid var(--brand-line);color:var(--brand-d)}#mePr{color:var(--muted);opacity:1!important}
 .sidet{border:1px solid var(--line);background:#fff;color:var(--ink2)}.sidet:hover{background:var(--brand-l);color:var(--brand-d);border-color:var(--brand-line)}.sidet:focus-visible{outline:2px solid var(--brand)}
 @media (max-width:600px){.tsep{display:none}.lglogo{height:18px}}
+/* panel at a glance + feedback corrections (26 Nov) */
+.pglance{margin:12px 0 2px;border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--panel,#fff);display:grid;gap:6px}
+.pglance.diff{border-color:#f2d3a2;background:#fffaf2}
+.pgh{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px}.pgh .hint{margin-left:auto}
+.pgr{display:grid;grid-template-columns:minmax(0,1.2fr) auto minmax(0,1fr);gap:10px;align-items:center;font-size:13.5px;padding:4px 0;border-top:1px dashed var(--line)}
+.pgn{font-weight:700;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.pgs{justify-self:end;white-space:nowrap}
+@media (max-width:520px){.pgr{grid-template-columns:1fr auto}.pgs{grid-column:1/-1;justify-self:start}}
+.fbedits{display:grid;gap:4px;margin:2px 0 10px}.fbedits div{font-size:12.5px;color:#7a4a00;background:#fff4d6;border:1px solid #f0d48a;border-radius:10px;padding:6px 10px}
+.fbedit-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 10px}.fbedit-row .hint{font-size:12px}
+.fbform{display:grid;gap:10px}.fbform h4{margin:0;font-size:15px}.fbform label{display:grid;gap:5px;font-size:12.5px;font-weight:700;color:var(--ink2)}
+.fbform select,.fbform textarea,.fbform input{font:inherit;font-size:14px;font-weight:500;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff;color:var(--ink)}
+.fbf2{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px}
+.fbstars{display:flex;gap:6px}.fbstars button{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:#fff;font:inherit;font-weight:800;cursor:pointer;color:var(--ink2)}
+.fbstars button[aria-checked="true"]{background:var(--brand);border-color:var(--brand);color:#fff}
+.fbact{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+@media (max-width:520px){.fbf2{grid-template-columns:1fr}}
 /* Tooltips (26 Nov): one styled tooltip instead of the browser's grey box; name lists get a row per person */
 .htip{position:fixed;z-index:400;max-width:300px;padding:8px 11px;border-radius:11px;background:#1c1530;color:#fff;font-size:12.5px;line-height:1.45;font-weight:500;box-shadow:0 10px 30px rgba(6,0,59,.28);pointer-events:none;opacity:0;transform:translateY(3px);transition:opacity .12s,transform .12s}
 .htip.on{opacity:1;transform:none}
@@ -736,7 +752,7 @@ function stageOf(st){ var s = String(st || '').toLowerCase().trim(); if(!s || NO
 function stageMeta(k){ for(var i = 0; i < STAGES.length; i++) if(STAGES[i][0] === k) return STAGES[i]; return STAGES[STAGES.length-1]; }
 
 function post(action, body){
-  if(/^(move|skipeval|fileeval|remind|blink|iv(meet|resched|cancel|add|remove|rec))$/.test(action)) CAND_PF = {};
+  if(/^(move|skipeval|fileeval|fbedit|remind|blink|iv(meet|resched|cancel|add|remove|rec))$/.test(action)) CAND_PF = {};
   return fetch(API + action, { method:'POST', headers:{ 'Content-Type':'text/plain;charset=UTF-8' }, body: JSON.stringify(Object.assign({}, body || {}, { _t: S.token })) })
     .then(function(r){ return r.json().catch(function(){ return { ok:false, error:'Bad reply (' + r.status + ')' }; }); })
     .then(function(j){ if(j && j.code === 'auth'){ signOut(); throw new Error('Please sign in again.'); } return j; });
@@ -1258,7 +1274,10 @@ function fbPanel(f){
     (pend && f.rowId ? '<button class="btn sm" data-remind="' + esc(f.rowId) + '" style="margin-left:auto">🔔 Remind on Cliq</button>' : '') + '</div>';
   if(pend) h += '<div class="hint" style="font-size:12.5px;margin:-4px 0 8px" data-nudge="' + esc(f.rowId) + '">' + (f.nudged ? '🔔 Last reminded ' + esc(dt(f.nudged, true)) + ' (' + esc(ago(f.nudged)) + ')' : 'Not reminded yet') + '</div>';
   if(f.status === 'Filed in Recruit' && !f.comments) h += '<div class="hint">This interviewer filed straight in Recruit; see the Recruit evaluation tab.</div>';
-  if(f.comments) h += '<div class="sec" style="margin-top:4px">Overall comments</div><div class="box" style="white-space:normal">' + richText(f.comments) + '</div>';
+  var fbEdits = String(f.comments || '').match(/\[Edited [^\]]*\]/g) || [], fbClean = String(f.comments || '').replace(/\n*\[Edited [^\]]*\]/g, '').trim();
+  if(fbEdits.length) h += '<div class="fbedits">' + fbEdits.map(function(x){ return '<div>✏️ ' + esc(x.slice(1, -1)) + '</div>'; }).join('') + '</div>';
+  if((done || f.status === 'Filed in Recruit') && f.rowId && S.ta && !document.body.classList.contains('viewer')) h += '<div class="fbedit-row"><button class="btn sm" data-fbedit="' + esc(f.rowId) + '">✏️ Edit this feedback</button><span class="hint">Recruit can\'t change a filed evaluation, so the correction is saved here, on the record and as a note.</span></div>';
+  if(fbClean) h += '<div class="sec" style="margin-top:4px">Overall comments</div><div class="box" style="white-space:normal">' + richText(fbClean) + '</div>';
   if(f.strengths || f.concerns) h += '<div class="sc2">' + (f.strengths ? '<div class="box"><h6 style="color:var(--ok)">Strengths</h6>' + richText(f.strengths) + '</div>' : '') + (f.concerns ? '<div class="box"><h6 style="color:var(--bad)">Concerns</h6>' + richText(f.concerns) + '</div>' : '') + '</div>';
   var secs = parseQuestions(f);
   if(secs.length){ h += '<div class="sec">Question by question' + (f.assessment ? ' · ' + esc(f.assessment) : '') + '</div>';
@@ -1272,6 +1291,28 @@ function outTone(t){ t = String(t || ''); return /reject|not suitable|no hire|no
 // 26 Nov: evaluations the Recruit Bot filed start with "Filed from the interviewers' feedback (Recruit Bot). Decision: <name> (<why>)." – show that as a tag, then the panel's words
 function botNote(c){ var m = /^\s*Filed from the interviewers'? feedback \(Recruit Bot\)\.\s*Decision:\s*([^(.|]+?)\s*(?:\(([^)]*)\))?\.\s*\|?\s*/i.exec(String(c || '')); if(!m) return null;
   return { tag: '<span>🤖 Filed by Recruit Bot from <b>' + esc(m[1]) + '’s</b> feedback</span>' + (m[2] ? ' <span class="hint">(' + esc(m[2]) + ')</span>' : ''), rest: String(c).slice(m[0].length) }; }
+// 26 Nov: TA corrects filed panel feedback (Recruit can't edit a filed evaluation)
+document.addEventListener('click', function(e){ var b = e.target.closest && e.target.closest('[data-fbedit]'); if(!b) return; e.preventDefault();
+  var f = ((S.cj && S.cj.feedback) || []).filter(function(x){ return x.rowId === b.dataset.fbedit; })[0], pan = b.closest('.rpanel'); if(!f || !pan) return;
+  var RECS = ['Strong Hire', 'Move to next round', 'On-Hold', 'Rejected', 'Strong Reject'], clean = String(f.comments || '').replace(/\n*\[Edited [^\]]*\]/g, '').trim();
+  pan.innerHTML = '<div class="fbform"><h4>Edit ' + esc(f.who || 'interviewer') + '\'s feedback</h4>' +
+    '<div class="fbf2"><label>Recommendation<select id="fbeRec">' + RECS.map(function(r){ return '<option' + (r === f.rec ? ' selected' : '') + '>' + r + '</option>'; }).join('') + '</select></label>' +
+    '<label>Rating<div class="fbstars" role="radiogroup" aria-label="Rating">' + [1,2,3,4,5].map(function(n){ return '<button type="button" role="radio" data-fbr="' + n + '" aria-checked="' + (String(n) === String(f.rating)) + '">' + n + '</button>'; }).join('') + '</div></label></div>' +
+    '<label>Comments<textarea id="fbeCom" rows="4">' + esc(clean) + '</textarea></label>' +
+    '<label>Why is it changing? <span class="hint">(saved with the change)</span><input id="fbeWhy" type="text" maxlength="300" placeholder="e.g. Interviewer asked to correct the rating after review"></label>' +
+    '<div class="hint">The Recruit evaluation stays as filed. The change is saved on this feedback, marked as edited, and added as a note on the candidate.</div>' +
+    '<div class="fbact"><button class="btn primary" type="button" id="fbeSave">Save correction</button><button class="btn" type="button" id="fbeCancel">Cancel</button><span class="hint" id="fbeOut" role="status"></span></div></div>';
+  var rt = String(f.rating || '');
+  pan.querySelectorAll('[data-fbr]').forEach(function(x){ x.onclick = function(){ rt = x.dataset.fbr; pan.querySelectorAll('[data-fbr]').forEach(function(y){ y.setAttribute('aria-checked', y === x); }); }; });
+  document.getElementById('fbeCancel').onclick = function(){ viewCandidate(); };
+  document.getElementById('fbeSave').onclick = function(){ var sv = this, out = document.getElementById('fbeOut'), why = document.getElementById('fbeWhy').value.trim();
+    if(why.length < 5){ out.style.color = 'var(--bad)'; out.textContent = 'Write why it is changing.'; document.getElementById('fbeWhy').focus(); return; }
+    sv.disabled = true; sv.textContent = 'Saving…'; out.textContent = '';
+    post('fbedit', { rowId: f.rowId, rec: document.getElementById('fbeRec').value, rating: rt, comments: document.getElementById('fbeCom').value, reason: why }).then(function(r){
+      if(!r.ok){ sv.disabled = false; sv.textContent = 'Save correction'; out.style.color = 'var(--bad)'; out.textContent = r.error || 'Could not save'; return; }
+      f.rec = r.rec; f.rating = r.rating; f.comments = r.comments; toastMsg('✏️ Feedback corrected' + (r.noted ? ' and noted on the candidate' : '')); viewCandidate(); })
+      .catch(function(er){ sv.disabled = false; sv.textContent = 'Save correction'; out.textContent = er.message; }); };
+});
 function evalPanel(e){ var bn = botNote(e.comments);
   return '<div class="rhead">' + (e.decision ? '<span class="chip br ' + outTone(e.decision) + '" style="font-size:13px">' + esc(e.decision) + '</span>' : '') + (e.rating ? '<span class="big">' + esc(e.rating) + '/5</span>' + stars(e.rating) : '') + '<span class="hint" style="margin-left:auto">Filed by <b style="color:var(--ink)">' + esc(e.by || '—') + '</b>' + (e.at ? ' · ' + esc(dt(e.at, true)) : '') + '</span></div>' +
     (e.comments ? (bn ? '<div class="botn">' + bn.tag + '</div>' : '') + '<div class="box" style="white-space:normal;background:var(--brand-ll);border-color:var(--brand-line)">' + richText(bn ? (bn.rest || '—') : e.comments) + '</div>' : '<div class="hint">No comments in the evaluation.</div>');
@@ -1338,6 +1379,11 @@ function viewCandidate(){
         '<div class="hint">' + [esc(v.job), v.interviewers.length ? 'Panel: <b class="pn">' + esc(v.interviewers.join(', ')) + '</b>' : '', v.owner ? 'Owner: <b class="pn">' + esc(v.owner) + '</b>' : ''].filter(Boolean).join(' · ') + '</div>' +
         '<div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap">' + (v.url && !/cancel/i.test(v.status || '') && new Date(v.end || v.start) >= Date.now() ? '<a class="btn sm primary" href="' + esc(v.url) + '" target="_blank" rel="noopener">Join ↗</a>' : '') + (fb.some(function(f){ return f.status === 'Pending'; }) ? '<a class="btn sm" href="' + FB_TAB + '" target="_top">Give feedback</a>' : '') + (!v.evaluation && !/cancel/i.test(v.status || '') && new Date(v.end || v.start) < Date.now() ? '<button class="btn sm primary" data-remeval="' + esc(v.id) + '">🔔 Remind to fill evaluation</button>' : '') + '<button class="btn sm" data-ivcard="' + esc(v.id) + '"><svg class="bi" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></svg> Manage interview</button><a class="btn sm" href="' + RC + 'Interviews&id=' + esc(v.id) + '" target="_blank" rel="noopener">Interview in Recruit ↗</a></div>';
       if(!tabs.length){ h += '<div class="hint" style="margin-top:12px">No feedback or evaluation yet for this round.</div></div>'; return; }
+      var subs = fb.filter(function(f){ return f.rec || f.rating; });
+      if(subs.length >= 2){ var recs = subs.map(function(f){ return f.rec || ''; }).filter(function(x, i, a){ return x && a.indexOf(x) === i; }), rts = subs.map(function(f){ return +f.rating || 0; }).filter(Boolean);
+        var differs = recs.length > 1 || (rts.length > 1 && Math.max.apply(null, rts) - Math.min.apply(null, rts) >= 2);
+        h += '<div class="pglance' + (differs ? ' diff' : '') + '"><div class="pgh"><b>Panel at a glance</b>' + (differs ? '<span class="chip rwarn">⚠ Panel differs</span>' : '<span class="chip rok">Panel agrees</span>') + (v.evaluation && v.evaluation.decision ? '<span class="hint">Filed in Recruit: <b>' + esc(v.evaluation.decision) + '</b>' + (v.evaluation.rating ? ' · ' + esc(v.evaluation.rating) + '/5' : '') + '</span>' : '') + '</div>' +
+          subs.map(function(f){ var ed = /\[Edited /.test(f.comments || ''); return '<div class="pgr"><span class="pgn">' + esc(f.who || 'Interviewer') + (ed ? ' <span class="hint">✏️ edited</span>' : '') + '</span>' + (f.rec ? '<span class="chip ' + outTone(f.rec) + '">' + esc(f.rec) + '</span>' : '<span class="hint">no recommendation</span>') + '<span class="pgs">' + (f.rating ? stars(f.rating) + ' <b>' + esc(f.rating) + '/5</b>' : '') + '</span></div>'; }).join('') + '</div>'; }
       h += '<div class="rtabs" role="tablist">' + tabs.map(function(t){ return '<button class="rtab" role="tab" data-iv="' + esc(v.id) + '" data-k="' + esc(t.k) + '" aria-selected="' + (t.k === cur) + '" style="--c:' + t.c + '"><i></i>' + esc(t.label) + '</button>'; }).join('') + '</div>';
       var at = tabs.filter(function(t){ return t.k === cur; })[0];
       h += '<div class="rpanel">' + (at.k === 'eval' ? evalPanel(v.evaluation) : fbPanel(at.f)) + '</div></div>';
