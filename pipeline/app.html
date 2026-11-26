@@ -530,6 +530,9 @@ body.sidec .shell{grid-template-columns:0 1fr}body.sidec .side{visibility:hidden
 .me{color:var(--ink)}.me .av{background:var(--brand-l);border:1px solid var(--brand-line);color:var(--brand-d)}#mePr{color:var(--muted);opacity:1!important}
 .sidet{border:1px solid var(--line);background:#fff;color:var(--ink2)}.sidet:hover{background:var(--brand-l);color:var(--brand-d);border-color:var(--brand-line)}.sidet:focus-visible{outline:2px solid var(--brand)}
 @media (max-width:600px){.tsep{display:none}.lglogo{height:18px}}
+.hp-guide{margin-left:auto;align-self:center;font-size:13px;font-weight:700;color:var(--brand-d);text-decoration:none;border:1px solid var(--brand-line);background:var(--brand-ll);border-radius:999px;padding:5px 12px}.hp-guide:hover{background:var(--brand-l)}
+.hp-gfoot{margin-top:14px;padding:10px 14px;border-radius:12px;background:var(--brand-ll);border:1px solid var(--brand-line);font-size:13px;color:var(--ink2)}
+@media (max-width:600px){.hp-tabs{flex-wrap:wrap}.hp-guide{margin-left:0}}
 /* Connect Google (26 Nov): always in the top bar for the TA team until connected, with a once-a-day card saying why */
 .gcb{position:relative;display:inline-flex;align-items:center;gap:7px;padding:5px 12px 5px 6px;font-size:13px;font-weight:700;border-radius:999px;background:#fff;border:1px solid #fff;color:#1f1f1f;box-shadow:0 2px 8px rgba(6,0,59,.25)}
 .gcb[hidden]{display:none}.gcb:hover{background:#f1f3f4}.gci{width:22px;height:22px;border-radius:50%;background:#fff;display:grid;place-items:center}.gci svg{width:16px;height:16px}
@@ -2479,8 +2482,8 @@ function openHelp(){
   var body = HELP.map(function(sec, k){ return '<section class="hp-sec"><h4>' + esc(sec.h) + '</h4><dl>' + sec.items.map(function(it){ return '<div class="hp-i"><dt>' + esc(it[0]) + '</dt><dd>' + esc(it[1]) + '</dd></div>'; }).join('') + '</dl></section>'; }).join('');
   ov.classList.add('hpm'); ov.innerHTML = '<div class="mbk"></div><section class="mpn" role="dialog" aria-modal="true" aria-labelledby="hpT" style="--c:#e0a800"><header><div><h3 id="hpT">Help</h3><p>Short how-to clips, and what every page, label and number means</p></div><button class="btn sm" id="mdlX" aria-label="Close">✕</button></header>' +
     '<div class="mtools"><label class="search">' + ICON_SEARCH + '<input id="hpQ" type="search" placeholder="Search, e.g. book, pass rate, remind, rating" aria-label="Search help"></label></div>' +
-    '<div class="hp-tabs" role="tablist"><button role="tab" data-hpt="how" aria-selected="true">How to</button><button role="tab" data-hpt="mean" aria-selected="false">What things mean</button></div>' +
-    '<div class="mlist hp"><div data-hpp="how">' + howHtml() + '</div><div data-hpp="mean" hidden>' + body + '</div><p class="hint hp-none" hidden>Nothing matches. Ask the Business Systems team.</p></div></section>';
+    '<div class="hp-tabs" role="tablist"><button role="tab" data-hpt="how" aria-selected="true">How to</button><button role="tab" data-hpt="mean" aria-selected="false">What things mean</button><a class="hp-guide" href="https://claude.ai/artifact/N7FLptPDC7R5KVaocSrNDM" target="_blank" rel="noopener">📘 Full team guide ↗</a></div>' +
+    '<div class="mlist hp"><div data-hpp="how">' + howHtml() + '</div><div data-hpp="mean" hidden>' + body + '</div><p class="hint hp-none" hidden>Nothing matches. Ask the Business Systems team.</p><div class="hp-gfoot">Still a question? The <a href="https://claude.ai/artifact/N7FLptPDC7R5KVaocSrNDM" target="_blank" rel="noopener">full team guide</a> covers booking, candidate booking links, emails and Cliq messages, setup and common questions.</div></div></section>';
   document.body.appendChild(ov); document.body.style.overflow = 'hidden';
   ov.querySelector('.mbk').onclick = function(){ closeDrill(); }; document.getElementById('mdlX').onclick = function(){ closeDrill(); };
   var q = document.getElementById('hpQ'), phone = matchMedia('(max-width:600px)').matches; if(phone) q.placeholder = 'Search help'; else setTimeout(function(){ q.focus(); }, 60);
@@ -2537,6 +2540,9 @@ var TA = [
  { id: 'help', ic: '❓', name: 'Help with short clips', isNew: true, where: 'Top bar → Help', spot: function(){ return document.getElementById('helpBtn'); },
    text: 'Help now opens on How to: six short clips with steps, and a searchable list of what every page, label and number means.',
    bul: ['Maximize a clip to watch it large'] }
+ ,{ id: 'guide', ic: '📘', name: 'Full team guide', isNew: true, where: 'Help → Full team guide', link: 'https://claude.ai/artifact/N7FLptPDC7R5KVaocSrNDM',
+   text: 'One page with everything: what you no longer do by hand, booking a round, letting the candidate pick a time, the emails and Cliq messages people get, one-time setup, and answers to common questions.',
+   bul: ['Opens in a new tab', 'Also linked at the bottom of Help'] }
 ];
 var IV = [
  { id: 'mine', ic: '🎤', name: 'My interviews', isNew: true, where: 'This page', go: 'mine', spot: function(){ return document.querySelector('.mi-kpis'); },
@@ -2546,7 +2552,8 @@ var IV = [
  { id: 'gcal', ic: '📅', name: 'Connect Google', isNew: true, where: 'Top bar → Connect Google, or My interviews → Google account', go: 'mine', spot: function(){ return document.getElementById('gcalbox') || document.getElementById('gcBtn'); },
    text: 'Connect once so the TA team sees when you are busy in Google Calendar before booking you. Nothing is changed in your calendar and event names stay private.',
    bul: ['Your hours in My availability still decide when you can be booked', 'Busy is only a warning for the TA team'] },
- TA[7]
+ TA[7],
+ TA[8]
 ];
 var LIST = TA, idx = 0, play = false, ret = null, ov = null;
 function state(){ var st = null; try{ st = JSON.parse(localStorage.getItem(WN_KEY) || 'null'); }catch(e){} if(!st || st.v !== WN_VERSION) st = { v: WN_VERSION, shows: 0, closedAt: 0 }; return st; }
@@ -2561,7 +2568,7 @@ function draw(){
   var f = LIST[idx], dt = ov.querySelector('.wn-dt'); dt.setAttribute('aria-labelledby', 'wn-' + f.id);
   dt.innerHTML = '<h4>' + esc(f.name) + '</h4><div class="wn-wh">📍 <b>Where:</b> ' + esc(f.where) + '</div><p class="wn-tx">' + esc(f.text) + '</p>' +
     (f.bul ? '<div class="wn-bx"><b>GOOD TO KNOW</b><ul>' + f.bul.map(function(b){ return '<li>' + esc(b) + '</li>'; }).join('') + '</ul></div>' : '') +
-    '<div class="wn-ac">' + (f.spot ? '<button type="button" class="btn primary" data-wngo>Show me</button>' : '') + (f.clip ? '<button type="button" class="btn" data-wnclip>▶ Watch how</button>' : '') + (idx < LIST.length - 1 ? '<button type="button" class="btn" data-wnnext>Next →</button>' : '') + '</div>';
+    '<div class="wn-ac">' + (f.link ? '<a class="btn primary" href="' + esc(f.link) + '" target="_blank" rel="noopener">Open the guide ↗</a>' : '') + (f.spot ? '<button type="button" class="btn primary" data-wngo>Show me</button>' : '') + (f.clip ? '<button type="button" class="btn" data-wnclip>▶ Watch how</button>' : '') + (idx < LIST.length - 1 ? '<button type="button" class="btn" data-wnnext>Next →</button>' : '') + '</div>';
 }
 function next(){ if(!play) return; if(idx >= LIST.length - 1){ stop(); return; } idx++; draw(); var t = document.getElementById('wn-' + LIST[idx].id); if(t) t.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }
 function stop(){ play = false; if(ov) ov.querySelectorAll('.wn-pg').forEach(function(e){ e.remove(); }); }
