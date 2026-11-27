@@ -866,6 +866,8 @@ function route(first){
   if(hl.get('from') === 'recruit'){
     window.__hpFromLink = true; hit('fromlink'); var lraw = (hl.get('c') || '').trim(), lcode = /^ZR_\d+_CAND$/i.test(lraw) ? lraw : '', lc = /^\d{5,25}$/.test(lraw) ? lraw : '', li = /^\d{5,25}$/.test(hl.get('iv') || '') ? hl.get('iv') : '', base = location.pathname + location.search;
     if(!S.ta && !S.admin) history.replaceState(null, '', base + '#view=mine');
+    else if(!li && hl.get('ivn')){ history.replaceState(null, '', base + '#view=iv'); var ivq = { name: hl.get('ivn'), job: hl.get('ivj') || '', round: hl.get('ivr') || '' };
+      post('ivfind', ivq).then(function(r){ if(!r || !r.ok){ toastMsg('Could not find that interview here'); return; } var t2 = 0; (function waitIv2(){ if(S.page === 'iv' && S.ivs && !document.querySelector('#main .loading')) setTimeout(function(){ openIvCard(r.ivId); }, 300); else if(t2++ < 40) setTimeout(waitIv2, 300); })(); }).catch(function(){}); }
     else if(li){ history.replaceState(null, '', base + '#view=iv'); var tries = 0; (function waitIv(){ if(S.page === 'iv' && S.ivs && !document.querySelector('#main .loading')){ setTimeout(function(){ openIvCard(li); }, 300); } else if(tries++ < 40) setTimeout(waitIv, 300); })(); }
     else { history.replaceState(null, '', base + (lc ? '#view=work&c=' + lc : '#view=work'));
       if(lcode) post('candid', { code: lcode }).then(function(r){ if(r && r.ok && r.id) location.hash = '#view=work&c=' + r.id; else toastMsg('Could not find that candidate here'); }).catch(function(){}); }
