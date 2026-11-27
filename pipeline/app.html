@@ -864,10 +864,11 @@ function route(first){
   // #from=recruit&c=<candidate id> or #from=recruit&iv=<interview id>; turn them into the normal views
   var hl = new URLSearchParams(location.hash.replace(/^#/, ''));
   if(hl.get('from') === 'recruit'){
-    window.__hpFromLink = true; hit('fromlink'); var lc = /^\d{5,25}$/.test(hl.get('c') || '') ? hl.get('c') : '', li = /^\d{5,25}$/.test(hl.get('iv') || '') ? hl.get('iv') : '', base = location.pathname + location.search;
+    window.__hpFromLink = true; hit('fromlink'); var lraw = (hl.get('c') || '').trim(), lcode = /^ZR_\d+_CAND$/i.test(lraw) ? lraw : '', lc = /^\d{5,25}$/.test(lraw) ? lraw : '', li = /^\d{5,25}$/.test(hl.get('iv') || '') ? hl.get('iv') : '', base = location.pathname + location.search;
     if(!S.ta && !S.admin) history.replaceState(null, '', base + '#view=mine');
     else if(li){ history.replaceState(null, '', base + '#view=iv'); var tries = 0; (function waitIv(){ if(S.page === 'iv' && S.ivs && !document.querySelector('#main .loading')){ setTimeout(function(){ openIvCard(li); }, 300); } else if(tries++ < 40) setTimeout(waitIv, 300); })(); }
-    else history.replaceState(null, '', base + (lc ? '#view=work&c=' + lc : '#view=work'));
+    else { history.replaceState(null, '', base + (lc ? '#view=work&c=' + lc : '#view=work'));
+      if(lcode) post('candid', { code: lcode }).then(function(r){ if(r && r.ok && r.id) location.hash = '#view=work&c=' + r.id; else toastMsg('Could not find that candidate here'); }).catch(function(){}); }
     first = true;
   }
   var h = readHash(), job = h.job;
