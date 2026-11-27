@@ -863,6 +863,9 @@ function route(first){
   // 27 Nov (Sumit): "Open in Hiring Pipeline" links on Recruit's Candidate and Interview pages land here as
   // #from=recruit&c=<candidate id> or #from=recruit&iv=<interview id>; turn them into the normal views
   var hl = new URLSearchParams(location.hash.replace(/^#/, ''));
+  // 27 Nov: the Recruit links now go through hirepage /go, which brings the browser back to Recruit's own Hiring Pipeline
+  // tab; ask once per load whether this browser just clicked one, then handle it like a #from=recruit link
+  if(first && hl.get('from') !== 'recruit' && !route._ho){ route._ho = 1; post('handoff').then(function(r){ if(r && r.ok && r.q){ history.replaceState(null, '', location.pathname + location.search + '#from=recruit&' + r.q); route(true); } }).catch(function(){}); }
   if(hl.get('from') === 'recruit'){
     window.__hpFromLink = true; hit('fromlink'); var lraw = (hl.get('c') || '').trim(), lcode = /^ZR_\d+_CAND$/i.test(lraw) ? lraw : '', lc = /^\d{5,25}$/.test(lraw) ? lraw : '', li = /^\d{5,25}$/.test(hl.get('iv') || '') ? hl.get('iv') : '', base = location.pathname + location.search;
     if(!S.ta && !S.admin) history.replaceState(null, '', base + '#view=mine');
