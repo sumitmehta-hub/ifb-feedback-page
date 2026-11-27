@@ -788,13 +788,13 @@ function gotAuth(d){
   S.token = d.token; S.me = { email: d.email, name: d.name, profile: d.profile };
   store('hire_t', S.token); store('hire_me', JSON.stringify(S.me)); render();
 }
-if(location.hash.indexOf('#hire_auth=') === 0){ try{ var ha = JSON.parse(decodeURIComponent(location.hash.slice(11))); if(ha && ha.type === 'hire-auth') S.pending = ha; }catch(e){} history.replaceState(null, '', location.pathname + location.search); }
+if(location.hash.indexOf('#hire_auth=') === 0){ try{ var ha = JSON.parse(decodeURIComponent(location.hash.slice(11))); if(ha && ha.type === 'hire-auth') S.pending = ha; }catch(e){} var keep = ''; try{ keep = sessionStorage.getItem('hp_after') || ''; sessionStorage.removeItem('hp_after'); }catch(e){} history.replaceState(null, '', location.pathname + location.search + (/^#[a-z=&0-9]*$/i.test(keep) ? keep : '')); }
 window.addEventListener('message', function(e){ if(e.origin !== BASE || !e.data || e.data.type !== 'hire-auth') return; gotAuth(e.data); });
 function viewSignin(){
   root.innerHTML = '<div class="signin"><div class="art"><h2>Every open role, every candidate, one view.</h2><ul><li>My work: today’s interviews and what needs doing next</li><li>Every open role as a board by stage</li><li>Book rounds from the panel’s free time, with Google Meet</li><li>Each interviewer’s feedback side by side</li><li>You see exactly what Recruit lets you see</li></ul><p class="sgn">Leegality · Talent Acquisition</p></div>' +
     '<div class="frm"><h3>Sign in with Zoho</h3><p class="hint" style="margin:0">Uses your Zoho Recruit login. The first time, a small Zoho window asks you to allow access. After that this page signs you in by itself.</p>' +
     '<button class="btn primary" id="zgo" style="padding:12px 18px;font-size:15px">Continue with Zoho</button><div class="err" id="serr" role="alert">' + esc(S.authErr || '') + '</div></div></div>';
-  document.getElementById('zgo').onclick = function(){ var w = window.open(AUTH, 'hire_auth', 'width=520,height=700'); if(!w) document.getElementById('serr').textContent = 'Your browser blocked the sign-in window. Allow pop-ups for this page and try again.'; };
+  document.getElementById('zgo').onclick = function(){ try{ if(location.hash) sessionStorage.setItem('hp_after', location.hash); }catch(e){} var w = window.open(AUTH, 'hire_auth', 'width=520,height=700'); if(!w) document.getElementById('serr').textContent = 'Your browser blocked the sign-in window. Allow pop-ups for this page and try again.'; };
 }
 
 // shell: jobs sidebar + main area
@@ -860,6 +860,16 @@ function loadJobs(){
 }
 function route(first){
   if(!S.jobs) return;
+  // 27 Nov (Sumit): "Open in Hiring Pipeline" links on Recruit's Candidate and Interview pages land here as
+  // #from=recruit&c=<candidate id> or #from=recruit&iv=<interview id>; turn them into the normal views
+  var hl = new URLSearchParams(location.hash.replace(/^#/, ''));
+  if(hl.get('from') === 'recruit'){
+    window.__hpFromLink = true; hit('fromlink'); var lc = /^\d{5,25}$/.test(hl.get('c') || '') ? hl.get('c') : '', li = /^\d{5,25}$/.test(hl.get('iv') || '') ? hl.get('iv') : '', base = location.pathname + location.search;
+    if(!S.ta && !S.admin) history.replaceState(null, '', base + '#view=mine');
+    else if(li){ history.replaceState(null, '', base + '#view=iv'); var tries = 0; (function waitIv(){ if(S.page === 'iv' && S.ivs && !document.querySelector('#main .loading')){ setTimeout(function(){ openIvCard(li); }, 300); } else if(tries++ < 40) setTimeout(waitIv, 300); })(); }
+    else history.replaceState(null, '', base + (lc ? '#view=work&c=' + lc : '#view=work'));
+    first = true;
+  }
   var h = readHash(), job = h.job;
   // interviewers and hiring managers outside the TA team only get My interviews (Sumit 26 Nov); the server refuses the rest
   if(!S.ta && !S.admin){ S.jobId = ''; closeDrawer(true); if(S.page !== 'mine' || first) goMine(true); return; }
@@ -1007,7 +1017,7 @@ document.addEventListener('click', function(e){ var t = e.target.closest && e.ta
 // ---------- 📈 Usage (26 Nov, Sumit only): who uses what in the Hiring Pipeline ----------
 var US = { days: 28, data: null };
 var US_LABEL = { open: 'Opened the Pipeline', 'view:work': 'My work', 'view:dash': 'Hiring overview', 'view:home': 'All jobs', 'view:job': 'Job board', 'view:cand': 'Candidate panel',
-  'view:iv': 'Interviews', 'view:mine': 'My interviews', 'view:help': 'Help', 'view:clip': 'How-to clip', 'view:guide': 'Team guide', 'view:whatsnew': "What's new", 'view:ivcard': 'Interview card', 'view:usage': 'Usage',
+  'view:iv': 'Interviews', 'view:mine': 'My interviews', 'view:help': 'Help', 'view:clip': 'How-to clip', 'view:guide': 'Team guide', 'view:whatsnew': "What's new", 'view:fromlink': 'Opened from a Recruit link', 'view:ivcard': 'Interview card', 'view:usage': 'Usage',
   move: 'Moved a candidate', booklink: 'Sent a booking link', book: 'Booked a round', slots: 'Checked free slots', fileeval: 'Filed an evaluation', skipeval: 'Skipped an evaluation',
   remind: 'Feedback reminder', remindeval: 'Evaluation reminder', fbedit: 'TA corrected feedback', myfbopen: 'Opened own feedback', myfbsave: 'Saved / corrected own feedback',
   availsave: 'Saved availability', gconnect: 'Connect Google', search: 'Search', ivadd: 'Added an interviewer', ivremove: 'Removed an interviewer', ivresched: 'Rescheduled', ivcancel: 'Cancelled an interview', ivrec: 'Turned on recording' };
@@ -1024,7 +1034,7 @@ var US_CAT = [['👁 Looking around', ['open', 'view:work', 'view:dash', 'view:h
   ['➡️ Moving candidates', ['move']],
   ['📝 Evaluations and feedback', ['fileeval', 'skipeval', 'remind', 'remindeval', 'fbedit', 'myfbopen', 'myfbsave']],
   ['🎤 Interviewers', ['view:mine', 'availsave', 'gconnect']],
-  ['❓ Help and news', ['view:help', 'view:clip', 'view:guide', 'view:whatsnew']]];
+  ['❓ Help and news', ['view:help', 'view:clip', 'view:guide', 'view:whatsnew']], ['🔗 From Recruit', ['view:fromlink']]];
 US.open = US.open || {};
 function usHour(r){ var a = String(r.at || ''); if(!a) return -1; if(a.indexOf('T') > 0){ var d = new Date(a); return isNaN(d) ? -1 : (d.getUTCHours() + 5 + (d.getUTCMinutes() >= 30 ? 1 : 0)) % 24; } var h = parseInt(a.slice(11, 13), 10); return isNaN(h) ? -1 : h; }
 function drawUsage(){ var main = document.getElementById('main'), j = US.data; if(!main || !j) return;
@@ -2845,7 +2855,7 @@ document.addEventListener('click', function(e){ if(e.target.closest && e.target.
 var tried = false;
 setInterval(function(){ dot(); if(tried || !(window.HP && HP.signedIn && HP.signedIn())) return; tried = true;
   if(!shouldOpen(state(), Date.now())) return;
-  setTimeout(function tryOpen(){ if(document.getElementById('mdl') || document.querySelector('.hpth') || (HP.candOpen && HP.candOpen())) return setTimeout(tryOpen, 1500); if(!ov && shouldOpen(state(), Date.now())) open(true); }, 1500);
+  setTimeout(function tryOpen(){ if(window.__hpFromLink) return; if(document.getElementById('mdl') || document.querySelector('.hpth') || (HP.candOpen && HP.candOpen())) return setTimeout(tryOpen, 1500); if(!ov && shouldOpen(state(), Date.now())) open(true); }, 1500);
 }, 1000);
 })();
 
