@@ -855,7 +855,7 @@ function bindJobSelect(){ var px = document.getElementById('pvx'); if(px) px.onc
 
 function loadJobs(){
   root.innerHTML = loading('Loading open jobs…');
-  post('jobs').then(function(j){ if(j.ok){ var nOpen = (j.jobs || []).filter(function(x){ return x.group === 'open'; }).length; SPL.step(32, 'Signed in · ' + nOpen + ' open roles', 'auth'); SPL.step(34, null, 'roles', String(nOpen)); } else SPL.done(); if(!j.ok){ root.innerHTML = '<div style="padding:20px"><div class="card err">' + esc(j.error) + '</div></div>'; return; } var gsEl = document.getElementById('gs'); if(gsEl && (j.ta !== false || j.admin)){ gsEl.hidden = false; bindGSearch(); } S.jobs = j.jobs; S.admin = !!j.admin; S.ta = j.ta !== false; if(S.ta) setTimeout(function(){ if(!S.ivs && S.token) post('interviews', {}).then(function(r){ if(r && r.ok && !S.ivs){ S.ivs = r.interviews; S.ivAt = Date.now(); } }).catch(function(){}); }, 3000); document.body.classList.toggle('viewer', !S.ta); document.body.classList.toggle('ivonly', !S.ta); S.scope = S.admin ? 'all' : 'mine'; var sm = store('hire_mine'); S.onlyMine = sm === '1' ? true : sm === '0' ? false : !S.admin; shell(); route(true); })
+  post('jobs').then(function(j){ if(j.ok){ var nOpen = (j.jobs || []).filter(function(x){ return x.group === 'open'; }).length; SPL.step(32, 'Signed in · ' + nOpen + ' open roles', 'auth'); SPL.step(34, null, 'roles', String(nOpen)); } else SPL.done(); if(!j.ok){ root.innerHTML = '<div style="padding:20px"><div class="card err">' + esc(j.error) + '</div></div>'; return; } var gsEl = document.getElementById('gs'); if(gsEl && (j.ta !== false || j.admin)){ gsEl.hidden = false; bindGSearch(); } S.jobs = j.jobs; S.admin = !!j.admin; S.ta = j.ta !== false; if(S.ta) setTimeout(function(){ if(!S.ivs && S.token) post('interviews', {}).then(function(r){ if(r && r.ok && !S.ivs){ S.ivs = r.interviews; S.ivAt = Date.now(); } }).catch(function(){}); }, 3000); document.body.classList.toggle('viewer', !S.ta); document.body.classList.toggle('ivonly', !S.ta && !S.admin); S.scope = S.admin ? 'all' : 'mine'; var sm = store('hire_mine'); S.onlyMine = sm === '1' ? true : sm === '0' ? false : !S.admin; shell(); route(true); })
     .catch(function(e){ root.innerHTML = '<div style="padding:20px"><div class="card err">' + esc(e.message) + '</div></div>'; });
 }
 function route(first){
@@ -2714,7 +2714,7 @@ function toggleClip(vw){ var v = vw.querySelector('video'), card = vw.closest('.
   if(v.paused){ document.querySelectorAll('.ht.on video').forEach(function(o){ if(o !== v){ o.pause(); o.closest('.ht').classList.remove('on'); o.closest('.ht').querySelector('.pl span').textContent = '▶'; } });
     v.play().catch(function(){}); card.classList.add('on'); vw.querySelector('.pl span').textContent = '❚❚'; setTimeout(function(){ card.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, 50); }
   else { v.pause(); card.classList.remove('on'); vw.querySelector('.pl span').textContent = '▶'; } }
-function openHelp(){ hit('help');
+function openHelp(){ if(window.HP && HP.hit) HP.hit('help');
   closeDrill(true);
   var ov = document.createElement('div'); ov.className = 'mdl'; ov.id = 'mdl';
   var body = HELP.map(function(sec, k){ return '<section class="hp-sec"><h4>' + esc(sec.h) + '</h4><dl>' + sec.items.map(function(it){ return '<div class="hp-i"><dt>' + esc(it[0]) + '</dt><dd>' + esc(it[1]) + '</dd></div>'; }).join('') + '</dl></section>'; }).join('');
